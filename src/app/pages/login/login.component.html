@@ -1,0 +1,30 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Login</h5>
+  </div>
+  <div class="modal-body">
+    <form (ngSubmit)="submit()" autocomplete="off">
+      <div class="form-group">
+        <label>Clave</label>
+        <input class="form-control" placeholder="*****" type="password" [formControl]="pass"
+          [class.is-invalid]="pass.touched && pass.invalid">
+        <div class="form-text">
+          {{ options?.msg }}
+        </div>
+        <div class="invalid-feedback">
+          {{ error ? error : 'Campo obligatorio.' }}
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled"
+      *ngIf="options?.cancelable">
+      Cancelar
+    </button>
+    <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Entrar
+    </button>
+  </div>
+</div>

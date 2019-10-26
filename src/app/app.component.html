@@ -1,0 +1,16 @@
+
+
+<div class="h-100 d-flex flex-column">
+  <nav class="navbar navbar-dark bg-primary shadow-sm">
+    <a class="navbar-brand" [routerLink]="'/areas'" routerLinkActive="router-link-active" >POS</a>
+
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active" >
+        <a class="nav-link" [routerLink]="'/areas'">Area</a>
+      </li>
+    </ul>
+  </nav>
+  <main style="flex-grow: 1">
+    <router-outlet></router-outlet>
+  </main>
+</div>

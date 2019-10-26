@@ -1,0 +1,9 @@
+appId: com.insist.semi.rest
+productName: SEMI REST
+publish: 
+  provider: github
+  owner: LuisAngelMoralesRomo
+  repo: semi-rest
+  token: ae0e5dc4920913457978985c6f98bc25248468ad 
+directories:
+  app: ./dist/semi-rest/

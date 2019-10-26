@@ -1,0 +1,24 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">{{ data.area.nombre }}</h5>
+  </div>
+  <div class="modal-body">
+    <form (ngSubmit)="submit()">
+      <div class="form-group">
+        <label>Fondo de caja</label>
+        <input type="number" class="form-control" [formControl]="funds"
+          [class.is-invalid]="funds.touched && funds.invalid">
+        <div class="invalid-feedback">
+          Campo obligatorio.
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Abrir caja
+    </button>
+  </div>
+</div>

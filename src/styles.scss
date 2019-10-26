@@ -1,0 +1,49 @@
+@import '~@angular/material/theming';
+@include mat-core();
+
+.mat-dialog-container {
+  height: unset !important;
+}
+
+$enable-shadows: true;
+$enable-validation-icons: false;
+@import 'node_modules/bootstrap/scss/bootstrap';
+
+.modal-content {
+  border: none;
+  height: 100%;
+}
+
+.modal-body {
+  overflow: auto;
+}
+
+.form-group {
+  position: relative;
+}
+
+.form-text,
+.invalid-feedback,
+.valid-feedback {
+  position: absolute;
+}
+
+.form-text {
+  @extend .small;
+  @extend .text-muted;
+}
+
+.form-control {
+  &.is-invalid,
+  &.is-valid {
+    & ~ .form-text {
+      display: none;
+    }
+  }
+}
+
+@import './styles/mdi';
+
+html, body {
+  height: 100%;
+}

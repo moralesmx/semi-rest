@@ -1,0 +1,122 @@
+<div class="modal-content ">
+  <div class="modal-header">
+    <h5 class="modal-title">{{ product.nombre }}</h5>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+
+      <div class="col-3">
+        <label>Termino</label>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action" [class.active]="termsSelection.isSelected(term)"
+            *ngFor="let term of product.terminos" (click)="termsSelection.toggle(term)">
+            {{ term.nombre }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-6">
+
+        <form (ngSubmit)="submit()" [formGroup]="form">
+
+          <div class="form-row">
+
+            <div class="form-group col-lg-4">
+              <label>Cantidad</label>
+
+              <div class="input-group">
+                <input class="form-control" readonly [formControl]="quantity">
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-secondary mdi mdi-minus" [disabled]="quantity.disabled"
+                    (click)="quantity.value > 1 && quantity.setValue(quantity.value - 1)">
+                  </button>
+                  <button type="button" class="btn btn-secondary mdi mdi-plus" [disabled]="quantity.disabled"
+                    (click)="quantity.setValue(quantity.value + 1)">
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-lg-4">
+              <label>Precio</label>
+              <input class="form-control" [value]="price.value | currency" readonly>
+            </div>
+
+            <div class="form-group col-lg-4">
+              <label>Total</label>
+              <input class="form-control" [value]="total.value | currency" readonly>
+            </div>
+
+            <div class="form-group col-lg-6">
+              <label>Orden</label>
+              <div class="btn-group d-flex">
+                <button type="button" class="btn" [ngClass]="!half.value ? 'btn-primary' : 'btn-secondary'"
+                  (click)="half.setValue(false)" [disabled]="half.disabled">
+                  Completa
+                </button>
+                <button type="button" class="btn" [ngClass]="half.value ? 'btn-primary' : 'btn-secondary'"
+                  (click)="half.setValue(true)" [disabled]="half.disabled || !product.precioMedia">
+                  Media
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+              <label>Cocina</label>
+              <div class="btn-group d-flex">
+                <button type="button" class="btn"
+                  [ngClass]="kitchen.value == k.idpvCocinas ? 'btn-primary' : 'btn-secondary'"
+                  *ngFor="let k of kitchens" (click)="kitchen.setValue(k.idpvCocinas)" [disabled]="kitchen.disabled">
+                  {{ k.nombre }}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+              <label>{{ time.value }}° Tiempo</label>
+              <div class="btn-group d-flex">
+                <button type="button" class="btn" [ngClass]="time.value == n ? 'btn-primary' : 'btn-secondary'"
+                  *ngFor="let n of [] | range : 5 : 1" (click)="time.setValue(n)" [disabled]="time.disabled">
+                  {{ n }}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group col-lg-6">
+              <label>Subcuenta {{ sub.value }}</label>
+              <div class="btn-group d-flex">
+                <button type="button" class="btn" [ngClass]="sub.value == n ? 'btn-primary' : 'btn-secondary'"
+                  *ngFor="let n of [] | range : 5 : 1" (click)="sub.setValue(n)" [disabled]="sub.disabled">
+                  {{ n }}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group col-12">
+              <label>Notas</label>
+              <textarea class="form-control" [formControl]="notes"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-3">
+        <label>Modificadores</label>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action" [class.active]="modifiersSelection.isSelected(modifier)"
+            *ngFor="let modifier of product.modificadores" (click)="modifiersSelection.toggle(modifier)">
+            {{ modifier.nombre }}
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Agregar
+    </button>
+  </div>
+</div>

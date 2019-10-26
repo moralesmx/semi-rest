@@ -1,0 +1,80 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Comandar - {{ data.table.clave }}</h5>
+  </div>
+  <div class="modal-body">
+    <div class="row" *ngIf="products">
+
+      <div class="col-2">
+        <label>Clasificación</label>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action" *ngFor="let class of products | groupBy : 'clasificacion'"
+            (click)="activeClass = class; activeGroup = undefined" [class.active]="activeClass == class">
+            {{ class.key }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-2">
+        <label>Grupo</label>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action"
+            *ngFor="let group of activeClass?.value | groupBy : 'grupo'" (click)="activeGroup = group"
+            [class.active]="activeGroup == group">
+            {{ group.key }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-4">
+        <label>Producto</label>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action position-relative overflow-hidden"
+            *ngFor="let product of activeGroup?.value" (click)="selectProduct(product)">
+            <span [style.background-color]="product.color"
+              style="position: absolute; top: 0; height: 100%; left: 0; width: 12px;"></span>
+            {{ product.nombre }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-4">
+        <label>Comanda</label>
+        <ul class="list-group">
+          <li class="list-group-item list-group-item-action" *ngFor="let order of orders" (click)="selectOrder(order)">
+            <div class="d-flex align-items-center">
+              <strong class="pr-2">{{ order.cantidad }}</strong>
+              {{ order.nombre }}
+              <span class="flex-grow-1"></span>
+              <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" (click)="removeOrder(order)"></button>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+
+    <div class="form-group m-0">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <button type="button" class="btn" [ngClass]="copy.value ? 'btn-primary' : 'btn-secondary'"
+            (click)="copy.setValue(!copy.value)" [disabled]="copy.disabled">
+            Copia
+          </button>
+        </div>
+        <select class="form-control" [formControl]="printer" [class.is-invalid]="printer.touched && printer.invalid">
+          <option [value]="p.idgeneralImpresoras" *ngFor="let p of printers">{{ p.nombre }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex-grow-1"></div>
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Comandar
+    </button>
+  </div>
+</div>

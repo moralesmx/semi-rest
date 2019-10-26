@@ -1,0 +1,38 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Cerrar Caja - {{ data.area.nombre }}</h5>
+  </div>
+  <div class="modal-body">
+
+    <div class="form-group row" *ngFor="let option of paymentOptions">
+      <label class="col-form-label col-auto">{{ option.nombre }}</label>
+      <div class="col">
+        <div class="input-group">
+          <input class="form-control text-right" [formControl]="payments.controls['' + option.idpvFormaPago]"
+            currencyMask appCursorEnd #control="ngForm"
+            [class.is-invalid]="control.form?.touched && control.form?.invalid">
+          <div class="input-group-append">
+          </div>
+        </div>
+        <div class="invalid-feedback">
+          La cantidad debe ser igual o mayor a 0
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible" *ngIf="error">
+      {{ error }}
+      <button type="button" class="close" (click)="error = undefined">
+        <span>&times;</span>
+      </button>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Cerrar caja
+    </button>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+{
+  "name": "semi-rest",
+  "version": "0.0.3",
+  "description": "SEMI Restaurant POS",
+  "author": {
+    "name": "Insist de México",
+    "email": "luis@insist.com.mx"
+  },
+  "homepage": "https://github.com/LuisAngelMoralesRomo/semi-rest",
+  "main": "electron.js",
+  "dependencies": {
+    "electron-updater": "^4.0.6"
+  }
+}

@@ -1,0 +1,48 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Descuento - {{ data.table.clave }}</h5>
+  </div>
+
+  <div class="modal-body">
+    <form (ngSubmit)="submit()" [formGroup]="form">
+      <div class="form-group">
+        <label>Tipo</label>
+        <div class="btn-group d-flex">
+          <button type="button" class="btn" [ngClass]="type.value == 1 ? 'btn-primary' : 'btn-secondary'"
+            (click)="type.setValue(1)" [disabled]="type.disabled">
+            Porcentual
+          </button>
+          <button type="button" class="btn" [ngClass]="type.value == 2 ? 'btn-primary' : 'btn-secondary'"
+            (click)="type.setValue(2)" [disabled]="type.disabled">
+            Directo
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Porcentaje</label>
+        <input class="form-control text-right" [formControl]="percentage" currencyMask appCursorEnd
+          [class.is-invalid]="percentage.touched && percentage.invalid"
+          [options]="{ prefix: '', suffix: ' %' }">
+        <div class="invalid-feedback">
+          Porcentaje invalido
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Monto</label>
+        <input class="form-control text-right" [formControl]="amount" currencyMask appCursorEnd
+          [class.is-invalid]="amount.touched && amount.invalid">
+        <div class="invalid-feedback">
+          Monto invalido
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Aplicar
+    </button>
+  </div>
+</div>

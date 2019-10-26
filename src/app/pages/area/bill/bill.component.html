@@ -1,0 +1,140 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Cuenta - {{ data.table.clave }}</h5>
+  </div>
+  <div class="modal-body">
+
+    <form (ngSubmit)="submit()" [formGroup]="form">
+      <div class="form-row">
+
+        <div class="form-group col-3">
+          <label>Habitacion</label>
+          <input class="form-control" [formControl]="room" [class.is-invalid]="room.touched && room.invalid">
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+        <div class="form-group col-9">
+          <label>Nombre</label>
+          <input class="form-control" [formControl]="name" [class.is-invalid]="name.touched && name.invalid">
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+        <div class="form-group col-6">
+          <label>Mesero</label>
+          <select class="form-control" [formControl]="waiter" [class.is-invalid]="waiter.touched && waiter.invalid">
+            <option *ngFor="let w of waiters" [value]="w.idpvUsuarios">{{ w.nombre }}</option>
+          </select>
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+        <div class="form-group col-3">
+          <label>Adultos</label>
+          <select class="form-control" [formControl]="adults" [class.is-invalid]="adults.touched && adults.invalid">
+            <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
+          </select>
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+        <div class="form-group col-3">
+          <label>Menores</label>
+          <select class="form-control" [formControl]="minors" [class.is-invalid]="minors.touched && minors.invalid">
+            <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
+          </select>
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+    <label>Comandas</label>
+    <div class="table-responsive border rounded">
+      <table class="table table-hover m-0">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Cuenta</th>
+            <th>Platillo</th>
+            <th>Catidad</th>
+            <th class="text-right">Precio</th>
+            <th class="text-right">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let command of bill?.comandas">
+            <tr>
+              <th>{{ command.folio }}</th>
+              <td>
+                <div class="form-group m-0">
+                  <select class="form-control-plaintext p-0" [ngModel]="command.cuenta"
+                    (ngModelChange)="changeSub(command, $event)" [disabled]="form.disabled">
+                    <option [value]="n" *ngFor="let n of [] | range : 5 : 1">{{ n }}</option>
+                  </select>
+                </div>
+              </td>
+              <td>{{ command.platillo }}</td>
+              <td class="text-right">{{ command.cantidad }}</td>
+              <td class="text-right">{{ command.precio | currency }}</td>
+              <td class="text-right">{{ command.total | currency }}</td>
+              <td *ngIf="command.estatus">
+                <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
+                  (click)="null"></button>
+              </td>
+            </tr>
+            <tr *ngIf="!command.estatus" class="text-danger">
+              <th>{{ command.folio }}</th>
+              <td>{{ command.cuenta }}</td>
+              <td>{{ command.platillo }}</td>
+              <td class="text-right">{{ -command.cantidad }}</td>
+              <td class="text-right">{{ command.precio | currency }}</td>
+              <td class="text-right">{{ -command.total | currency }}</td>
+              <td></td>
+            </tr>
+          </ng-container>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th class="text-right">{{ bill?.total | currency }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <!-- <button type="button" class="btn btn-primary" (click)="null" [disabled]="form.disabled"
+      *ngIf="auth.user.admin || auth.user.capitan || auth.user.idpvUsuarios == bill.idpvVentas">
+      Comandar
+    </button> -->
+    <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled" *ngIf="auth.user.cajero">
+      Cobrar
+    </button>
+    <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled"
+      *ngIf="auth.user.admin">
+      Descuento
+    </button>
+    <div class="flex-grow-1"></div>
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
+      Cancelar
+    </button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Guardar
+    </button>
+  </div>
+</div>
