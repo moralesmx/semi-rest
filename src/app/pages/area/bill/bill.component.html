@@ -68,6 +68,7 @@
             <th class="text-right">Precio</th>
             <th class="text-right">Total</th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -86,9 +87,13 @@
               <td class="text-right">{{ command.cantidad }}</td>
               <td class="text-right">{{ command.precio | currency }}</td>
               <td class="text-right">{{ command.total | currency }}</td>
-              <td *ngIf="command.estatus">
+              <td>
+                <button type="button" class="btn btn-outline-info btn-sm mdi mdi-printer" [disabled]="form.disabled"
+                  *ngIf="command.estatus" (click)="printOrder(command)"></button>
+              </td>
+              <td>
                 <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
-                  (click)="null"></button>
+                  *ngIf="command.estatus" (click)="cancelCommand(command)"></button>
               </td>
             </tr>
             <tr *ngIf="!command.estatus" class="text-danger">
@@ -98,6 +103,7 @@
               <td class="text-right">{{ -command.cantidad }}</td>
               <td class="text-right">{{ command.precio | currency }}</td>
               <td class="text-right">{{ -command.total | currency }}</td>
+              <td></td>
               <td></td>
             </tr>
           </ng-container>

@@ -104,7 +104,7 @@ export class NewBillComponent implements OnDestroy {
         takeUntil(this.destroyed)
       ).subscribe(
         () => {
-          this.ref.close();
+          this.ref.close(true);
         },
         error => {
           this.form.enableAndRestoreState();

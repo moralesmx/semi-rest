@@ -40,8 +40,8 @@ export class AreaComponent {
     });
   }
 
-  public async order(table: Table): Promise<void> {
-    if (await this.login.login({ cancelable: true })) {
+  public async order(table: Table, bypass: boolean = false): Promise<void> {
+    if (bypass || await this.login.login({ cancelable: true })) {
       this.dialog.open(OrderComponent, {
         data: { table },
         minWidth: '100%',
@@ -74,7 +74,12 @@ export class AreaComponent {
           data: { table }
         }).afterClosed().pipe(
           // takeUntil(this.destroyed)
-        ).subscribe(() => this.update());
+        ).subscribe(changes => {
+          if (changes) {
+            this.update();
+            this.order(table, true);
+          }
+        });
       }
     }
   }

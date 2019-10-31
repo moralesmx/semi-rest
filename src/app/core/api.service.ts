@@ -1,12 +1,12 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Area, Bill, Kitchen, Printer, Product, Room, User, Waiter, Command, PaymentOption } from './models';
+import { Area, Bill, Kitchen, Printer, Product, Room, User, Waiter, Command, PaymentOption, Table } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
-  // public url: string = 'http://192.168.195.96:5000/punto-de-venta/pos';
+  // public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
+  public url: string = 'http://192.168.195.96:5000/punto-de-venta/pos';
 
   // public url: string = 'http://localhost:5000/punto-de-venta/pos';
   // public url: string = 'http://25.66.208.206:5000/punto-de-venta/pos';
@@ -54,12 +54,12 @@ export class ApiService {
     return this.http.get<Printer[]>(`${this.url}/impresoras`);
   }
 
-  public printOrder(id: Command['idpvVentas'], folio: Command['folio'], printer: Printer['idgeneralImpresoras']): Observable<any> {
-    return this.http.get<any>(`${this.url}/comandas/${id}/${folio}`, {
-      params: {
-        copia: printer.toString()
-      }
-    });
+  public printOrder(id: Command['idpvVentas'], folio: Command['folio'], printer?: Printer['idgeneralImpresoras']): Observable<any> {
+    const params: { [key: string]: string } = {};
+    if (printer) {
+      params.copia = printer.toString();
+    }
+    return this.http.get<any>(`${this.url}/comandas/${id}/${folio}`, { params });
   }
 
   public getRoom(room: string): Observable<Room> {
@@ -88,6 +88,10 @@ export class ApiService {
 
   public getProduct(id: Product['idpvPlatillos']): Observable<Product> {
     return this.http.get<Product>(`${this.url}/platillos/${id}`);
+  }
+
+  public getTable(id: Table['idpvAreasMesas']): Observable<Table> {
+    return this.http.get<Table>(`${this.url}/cuentasm/${id}`);
   }
 
   public getAreas(): Observable<Area[]> {

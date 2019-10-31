@@ -22,7 +22,8 @@ export class LoginComponent implements OnDestroy {
 
   public error: string;
 
-  public pass: FormControl = new FormControl('11234', [Validators.required]);
+  // public pass: FormControl = new FormControl('11234', [Validators.required]);
+  public pass: FormControl = new FormControl('', [Validators.required]);
   public form: FormGroupCustom = new FormGroupCustom({
     pass: this.pass
   });

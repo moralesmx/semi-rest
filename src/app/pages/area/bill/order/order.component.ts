@@ -45,12 +45,14 @@ export class OrderComponent implements OnDestroy {
     forkJoin(
       this.api.getProducts(),
       this.api.getPrinters(),
+      this.api.getTable(this.data.table.idpvAreasMesas)
     ).pipe(
       takeUntil(this.destroyed)
     ).subscribe(
-      ([products, printers]) => {
+      ([products, printers, table]) => {
         this.products = products;
         this.printers = printers;
+        this.data.table = table;
 
         this.form.enable();
         if (this.printers.length) {
@@ -118,12 +120,12 @@ export class OrderComponent implements OnDestroy {
         takeUntil(this.destroyed)
       ).subscribe(
         ({ folio }: { folio: number }) => {
-          this.ref.close(true);
-          this.api.printOrder(this.data.table.idpvVentas, folio, this.printer.value).subscribe(
+          this.api.printOrder(this.data.table.idpvVentas, folio, this.copy.value ? this.printer.value : undefined).subscribe(
             console.log,
             console.error,
             console.warn
           );
+          this.ref.close(true);
         },
         error => {
           this.form.enableAndRestoreState();

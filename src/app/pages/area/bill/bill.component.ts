@@ -164,6 +164,18 @@ export class BillComponent implements OnDestroy {
       }
     );
   }
+  public printOrder(command: Command): void {
+    this.form.disableAndStoreState({ emitEvent: false });
+    this.api.printOrder(command.idpvVentas, command.folio).subscribe(
+      () => {
+        this.form.enableAndRestoreState({ emitEvent: false });
+      },
+      error => {
+        console.error(error);
+        this.form.enableAndRestoreState({ emitEvent: false });
+      }
+    );
+  }
 
   public cancel(): void {
     this.ref.close();
