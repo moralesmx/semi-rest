@@ -206,15 +206,22 @@ export class BillComponent implements OnDestroy {
   }
 
   public async printCheck(): Promise<void> {
-    this.loading = true;
-    this.api.printCheck(this.bill).subscribe({
-      next: () => {
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
+    if (await this.modals.alert({
+      title: 'Imprimir cheque',
+      message: '¿Esta seguro de que desea imprimir cheque?',
+      ok: 'Si',
+      cancel: 'No'
+    })) {
+      this.loading = true;
+      this.api.printCheck(this.bill).subscribe({
+        next: () => {
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
+    }
   }
 
   public cancel(): void {

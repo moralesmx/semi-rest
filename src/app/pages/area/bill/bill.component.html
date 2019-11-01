@@ -29,7 +29,7 @@
 
         <div class="form-group col-3">
           <label>Credito</label>
-          <input class="form-control" disabled [value]="bill.credito | currency">
+          <input class="form-control" disabled [value]="bill?.credito | currency">
           <div class="invalid-feedback">
             Campo obligatorio.
           </div>
@@ -79,10 +79,9 @@
             <th>Folio</th>
             <th>Cuenta</th>
             <th>Platillo</th>
-            <th>Catidad</th>
+            <th>Cantidad</th>
             <th class="text-right">Precio</th>
             <th class="text-right">Total</th>
-            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -105,8 +104,6 @@
               <td>
                 <button type="button" class="btn btn-outline-info btn-sm mdi mdi-printer" [disabled]="form.disabled"
                   *ngIf="command.estatus" (click)="printOrder(command)"></button>
-              </td>
-              <td>
                 <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
                   *ngIf="command.estatus" (click)="cancelCommand(command)"></button>
               </td>
@@ -118,7 +115,6 @@
               <td class="text-right">{{ -command.cantidad }}</td>
               <td class="text-right">{{ command.precio | currency }}</td>
               <td class="text-right">{{ -command.total | currency }}</td>
-              <td></td>
               <td></td>
             </tr>
           </ng-container>
@@ -132,7 +128,6 @@
             <th>Subtotal</th>
             <th class="text-right">{{ bill?.total | currency }}</th>
             <td></td>
-            <td></td>
           </tr>
           <tr>
             <th></th>
@@ -142,7 +137,6 @@
             <th>Credito</th>
             <th class="text-right">{{ bill?.credito | currency }}</th>
             <td></td>
-            <td></td>
           </tr>
           <tr>
             <th></th>
@@ -151,7 +145,6 @@
             <th></th>
             <th>Saldo</th>
             <th class="text-right">{{ bill?.credito - bill?.total  | currency }}</th>
-            <td></td>
             <td></td>
           </tr>
         </tfoot>
