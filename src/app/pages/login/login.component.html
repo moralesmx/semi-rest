@@ -6,7 +6,7 @@
     <form (ngSubmit)="submit()" autocomplete="off">
       <div class="form-group">
         <label>Clave</label>
-        <input class="form-control" placeholder="*****" type="password" [formControl]="pass"
+        <input #input class="form-control" placeholder="*****" type="password" [formControl]="pass"
           [class.is-invalid]="pass.touched && pass.invalid">
         <div class="form-text">
           {{ options?.msg }}

@@ -1,7 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Area, Bill, Kitchen, Printer, Product, Room, User, Waiter, Command, PaymentOption, Table } from './models';
+import { Area, Bill, Command, Kitchen, PaymentOption, Printer, Product, Room, Table, User, Waiter } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -38,12 +38,20 @@ export class ApiService {
     return this.http.put<any>(`${this.url}/cuentas/${bill.idpvVentas}/descuentos`, body);
   }
 
+  public printCheck(bill: Bill): Observable<any> {
+    return this.http.get<any>(`${this.url}/cuentas/${bill.idpvVentas}/cheque`);
+  }
+
   public changeSub(command: Command, sub: Command['cuenta']): Observable<any> {
     return this.http.put<any>(`${this.url}/comandas/${command.idpvComandas}`, { cuenta: sub });
   }
 
-  public cancelCommand(command: Command): Observable<any> {
-    return this.http.delete<any>(`${this.url}/comandas/${command.idpvComandas}`);
+  public cancelCommand(commandId: Command['idpvComandas'], userId: User['idpvUsuarios']): Observable<any> {
+    return this.http.delete<any>(`${this.url}/comandas/${commandId}`, {
+      params: {
+        idpvUsuarios: `${userId}`
+      }
+    });
   }
 
   public getKitchens(): Observable<Kitchen[]> {

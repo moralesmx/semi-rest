@@ -66,6 +66,13 @@ export class PayComponent implements OnDestroy {
           if (option.hotel && !this.data.bill.idHotel) {
             control.disable();
           }
+          if (option.hotel) {
+            if (this.data.bill.credito > this.data.bill.total) {
+              control.setValue(this.data.bill.total);
+            } else {
+              control.setValue(this.data.bill.credito);
+            }
+          }
           this.payments.addControl(option.idpvFormaPago.toString(), control);
         }
 
@@ -101,6 +108,8 @@ export class PayComponent implements OnDestroy {
           this.payment.setValue(payment);
           this.nonCash.setValue(nonCash);
         });
+
+
       }
     );
   }

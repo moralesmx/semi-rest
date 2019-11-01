@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, OnDestroy } from '@angular/core';
+import { Component, Inject, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subject } from 'rxjs';
@@ -19,6 +19,8 @@ export interface LoginOptions {
 export class LoginComponent implements OnDestroy {
 
   private readonly destroyed: Subject<void> = new Subject();
+
+  @ViewChild('input', { static: true }) private input: ElementRef<HTMLInputElement>;
 
   public error: string;
 
@@ -60,6 +62,7 @@ export class LoginComponent implements OnDestroy {
           if (error.status === 401) {
             this.pass.setValue('');
             this.error = 'Clave incorrecta.';
+            this.input.nativeElement.focus();
           } else {
             this.error = error.name;
           }

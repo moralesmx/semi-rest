@@ -25,7 +25,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { HasPipe } from './pipes/has.pipe';
 import { SearchPipe } from './pipes/search.pipe';
 import { ChangeTableComponent } from './pages/area/bill/change-table/change-table.component';
-
+import {BlockUIModule} from 'primeng/blockui';
 
 @NgModule({
   declarations: [
@@ -90,6 +90,8 @@ import { ChangeTableComponent } from './pages/area/bill/change-table/change-tabl
       nullable: true,
       suffix: ''
     }),
+
+    BlockUIModule,
 
     MatDialogModule,
 

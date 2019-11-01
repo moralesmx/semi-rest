@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Area, Section, Table, User } from '../../core/models';
@@ -9,6 +9,7 @@ import { LoginService } from '../login/login.service';
 import { BillComponent } from './bill/bill.component';
 import { OrderComponent } from './bill/order/order.component';
 import { NewBillComponent } from './new-bill/new-bill.component';
+import { ActionsService } from '../../core/actions.service';
 
 @Component({
   templateUrl: './area.component.html',
@@ -24,9 +25,11 @@ export class AreaComponent {
     private api: ApiService,
     public auth: AuthService,
     private login: LoginService,
+    private router: Router,
     private route: ActivatedRoute,
     private modals: ModalsService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private actions: ActionsService
   ) {
     this.update();
   }
@@ -34,6 +37,9 @@ export class AreaComponent {
   public update(): void {
     this.api.getArea(this.route.snapshot.params.id).subscribe(area => {
       this.area = area;
+      if (!area.idpvCortes) {
+        this.router.navigateByUrl('/');
+      }
       this.activeSection = this.activeSection ?
         this.area.secciones.find(section => section.idpvSecciones === this.activeSection.idpvSecciones) :
         this.area.secciones[0];
@@ -42,13 +48,9 @@ export class AreaComponent {
 
   public async order(table: Table, bypass: boolean = false): Promise<void> {
     if (bypass || await this.login.login({ cancelable: true })) {
-      this.dialog.open(OrderComponent, {
-        data: { table },
-        minWidth: '100%',
-        minHeight: '100%'
-      }).afterClosed().pipe(
-        // takeUntil(this.destroyed)
-      ).subscribe(() => this.update());
+      if (await this.actions.order(table.idpvAreasMesas)) {
+        this.update();
+      }
     }
   }
 

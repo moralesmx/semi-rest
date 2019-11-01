@@ -117,6 +117,7 @@ export interface Bill {
   nombre: string;
   propina: number;
   total: number;
+  habitacion: string;
 }
 
 export interface Kitchen {

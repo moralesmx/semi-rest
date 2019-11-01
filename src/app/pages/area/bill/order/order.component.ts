@@ -20,6 +20,7 @@ export class OrderComponent implements OnDestroy {
   public activeGroup: any;
   public activeClass: any;
 
+  public table: Table;
   public products: Product[];
   public printers: Printer[];
 
@@ -39,20 +40,20 @@ export class OrderComponent implements OnDestroy {
     private dialog: MatDialog,
     private modals: ModalsService,
     private ref: MatDialogRef<OrderComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table }
+    @Inject(MAT_DIALOG_DATA) public data: { tableId: Table['idpvAreasMesas'] }
   ) {
     this.form.disable();
     forkJoin(
       this.api.getProducts(),
       this.api.getPrinters(),
-      this.api.getTable(this.data.table.idpvAreasMesas)
+      this.api.getTable(this.data.tableId)
     ).pipe(
       takeUntil(this.destroyed)
     ).subscribe(
       ([products, printers, table]) => {
         this.products = products;
         this.printers = printers;
-        this.data.table = table;
+        this.table = table;
 
         this.form.enable();
         if (this.printers.length) {
@@ -112,15 +113,15 @@ export class OrderComponent implements OnDestroy {
     if (this.form.valid) {
       this.form.disableAndStoreState();
       this.ref.disableClose = true;
-      this.api.sendOrder(this.data.table.idpvVentas, {
-        idpvVentas: this.data.table.idpvVentas,
+      this.api.sendOrder(this.table.idpvVentas, {
+        idpvVentas: this.table.idpvVentas,
         idpvUsuarios: this.auth.user.idpvUsuarios,
         platillos: this.orders
       }).pipe(
         takeUntil(this.destroyed)
       ).subscribe(
         ({ folio }: { folio: number }) => {
-          this.api.printOrder(this.data.table.idpvVentas, folio, this.copy.value ? this.printer.value : undefined).subscribe(
+          this.api.printOrder(this.table.idpvVentas, folio, this.copy.value ? this.printer.value : undefined).subscribe(
             console.log,
             console.error,
             console.warn

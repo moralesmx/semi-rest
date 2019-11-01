@@ -1,6 +1,6 @@
 <div class="modal-content">
   <div class="modal-header">
-    <h5 class="modal-title">Comandar - {{ data.table.clave }}</h5>
+    <h5 class="modal-title">Comandar - {{ table.clave }}</h5>
   </div>
   <div class="modal-body">
     <div class="row" *ngIf="products">
@@ -30,7 +30,7 @@
         <label>Producto</label>
         <ul class="list-group">
           <li class="list-group-item list-group-item-action position-relative overflow-hidden"
-            *ngFor="let product of activeGroup?.value" (click)="selectProduct(product)">
+            *ngFor="let product of activeGroup?.value | orderBy : 'nombre'" (click)="selectProduct(product)">
             <span [style.background-color]="product.color"
               style="position: absolute; top: 0; height: 100%; left: 0; width: 12px;"></span>
             {{ product.nombre }}

@@ -1,3 +1,5 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+
 <div class="modal-content">
   <div class="modal-header">
     <h5 class="modal-title">Cuenta - {{ data.table.clave }}</h5>
@@ -9,15 +11,25 @@
 
         <div class="form-group col-3">
           <label>Habitacion</label>
-          <input class="form-control" [formControl]="room" [class.is-invalid]="room.touched && room.invalid">
+          <input class="form-control" formControlName="room"
+            [class.is-invalid]="form.controls.room.touched && form.controls.room.invalid">
           <div class="invalid-feedback">
             Campo obligatorio.
           </div>
         </div>
 
-        <div class="form-group col-9">
+        <div class="form-group col-6">
           <label>Nombre</label>
-          <input class="form-control" [formControl]="name" [class.is-invalid]="name.touched && name.invalid">
+          <input class="form-control" formControlName="name"
+            [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid">
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+        <div class="form-group col-3">
+          <label>Credito</label>
+          <input class="form-control" disabled [value]="bill.credito | currency">
           <div class="invalid-feedback">
             Campo obligatorio.
           </div>
@@ -25,7 +37,8 @@
 
         <div class="form-group col-6">
           <label>Mesero</label>
-          <select class="form-control" [formControl]="waiter" [class.is-invalid]="waiter.touched && waiter.invalid">
+          <select class="form-control" formControlName="waiter"
+            [class.is-invalid]="form.controls.waiter.touched && form.controls.waiter.invalid">
             <option *ngFor="let w of waiters" [value]="w.idpvUsuarios">{{ w.nombre }}</option>
           </select>
           <div class="invalid-feedback">
@@ -35,7 +48,8 @@
 
         <div class="form-group col-3">
           <label>Adultos</label>
-          <select class="form-control" [formControl]="adults" [class.is-invalid]="adults.touched && adults.invalid">
+          <select class="form-control" formControlName="adults"
+            [class.is-invalid]="form.controls.adults.touched && form.controls.adults.invalid">
             <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
           </select>
           <div class="invalid-feedback">
@@ -45,7 +59,8 @@
 
         <div class="form-group col-3">
           <label>Menores</label>
-          <select class="form-control" [formControl]="minors" [class.is-invalid]="minors.touched && minors.invalid">
+          <select class="form-control" formControlName="minors"
+            [class.is-invalid]="form.controls.minors.touched && form.controls.minors.invalid">
             <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
           </select>
           <div class="invalid-feedback">
@@ -114,8 +129,30 @@
             <th></th>
             <th></th>
             <th></th>
-            <th></th>
+            <th>Subtotal</th>
             <th class="text-right">{{ bill?.total | currency }}</th>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>Credito</th>
+            <th class="text-right">{{ bill?.credito | currency }}</th>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>Saldo</th>
+            <th class="text-right">{{ bill?.credito - bill?.total  | currency }}</th>
+            <td></td>
+            <td></td>
           </tr>
         </tfoot>
       </table>
@@ -123,12 +160,16 @@
 
   </div>
   <div class="modal-footer">
-    <!-- <button type="button" class="btn btn-primary" (click)="null" [disabled]="form.disabled"
+    <button type="button" class="btn btn-primary" (click)="order()" [disabled]="form.disabled"
       *ngIf="auth.user.admin || auth.user.capitan || auth.user.idpvUsuarios == bill.idpvVentas">
       Comandar
-    </button> -->
+    </button>
     <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled" *ngIf="auth.user.cajero">
       Cobrar
+    </button>
+    <button type="button" class="btn btn-primary" (click)="printCheck()" [disabled]="form.disabled"
+      *ngIf="auth.user.cajero">
+      Imprimir cheque
     </button>
     <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled"
       *ngIf="auth.user.admin">
@@ -136,7 +177,7 @@
     </button>
     <div class="flex-grow-1"></div>
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
-      Cancelar
+      Cerrar
     </button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
       <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
