@@ -46,6 +46,13 @@ export class ApiService {
     return this.http.put<any>(`${this.url}/comandas/${command.idpvComandas}`, { cuenta: sub });
   }
 
+  public changeTable(billId: Bill['idpvVentas'], fromTableId: Table['idpvAreasMesas'], toTableId: Table['idpvAreasMesas']){
+    return this.http.put<any>(`${this.url}/cuentas/${billId}/mesas`, {
+      ['mesaorigen']: fromTableId,
+      ['mesadestino']: toTableId,
+    });
+  }
+
   public cancelCommand(commandId: Command['idpvComandas'], userId: User['idpvUsuarios']): Observable<any> {
     return this.http.delete<any>(`${this.url}/comandas/${commandId}`, {
       params: {

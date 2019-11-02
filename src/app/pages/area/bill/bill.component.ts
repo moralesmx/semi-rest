@@ -153,9 +153,13 @@ export class BillComponent implements OnDestroy {
       data: {
         table: this.data.table
       }
-    }).afterClosed().subscribe(
-      // TODO Aqui me quede
-    );
+    }).afterClosed().subscribe({
+      next: changed => {
+        if (changed) {
+          this.loadBill();
+        }
+      }
+    });
   }
 
   public async cancelCommand(command: Command): Promise<void> {

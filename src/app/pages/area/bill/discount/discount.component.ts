@@ -77,7 +77,8 @@ export class DiscountComponent implements OnDestroy {
       this.ref.disableClose = true;
       this.api.discount(this.data.bill, {
         descuentoTipo: this.type.value,
-        descuento: this.type.value === 1 ? this.percentage.value : this.amount.value,
+        descuento: this.percentage.value,
+        descuentos: this.amount.value,
         idpvUsuarios: this.auth.user.idpvUsuarios,
       }).subscribe(
         () => {

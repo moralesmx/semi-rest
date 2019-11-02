@@ -8,6 +8,15 @@ export interface User {
   mesero: boolean;
   nombre: string;
   usuario: string;
+  permisos: {
+    cortes: boolean,
+    cancelaciones: boolean,
+    imprimircheque: boolean,
+    cobrar: boolean,
+    descuentos: boolean,
+    cambiomesa: boolean,
+    revivir: boolean
+  };
 }
 
 export interface Area {

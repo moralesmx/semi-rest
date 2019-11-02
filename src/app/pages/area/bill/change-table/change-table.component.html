@@ -1,1 +1,42 @@
-{{ areas | json }}
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Cambio de mesa - {{ data.table.clave }}</h5>
+  </div>
+  <div class="modal-body">
+
+    <form (ngSubmit)="submit()" [formGroup]="form">
+      <div class="form-row">
+
+        <div class="form-group col-12">
+          <label>Sección</label>
+          <select class="form-control" formControlName="section"
+            [class.is-invalid]="form.controls.section.touched && form.controls.section.invalid">
+            <option *ngFor="let section of area?.secciones" [ngValue]="section">{{ section.nombre }}</option>
+          </select>
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+        <div class="form-group col-12">
+          <label>Mesa</label>
+          <select class="form-control" formControlName="table"
+            [class.is-invalid]="form.controls.table.touched && form.controls.table.invalid">
+            <option *ngFor="let table of form.controls.section.value?.mesas" [ngValue]="table">{{ table.clave }}</option>
+          </select>
+          <div class="invalid-feedback">
+            Campo obligatorio.
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
+      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      Cambiar
+    </button>
+  </div>
+</div>

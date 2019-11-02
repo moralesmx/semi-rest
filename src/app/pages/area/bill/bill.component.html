@@ -134,7 +134,7 @@
             <th></th>
             <th></th>
             <th></th>
-            <th>Credito</th>
+            <th>Creditos</th>
             <th class="text-right">{{ bill?.credito | currency }}</th>
             <td></td>
           </tr>
@@ -143,8 +143,17 @@
             <th></th>
             <th></th>
             <th></th>
+            <th>Descuentos</th>
+            <th class="text-right">{{ bill?.descuentos | currency }}</th>
+            <td></td>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th>Saldo</th>
-            <th class="text-right">{{ bill?.credito - bill?.total  | currency }}</th>
+            <th class="text-right">{{ bill?.credito - (bill?.total - bill?.descuentos)  | currency }}</th>
             <td></td>
           </tr>
         </tfoot>
@@ -167,6 +176,10 @@
     <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled"
       *ngIf="auth.user.admin">
       Descuento
+    </button>
+    <button type="button" class="btn btn-primary" (click)="changeTable()" [disabled]="form.disabled"
+      *ngIf="auth.user.permisos.cambiomesa">
+      Transferir
     </button>
     <div class="flex-grow-1"></div>
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
