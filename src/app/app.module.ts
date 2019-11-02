@@ -22,7 +22,7 @@ import { AreasComponent } from './pages/areas/areas.component';
 import { CloseAreaComponent } from './pages/areas/close-area/close-area.component';
 import { OpenAreaComponent } from './pages/areas/open-area/open-area.component';
 import { LoginComponent } from './pages/login/login.component';
-import { HasPipe } from './pipes/has.pipe';
+import { HasPipe, HasNotPipe } from './pipes/has.pipe';
 import { SearchPipe } from './pipes/search.pipe';
 import { ChangeTableComponent } from './pages/area/bill/change-table/change-table.component';
 import {BlockUIModule} from 'primeng/blockui';
@@ -49,6 +49,7 @@ import {BlockUIModule} from 'primeng/blockui';
     ChangeTableComponent,
 
     HasPipe,
+    HasNotPipe,
     SearchPipe,
 
     CursorEndDirective,

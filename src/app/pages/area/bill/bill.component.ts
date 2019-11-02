@@ -242,7 +242,8 @@ export class BillComponent implements OnDestroy {
         adultos: this.form.controls.adults.value,
         menores: this.form.controls.minors.value,
         nombre: this.form.controls.name.value,
-        idHotel: this.form.controls.guest.value
+        idHotel: this.form.controls.guest.value,
+        habitacion: this.form.controls.room.value
       }).pipe(
         takeUntil(this.destroyed)
       ).subscribe(

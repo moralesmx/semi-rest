@@ -6,7 +6,8 @@ import { Area, Bill, Command, Kitchen, PaymentOption, Printer, Product, Room, Ta
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   // public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
-  public url: string = 'http://192.168.195.96:5000/punto-de-venta/pos';
+  // public url: string = 'http://192.168.195.96:5000/punto-de-venta/pos';
+  public url: string = 'http://192.168.195.201:5000/punto-de-venta/pos';
 
   // public url: string = 'http://localhost:5000/punto-de-venta/pos';
   // public url: string = 'http://25.66.208.206:5000/punto-de-venta/pos';

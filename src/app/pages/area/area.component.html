@@ -16,7 +16,7 @@
         </div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item list-group-item-action d-flex flex-row" (click)="order(table)"
-            *ngFor="let table of area.secciones | pluck : 'mesas' | flatten | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]">
+            *ngFor="let table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]">
             <span style="flex-grow: 1">
               <strong>{{ table.clave }}</strong> {{ table.mesero }}
             </span>
@@ -37,7 +37,10 @@
           </h5>
           <ul class="nav nav-tabs nav-fill card-header-tabs">
             <li class="nav-item" *ngFor="let section of area.secciones" (click)="activeSection = section">
-              <span class="nav-link" [class.active]="activeSection == section">{{ section.nombre }}</span>
+              <span class="nav-link" [class.active]="activeSection == section">
+                {{ section.nombre }}
+                <span class="badge badge-primary badge-pill">{{ (section.mesas | has : 'idpvVentas').length }}</span>
+                </span>
             </li>
           </ul>
         </div>

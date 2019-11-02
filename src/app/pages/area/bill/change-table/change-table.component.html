@@ -22,7 +22,7 @@
           <label>Mesa</label>
           <select class="form-control" formControlName="table"
             [class.is-invalid]="form.controls.table.touched && form.controls.table.invalid">
-            <option *ngFor="let table of form.controls.section.value?.mesas" [ngValue]="table">{{ table.clave }}</option>
+            <option *ngFor="let table of form.controls.section.value?.mesas | hasnot : 'idpvVentas'" [ngValue]="table">{{ table.clave }}</option>
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.

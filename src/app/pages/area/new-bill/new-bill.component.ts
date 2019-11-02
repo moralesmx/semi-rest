@@ -99,7 +99,8 @@ export class NewBillComponent implements OnDestroy {
         adultos: this.adults.value,
         menores: this.minors.value,
         nombre: this.name.value,
-        idHotel: this.guest.value
+        idHotel: this.guest.value,
+        habitacion: this.room.value
       }).pipe(
         takeUntil(this.destroyed)
       ).subscribe(
