@@ -14,6 +14,7 @@ export interface User {
     revivir: boolean,
     comandarotros: boolean,
     cambiomesero: boolean,
+    edit: boolean
   };
 }
 

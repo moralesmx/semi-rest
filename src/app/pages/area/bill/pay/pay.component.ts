@@ -1,11 +1,11 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, Validators, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { merge, Subject } from 'rxjs';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { combineLatest, Subject } from 'rxjs';
+import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
-import { Bill, PaymentOption, Table } from '../../../../core/models';
 import { AuthService } from '../../../../core/auth.service';
+import { Bill, PaymentOption, Table } from '../../../../core/models';
 
 @Component({
   templateUrl: 'pay.component.html'
@@ -28,7 +28,7 @@ export class PayComponent implements OnDestroy {
   public form: FormGroupTyped<{
     tips: number;
     total: number;
-    payments: { [method: string]: number }
+    payments: FormGroupTyped<{ [method: string]: number }>
     payment: number;
     nonCash: number;
     change: number;
@@ -55,14 +55,46 @@ export class PayComponent implements OnDestroy {
     private ref: MatDialogRef<PayComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { table: Table, bill: Bill }
   ) {
+    combineLatest(
+      this.form.controls.total.valueChanges,
+      this.form.controls.payment.valueChanges
+    ).pipe(
+      map(([total, payment]) => payment - total),
+      map(change => change > 0 ? change : 0),
+      takeUntil(this.destroyed)
+    ).subscribe(change => {
+      this.form.controls.change.setValue(change);
+    });
+
+    this.form.controls.tips.valueChanges.pipe(
+      startWith(this.form.value.tips),
+      map(value => value + this.data.bill.total - this.data.bill.descuentos),
+      takeUntil(this.destroyed)
+    ).subscribe(total => {
+      this.form.controls.total.setValue(total);
+    });
+
+    this.form.controls.payments.valueChanges.pipe(
+      takeUntil(this.destroyed)
+    ).subscribe(payments => {
+      let payment: number = 0;
+      let nonCash: number = 0;
+      for (const option of this.paymentOptions) {
+        if (!option.efectivo) {
+          nonCash += payments[`${option.idpvFormaPago}`];
+        }
+        payment += payments[`${option.idpvFormaPago}`];
+      }
+      this.form.controls.payment.setValue(payment);
+      this.form.controls.nonCash.setValue(nonCash);
+    });
+
     this.loading = true;
     this.api.getPaymentOptions().pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: options => {
         this.paymentOptions = options;
-
-        this.form.enable();
         for (const option of this.paymentOptions) {
           const control: FormControl = new FormControl(0, Validators.min(0));
           if (option.hotel && !this.data.bill.idHotel) {
@@ -75,43 +107,13 @@ export class PayComponent implements OnDestroy {
               control.setValue(this.data.bill.credito);
             }
           }
-          (this.form.controls.payments as FormGroup).addControl(option.idpvFormaPago.toString(), control);
+          (this.form.controls.payments as FormGroup).addControl(`${option.idpvFormaPago}`, control);
         }
-
-        merge(
-          this.form.controls.total.valueChanges,
-          this.form.controls.payment.valueChanges
-        ).pipe(
-          startWith(this.destroyed)
-        ).subscribe(() => {
-          const change: number = this.form.controls.payment.value - this.form.controls.total.value;
-          this.form.controls.change.setValue(change > 0 ? change : 0);
-        });
-
-        this.form.controls.tips.valueChanges.pipe(
-          startWith(this.form.controls.tips.value),
-          takeUntil(this.destroyed)
-        ).subscribe(value => {
-          this.form.controls.total.setValue(this.data.bill.total - this.data.bill.descuentos + value);
-        });
-
-        this.form.controls.payments.valueChanges.pipe(
-          startWith(undefined),
-          takeUntil(this.destroyed)
-        ).subscribe(() => {
-          let payment: number = 0;
-          let nonCash: number = 0;
-          for (const option of this.paymentOptions) {
-            if (!option.efectivo) {
-              nonCash += this.form.controls.payments.value[option.idpvFormaPago.toString()];
-            }
-            payment += this.form.controls.payments.value[option.idpvFormaPago.toString()];
-          }
-          this.form.controls.payment.setValue(payment);
-          this.form.controls.nonCash.setValue(nonCash);
-        });
-
-
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
       }
     });
   }
@@ -122,8 +124,12 @@ export class PayComponent implements OnDestroy {
   }
 
   public complete(control: FormControl): void {
-    const missing: number = this.form.controls.total.value - this.form.controls.payment.value;
-    control.setValue(missing > 0 ? missing : 0);
+    if (control.value) {
+      control.setValue(0);
+    } else {
+      const missing: number = this.form.value.total - this.form.value.payment;
+      control.setValue(missing > 0 ? missing : 0);
+    }
   }
 
   public submit(): void {
@@ -136,9 +142,9 @@ export class PayComponent implements OnDestroy {
       idHotel: this.data.bill.idHotel,
       subtotal: this.data.bill.total,
       descuentos: this.data.bill.descuentos,
-      propina: this.form.controls.tips.value,
-      cambio: this.form.controls.change.value,
-      formadepago: this.form.controls.payments.value,
+      propina: this.form.value.tips,
+      cambio: this.form.value.change,
+      formadepago: this.form.value.payments,
       idpvUsuarios: this.auth.user.idpvUsuarios,
     }).subscribe({
       next: () => {

@@ -50,7 +50,7 @@
         <div class="card-body p-1">
           <div class=" embed-responsive embed-responsive-16by9">
             <div class="embed-responsive-item" #box *ngIf="activeSection">
-              <div class="position-absolute p-1" [ngDraggable]="auth.user?.admin" [bounds]="box" [inBounds]="true"
+              <div class="position-absolute p-1" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box" [inBounds]="true"
                 [preventDefaultEvent]="true" *ngFor="let table of activeSection.mesas; trackBy: trackTable"
                 [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
                 [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
@@ -65,7 +65,7 @@
             </div>
           </div>
         </div>
-        <div class="card-footer" *ngIf="auth.user?.admin">
+        <div class="card-footer" *ngIf="auth?.user?.permisos?.edit">
           <button class="btn btn-primary" (click)="updateArea()">Guardar</button>
           <button class="btn btn-primary" (click)="addTable()">Agregar mesa</button>
           <button class="btn btn-primary" (click)="addSection()">Agregar seccion</button>
