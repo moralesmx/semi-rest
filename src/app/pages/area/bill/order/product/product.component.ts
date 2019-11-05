@@ -3,7 +3,7 @@ import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { combineLatest, forkJoin, Subject } from 'rxjs';
-import { map, startWith, takeUntil } from 'rxjs/operators';
+import { map, startWith, takeUntil, tap } from 'rxjs/operators';
 import { ApiService } from '../../../../../core/api.service';
 import { Kitchen, Modifier, Order, Product, Term } from '../../../../../core/models';
 
@@ -59,10 +59,10 @@ export class ProductComponent implements OnDestroy {
 
     combineLatest(
       this.form.controls.price.valueChanges.pipe(
-        startWith(0)
+        startWith(this.form.value.price)
       ),
       this.form.controls.quantity.valueChanges.pipe(
-        startWith(0)
+        startWith(this.form.value.quantity)
       )
     ).pipe(
       map(([price, quantity]) => price * quantity),
@@ -73,8 +73,9 @@ export class ProductComponent implements OnDestroy {
 
     combineLatest(
       this.form.controls.half.valueChanges.pipe(
+        startWith(this.form.value.half),
         map(value => value ? this.product.precioMedia : this.product.precio),
-        startWith(0)
+        map(value => value || 0)
       ),
       this.modifiersSelection.changed.pipe(
         map(value => value.source.selected.reduce((total, modifier) => total + modifier.precio, 0)),
@@ -93,42 +94,51 @@ export class ProductComponent implements OnDestroy {
       this.api.getKitchens()
     ).pipe(
       takeUntil(this.destroyed)
-    ).subscribe(([product, kitchens]) => {
-      this.product = product;
-      this.kitchens = kitchens;
+    ).subscribe({
+      next: ([product, kitchens]) => {
+        this.product = product;
+        this.kitchens = kitchens;
 
-      if (this.data.order) {
-        this.form.patchValue({
-          quantity: this.data.order.cantidad,
-          total: this.data.order.total,
-          half: this.data.order.media,
-          time: this.data.order.tiempo,
-          sub: this.data.order.cuenta,
-          kitchen: this.data.order.idpvCocinas,
-          notes: this.data.order.notas,
-        });
-
-        for (const term of this.product.terminos) {
-          const selected: boolean = this.data.order.terminos.some(_term => {
-            return _term.idpvTerminos === term.idpvTerminos;
+        if (this.data.order) {
+          this.form.patchValue({
+            quantity: this.data.order.cantidad,
+            total: this.data.order.total,
+            half: this.data.order.media,
+            time: this.data.order.tiempo,
+            sub: this.data.order.cuenta,
+            kitchen: this.data.order.idpvCocinas,
+            notes: this.data.order.notas,
           });
-          if (selected) {
-            this.termsSelection.toggle(term);
-          }
-        }
 
-        for (const modifier of this.product.modificadores) {
-          const selected: boolean = this.data.order.modificadores.some(_modifier => {
-            return _modifier.idpvPlatillosModificadores === modifier.idpvPlatillosModificadores;
-          });
-          if (selected) {
-            this.modifiersSelection.toggle(modifier);
+          for (const term of this.product.terminos) {
+            const selected: boolean = this.data.order.terminos.some(_term => {
+              return _term.idpvTerminos === term.idpvTerminos;
+            });
+            if (selected) {
+              this.termsSelection.toggle(term);
+            }
           }
+
+          for (const modifier of this.product.modificadores) {
+            const selected: boolean = this.data.order.modificadores.some(_modifier => {
+              return _modifier.idpvPlatillosModificadores === modifier.idpvPlatillosModificadores;
+            });
+            if (selected) {
+              this.modifiersSelection.toggle(modifier);
+            }
+          }
+        } else {
+          this.form.patchValue({
+            kitchen: this.product.idpvCocinas,
+            half: false, 
+          });
         }
-      } else {
-        this.form.controls.kitchen.setValue(this.product.idpvCocinas);
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
       }
-      this.loading = false;
     });
   }
 
