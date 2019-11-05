@@ -1,4 +1,7 @@
-<div class="modal-content ">
+<p-blockUI [blocked]="loading"></p-blockUI>
+
+<div class="modal-content">
+
   <div class="modal-header">
     <h5 class="modal-title">{{ product.nombre }}</h5>
   </div>
@@ -25,13 +28,15 @@
               <label>Cantidad</label>
 
               <div class="input-group">
-                <input class="form-control" readonly [formControl]="quantity">
+                <input class="form-control" readonly [formControl]="form.controls.quantity">
                 <div class="input-group-append">
-                  <button type="button" class="btn btn-secondary mdi mdi-minus" [disabled]="quantity.disabled"
-                    (click)="quantity.value > 1 && quantity.setValue(quantity.value - 1)">
+                  <button type="button" class="btn btn-secondary mdi mdi-minus"
+                    [disabled]="form.controls.quantity.disabled"
+                    (click)="form.controls.quantity.value > 1 && form.controls.quantity.setValue(form.controls.quantity.value - 1)">
                   </button>
-                  <button type="button" class="btn btn-secondary mdi mdi-plus" [disabled]="quantity.disabled"
-                    (click)="quantity.setValue(quantity.value + 1)">
+                  <button type="button" class="btn btn-secondary mdi mdi-plus"
+                    [disabled]="form.controls.quantity.disabled"
+                    (click)="form.controls.quantity.setValue(form.controls.quantity.value + 1)">
                   </button>
                 </div>
               </div>
@@ -39,23 +44,25 @@
 
             <div class="form-group col-lg-4">
               <label>Precio</label>
-              <input class="form-control" [value]="price.value | currency" readonly>
+              <input class="form-control" [value]="form.controls.price.value | currency" readonly>
             </div>
 
             <div class="form-group col-lg-4">
               <label>Total</label>
-              <input class="form-control" [value]="total.value | currency" readonly>
+              <input class="form-control" [value]="form.controls.total.value | currency" readonly>
             </div>
 
             <div class="form-group col-lg-6">
               <label>Orden</label>
               <div class="btn-group d-flex">
-                <button type="button" class="btn" [ngClass]="!half.value ? 'btn-primary' : 'btn-secondary'"
-                  (click)="half.setValue(false)" [disabled]="half.disabled">
+                <button type="button" class="btn"
+                  [ngClass]="!form.controls.half.value ? 'btn-primary' : 'btn-secondary'"
+                  (click)="form.controls.half.setValue(false)" [disabled]="form.controls.half.disabled">
                   Completa
                 </button>
-                <button type="button" class="btn" [ngClass]="half.value ? 'btn-primary' : 'btn-secondary'"
-                  (click)="half.setValue(true)" [disabled]="half.disabled || !product.precioMedia">
+                <button type="button" class="btn" [ngClass]="form.controls.half.value ? 'btn-primary' : 'btn-secondary'"
+                  (click)="form.controls.half.setValue(true)"
+                  [disabled]="form.controls.half.disabled || !product.precioMedia">
                   Media
                 </button>
               </div>
@@ -65,28 +72,33 @@
               <label>Cocina</label>
               <div class="btn-group d-flex">
                 <button type="button" class="btn"
-                  [ngClass]="kitchen.value == k.idpvCocinas ? 'btn-primary' : 'btn-secondary'"
-                  *ngFor="let k of kitchens" (click)="kitchen.setValue(k.idpvCocinas)" [disabled]="kitchen.disabled">
+                  [ngClass]="form.controls.kitchen.value == k.idpvCocinas ? 'btn-primary' : 'btn-secondary'"
+                  *ngFor="let k of kitchens" (click)="form.controls.kitchen.setValue(k.idpvCocinas)"
+                  [disabled]="form.controls.kitchen.disabled">
                   {{ k.nombre }}
                 </button>
               </div>
             </div>
 
             <div class="form-group col-lg-6">
-              <label>{{ time.value }}° Tiempo</label>
+              <label>{{ form.controls.time.value }}° Tiempo</label>
               <div class="btn-group d-flex">
-                <button type="button" class="btn" [ngClass]="time.value == n ? 'btn-primary' : 'btn-secondary'"
-                  *ngFor="let n of [] | range : 5 : 1" (click)="time.setValue(n)" [disabled]="time.disabled">
+                <button type="button" class="btn"
+                  [ngClass]="form.controls.time.value == n ? 'btn-primary' : 'btn-secondary'"
+                  *ngFor="let n of [] | range : 5 : 1" (click)="form.controls.time.setValue(n)"
+                  [disabled]="form.controls.time.disabled">
                   {{ n }}
                 </button>
               </div>
             </div>
 
             <div class="form-group col-lg-6">
-              <label>Subcuenta {{ sub.value }}</label>
+              <label>Subcuenta {{ form.controls.sub.value }}</label>
               <div class="btn-group d-flex">
-                <button type="button" class="btn" [ngClass]="sub.value == n ? 'btn-primary' : 'btn-secondary'"
-                  *ngFor="let n of [] | range : 5 : 1" (click)="sub.setValue(n)" [disabled]="sub.disabled">
+                <button type="button" class="btn"
+                  [ngClass]="form.controls.sub.value == n ? 'btn-primary' : 'btn-secondary'"
+                  *ngFor="let n of [] | range : 5 : 1" (click)="form.controls.sub.setValue(n)"
+                  [disabled]="form.controls.sub.disabled">
                   {{ n }}
                 </button>
               </div>
@@ -94,7 +106,7 @@
 
             <div class="form-group col-12">
               <label>Notas</label>
-              <textarea class="form-control" [formControl]="notes"></textarea>
+              <textarea class="form-control" [formControl]="form.controls.notes"></textarea>
             </div>
           </div>
         </form>

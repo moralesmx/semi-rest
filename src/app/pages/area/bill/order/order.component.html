@@ -1,6 +1,8 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+
 <div class="modal-content">
   <div class="modal-header">
-    <h5 class="modal-title">Comandar - {{ table.clave }}</h5>
+    <h5 class="modal-title">Comandar - {{ table?.clave }}</h5>
   </div>
   <div class="modal-body">
     <div class="row" *ngIf="products">
@@ -46,7 +48,8 @@
               <strong class="pr-2">{{ order.cantidad }}</strong>
               {{ order.nombre }}
               <span class="flex-grow-1"></span>
-              <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" (click)="removeOrder(order)"></button>
+              <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete"
+                (click)="removeOrder(order)"></button>
             </div>
           </li>
         </ul>
@@ -59,12 +62,13 @@
     <div class="form-group m-0">
       <div class="input-group">
         <div class="input-group-prepend">
-          <button type="button" class="btn" [ngClass]="copy.value ? 'btn-primary' : 'btn-secondary'"
-            (click)="copy.setValue(!copy.value)" [disabled]="copy.disabled">
+          <button type="button" class="btn" [ngClass]="form.controls.copy.value ? 'btn-primary' : 'btn-secondary'"
+            (click)="form.controls.copy.setValue(!form.controls.copy.value)" [disabled]="form.controls.copy.disabled">
             Copia
           </button>
         </div>
-        <select class="form-control" [formControl]="printer" [class.is-invalid]="printer.touched && printer.invalid">
+        <select class="form-control" [formControl]="form.controls.printer"
+          [class.is-invalid]="form.controls.printer.touched && form.controls.printer.invalid">
           <option [value]="p.idgeneralImpresoras" *ngFor="let p of printers">{{ p.nombre }}</option>
         </select>
       </div>

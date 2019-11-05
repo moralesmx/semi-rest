@@ -1,13 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnDestroy } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
-import { FormGroupCustom } from '../../../core/custom-forms/form-group';
 import { Area, PaymentOption } from '../../../core/models';
-import { FormControl, Validators } from '@angular/forms';
 
 @Component({
   templateUrl: 'close-area.component.html'
@@ -17,14 +16,22 @@ export class CloseAreaComponent implements OnDestroy {
 
   private readonly destroyed: Subject<void> = new Subject();
 
+  private _loading: boolean;
+  public get loading(): boolean {
+    return this._loading;
+  }
+  public set loading(loading: boolean) {
+    this._loading = loading;
+    this.ref.disableClose = loading;
+  }
+
   public error: string;
 
   public paymentOptions: PaymentOption[];
 
-  public payments: FormGroupCustom = new FormGroupCustom({});
-  public form: FormGroupCustom = new FormGroupCustom({
-    payments: this.payments
-  });
+  public form: FormGroupTyped<{
+    [key: string]: number
+  }> = new FormGroup({});
 
   constructor(
     private api: ApiService,
@@ -32,19 +39,23 @@ export class CloseAreaComponent implements OnDestroy {
     private ref: MatDialogRef<CloseAreaComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { area: Area }
   ) {
+    this.loading = true;
     this.api.getPaymentOptions().pipe(
       takeUntil(this.destroyed)
-    ).subscribe(
-      options => {
+    ).subscribe({
+      next: options => {
         this.paymentOptions = options;
-
-        this.form.enable();
         for (const option of this.paymentOptions) {
-          const control: FormControl = new FormControl(0, Validators.min(0));
-          this.payments.addControl(option.idpvFormaPago.toString(), control);
+          const control: FormControl = new FormControl(0, [Validators.required, Validators.min(0)]);
+          this.form.addControl(`${option.idpvFormaPago}`, control);
         }
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
       }
-    );
+    });
   }
 
   public ngOnDestroy(): void {
@@ -57,25 +68,24 @@ export class CloseAreaComponent implements OnDestroy {
   }
 
   public submit(): void {
-    if (this.form.valid) {
-      this.form.disableAndStoreState();
-      this.ref.disableClose = true;
-      this.error = undefined;
-      this.api.closeArea(this.data.area, this.auth.user, this.payments.value).pipe(
-        takeUntil(this.destroyed)
-      ).subscribe(
-        () => {
-          this.ref.close();
-        },
-        (error: HttpErrorResponse) => {
-          this.form.enableAndRestoreState();
-          this.ref.disableClose = false;
-          this.error = error.error;
-        }
-      );
-    } else {
-      this.form.markAllAsTouched();
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
     }
+    this.loading = true;
+    this.error = undefined;
+    this.api.closeArea(this.data.area, this.auth.user, this.form.value).pipe(
+      takeUntil(this.destroyed)
+    ).subscribe({
+      next: () => {
+        this.ref.close();
+        this.loading = false;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.error = error.error;
+        this.loading = false;
+      }
+    });
   }
 
 }

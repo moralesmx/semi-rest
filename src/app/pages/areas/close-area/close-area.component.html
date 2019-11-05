@@ -8,14 +8,19 @@
       <label class="col-form-label col-auto">{{ option.nombre }}</label>
       <div class="col">
         <div class="input-group">
-          <input class="form-control text-right" [formControl]="payments.controls['' + option.idpvFormaPago]"
-            currencyMask appCursorEnd #control="ngForm"
-            [class.is-invalid]="control.form?.touched && control.form?.invalid">
+          <input class="form-control text-right" [formControl]="form.controls['' + option.idpvFormaPago]"
+            #control="ngForm" currencyMask appCursorEnd
+            [class.is-invalid]="control.form.touched && control.form.invalid">
           <div class="input-group-append">
           </div>
         </div>
         <div class="invalid-feedback">
-          La cantidad debe ser igual o mayor a 0
+          {{
+            control.form.errors && (
+              (control.form.errors['required'] && 'Campo obligatorio.') ||
+              (control.form.errors['min'] && 'Debe ser mayor o igual a 0.')
+            )
+          }}
         </div>
       </div>
     </div>

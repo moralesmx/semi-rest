@@ -35,8 +35,8 @@ export class ApiService {
     return this.http.post<any>(`${this.url}/cuentas/${bill.idpvVentas}`, body);
   }
 
-  public discount(bill: Bill, body: any): Observable<any> {
-    return this.http.put<any>(`${this.url}/cuentas/${bill.idpvVentas}/descuentos`, body);
+  public discount(billId: Bill['idpvVentas'], body: any): Observable<any> {
+    return this.http.put<any>(`${this.url}/cuentas/${billId}/descuentos`, body);
   }
 
   public printCheck(bill: Bill): Observable<any> {
@@ -92,6 +92,11 @@ export class ApiService {
 
   public updateBill(bill: Partial<Bill>): Observable<any> {
     return this.http.put<any>(`${this.url}/cuentas/${bill.idpvVentas}`, bill);
+  }
+
+  // TODO
+  public getChecks(area: Area) {
+    return this.http.get(`${this.url}/ventas/${area.idpvCortes}/cerradas`);
   }
 
   public getBill(id: number): Observable<Bill> {

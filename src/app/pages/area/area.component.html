@@ -20,6 +20,9 @@
             <span style="flex-grow: 1">
               <strong>{{ table.clave }}</strong> {{ table.mesero }}
             </span>
+            <span *ngIf="table.habitacion">
+              <span class="badge badge-success badge-pill">{{ table.habitacion }}</span>
+            </span>
             <span>
               <span class="badge badge-primary badge-pill">{{ table.total | currency}}</span>
             </span>
@@ -48,7 +51,7 @@
           <div class=" embed-responsive embed-responsive-16by9">
             <div class="embed-responsive-item" #box *ngIf="activeSection">
               <div class="position-absolute p-1" [ngDraggable]="auth.user?.admin" [bounds]="box" [inBounds]="true"
-                [preventDefaultEvent]="true" *ngFor="let table of activeSection.mesas"
+                [preventDefaultEvent]="true" *ngFor="let table of activeSection.mesas; trackBy: trackTable"
                 [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
                 [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
                 [style.height.px]="box.clientWidth / activeSection.proporcion"

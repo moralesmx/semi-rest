@@ -1,0 +1,39 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+
+<div class="modal-content">
+
+  <div class="modal-header">
+    <h5 class="modal-title">Login</h5>
+  </div>
+
+  <div class="modal-body">
+    <form (ngSubmit)="submit()" [formGroup]="form" autocomplete="off">
+      <div class="form-group">
+        <label>Clave</label>
+        <input #input class="form-control" placeholder="*****" type="password" formControlName="pass"
+          [class.is-invalid]="form.controls.pass.touched && form.controls.pass.invalid">
+        <div class="form-text">
+          {{ data?.msg }}
+        </div>
+        <div class="invalid-feedback">
+          {{ 
+            form.controls.pass.errors && (
+              (form.controls.pass.errors['auth']) ||
+              (form.controls.pass.errors['required'] && 'Campo obligatorio.')
+            )
+          }}
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="cancel()" *ngIf="data?.cancelable">
+      Cancelar
+    </button>
+    <button class="btn btn-primary" (click)="submit()">
+      <span class="spinner-border spinner-border-sm" *ngIf="loading"></span>
+      Entrar
+    </button>
+  </div>
+</div>

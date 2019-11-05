@@ -1,4 +1,6 @@
-<div class="modal-content">
+<div class="modal-content" #modal>
+  <p-blockUI [blocked]="loading" [target]="modal"></p-blockUI>
+  
   <div class="modal-header">
     <h5 class="modal-title">Abrir Cuenta - Mesa {{ data.table.clave }}</h5>
   </div>
@@ -8,7 +10,8 @@
 
         <div class="form-group col-3">
           <label>Habitacion</label>
-          <input class="form-control" [formControl]="room" [class.is-invalid]="room.touched && room.invalid">
+          <input class="form-control" formControlName="room"
+            [class.is-invalid]="form.controls.room.touched && form.controls.room.invalid">
           <div class="invalid-feedback">
             Campo obligatorio.
           </div>
@@ -16,7 +19,8 @@
 
         <div class="form-group col-9">
           <label>Nombre</label>
-          <input class="form-control" [formControl]="name" [class.is-invalid]="name.touched && name.invalid">
+          <input class="form-control" formControlName="name"
+            [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid">
           <div class="invalid-feedback">
             Campo obligatorio.
           </div>
@@ -24,7 +28,8 @@
 
         <div class="form-group col-6">
           <label>Mesero</label>
-          <select class="form-control" [formControl]="waiter" [class.is-invalid]="waiter.touched && waiter.invalid">
+          <select class="form-control" formControlName="waiter"
+            [class.is-invalid]="form.controls.waiter.touched && form.controls.waiter.invalid">
             <option *ngFor="let w of waiters" [value]="w.idpvUsuarios">{{ w.nombre }}</option>
           </select>
           <div class="invalid-feedback">
@@ -34,7 +39,8 @@
 
         <div class="form-group col-3">
           <label>Adultos</label>
-          <select class="form-control" [formControl]="adults" [class.is-invalid]="adults.touched && adults.invalid">
+          <select class="form-control" formControlName="adults"
+            [class.is-invalid]="form.controls.adults.touched && form.controls.adults.invalid">
             <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
           </select>
           <div class="invalid-feedback">
@@ -44,7 +50,8 @@
 
         <div class="form-group col-3">
           <label>Menores</label>
-          <select class="form-control" [formControl]="minors" [class.is-invalid]="minors.touched && minors.invalid">
+          <select class="form-control" formControlName="minors"
+            [class.is-invalid]="form.controls.minors.touched && form.controls.minors.invalid">
             <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
           </select>
           <div class="invalid-feedback">

@@ -6,14 +6,23 @@ import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { Area, Section, Table } from '../../../../core/models';
 
+export type ChangeTableModalReturn = boolean;
+
 @Component({
   templateUrl: 'change-table.component.html'
 })
-export class ChangeTableComponent {
+export class ChangeTableModalComponent {
 
   private destroyed: Subject<void> = new Subject<void>();
 
-  public loading: boolean;
+  private _loading: boolean;
+  public get loading(): boolean {
+    return this._loading;
+  }
+  public set loading(loading: boolean) {
+    this._loading = loading;
+    this.ref.disableClose = loading;
+  }
 
   public area: Area;
 
@@ -23,19 +32,25 @@ export class ChangeTableComponent {
   }> = new FormGroup({
     section: new FormControl(undefined, [Validators.required]),
     table: new FormControl(undefined, [Validators.required])
-  }) as FormGroupTyped<any>;
+  }) as any;
 
   constructor(
     private api: ApiService,
-    private ref: MatDialogRef<ChangeTableComponent>,
+    private ref: MatDialogRef<ChangeTableModalComponent, ChangeTableModalReturn>,
     @Inject(MAT_DIALOG_DATA) public data: { table: Table }
   ) {
     this.loading = true;
     this.api.getArea(this.data.table.idpvAreas).pipe(
       takeUntil(this.destroyed)
-    ).subscribe(area => {
-      this.area = area;
-      this.loading = false;
+    ).subscribe({
+      next: area => {
+        this.area = area;
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
+      }
     });
 
     this.form.controls.section.valueChanges.pipe(
@@ -47,9 +62,13 @@ export class ChangeTableComponent {
     });
   }
 
+  public cancel(): void {
+    this.ref.close(false);
+  }
+
   public submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
     this.loading = true;
@@ -65,8 +84,5 @@ export class ChangeTableComponent {
     });
   }
 
-  public cancel(): void {
-    this.ref.close();
-  }
 
 }

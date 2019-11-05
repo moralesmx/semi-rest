@@ -1,69 +1,87 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
-import { FormGroupCustom } from '../../../../core/custom-forms/form-group';
 import { Bill, Table } from '../../../../core/models';
+
+export interface DiscountModalData {
+  table: Table;
+  bill: Bill;
+}
+export type DiscountModalReturn = boolean;
 
 @Component({
   templateUrl: 'discount.component.html'
 })
-export class DiscountComponent implements OnDestroy {
+export class DiscountModalComponent implements OnDestroy {
 
   private readonly destroyed: Subject<void> = new Subject();
 
-  public type: FormControl = new FormControl(undefined, [Validators.required]);
-  public percentage: FormControl = new FormControl(undefined, [Validators.min(0), Validators.max(100)]);
-  public amount: FormControl = new FormControl(undefined, [Validators.min(0)]);
-  public form: FormGroupCustom = new FormGroupCustom({
-    type: this.type,
-    percentage: this.percentage,
-    amount: this.amount,
-  });
+  private _loading: boolean;
+  public get loading(): boolean {
+    return this._loading;
+  }
+  public set loading(loading: boolean) {
+    this._loading = loading;
+    this.ref.disableClose = loading;
+  }
+
+  public form: FormGroupTyped<{
+    type: number;
+    percentage: number;
+    amount: number;
+  }> = new FormGroup({
+    type: new FormControl(undefined, [Validators.required]),
+    percentage: new FormControl(undefined, [Validators.min(0), Validators.max(100)]),
+    amount: new FormControl(undefined, [Validators.min(0)]),
+  }) as any;
 
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private ref: MatDialogRef<DiscountComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table, bill: Bill }
+    private ref: MatDialogRef<DiscountModalComponent, DiscountModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: DiscountModalData
   ) {
-    this.type.valueChanges.pipe(
+    this.form.controls.type.valueChanges.pipe(
       takeUntil(this.destroyed)
-    ).subscribe(value => {
-      if (value === 1) {
-        this.percentage.enable();
-        this.amount.disable();
-      } else {
-        this.percentage.disable();
-        this.amount.enable();
+    ).subscribe({
+      next: value => {
+        if (value === 1) {
+          this.form.controls.percentage.enable();
+          this.form.controls.amount.disable();
+        } else {
+          this.form.controls.percentage.disable();
+          this.form.controls.amount.enable();
+        }
       }
     });
 
-    this.percentage.valueChanges.pipe(
+    this.form.controls.percentage.valueChanges.pipe(
       takeUntil(this.destroyed)
     ).subscribe(value => {
-      this.amount.setValue(this.data.bill.total * value / 100, {
-        emitEvent: false
-      });
+      this.form.controls.amount.setValue(
+        this.data.bill.total * value / 100,
+        { emitEvent: false }
+      );
     });
 
-    this.amount.valueChanges.pipe(
+    this.form.controls.amount.valueChanges.pipe(
       takeUntil(this.destroyed)
     ).subscribe(value => {
-      this.percentage.setValue(value / this.data.bill.total * 100, {
-        emitEvent: false
-      });
+      this.form.controls.percentage.setValue(
+        value / this.data.bill.total * 100,
+        { emitEvent: false }
+      );
     });
 
-    this.type.setValue(this.data.bill.descuentoTipo || 1);
-    if (this.type.value === 1) {
-      this.percentage.setValue(this.data.bill.descuento || 0);
-    } else {
-      this.amount.setValue(this.data.bill.descuento || 0);
-    }
+    this.form.patchValue({
+      percentage: this.data.bill.descuento || 0,
+      amount: this.data.bill.descuento || 0,
+    }, { emitEvent: false });
+    this.form.controls.type.setValue(this.data.bill.descuentoTipo || 1);
   }
 
   public ngOnDestroy(): void {
@@ -71,31 +89,30 @@ export class DiscountComponent implements OnDestroy {
     this.destroyed.complete();
   }
 
-  public submit(): void {
-    if (this.form.valid) {
-      this.form.disableAndStoreState();
-      this.ref.disableClose = true;
-      this.api.discount(this.data.bill, {
-        descuentoTipo: this.type.value,
-        descuento: this.percentage.value,
-        descuentos: this.amount.value,
-        idpvUsuarios: this.auth.user.idpvUsuarios,
-      }).subscribe(
-        () => {
-          this.ref.close(true);
-        },
-        error => {
-          console.error(error);
-          this.form.enableAndRestoreState();
-          this.ref.disableClose = false;
-        }
-      );
-    } else {
-      this.form.markAllAsTouched();
-    }
-  }
-
   public cancel(): void {
     this.ref.close(false);
+  }
+
+  public submit(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+    this.loading = true;
+    this.api.discount(this.data.bill.idpvVentas, {
+      descuentoTipo: this.form.value.type,
+      descuento: this.form.value.percentage,
+      descuentos: this.form.value.amount,
+      idpvUsuarios: this.auth.user.idpvUsuarios,
+    }).subscribe({
+      next: () => {
+        this.ref.close(true);
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
+      }
+    });
   }
 }

@@ -1,6 +1,7 @@
 <p-blockUI [blocked]="loading"></p-blockUI>
 
 <div class="modal-content">
+
   <div class="modal-header">
     <h5 class="modal-title">Cuenta - {{ data.table.clave }}</h5>
   </div>
@@ -163,22 +164,22 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="order()" [disabled]="form.disabled"
-      *ngIf="auth.user.admin || auth.user.capitan || auth.user.idpvUsuarios == bill.idpvVentas">
+      *ngIf="auth?.user?.permisos?.comandarotros || auth.user.idpvUsuarios == bill.idpvUsuarios">
       Comandar
     </button>
-    <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled" *ngIf="auth.user.cajero">
+    <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled" *ngIf="auth?.user?.permisos?.cobrar">
       Cobrar
     </button>
     <button type="button" class="btn btn-primary" (click)="printCheck()" [disabled]="form.disabled"
-      *ngIf="auth.user.cajero">
+      *ngIf="auth?.user?.permisos?.imprimircheque">
       Imprimir cheque
     </button>
     <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled"
-      *ngIf="auth.user.admin">
+      *ngIf="auth?.user?.permisos?.descuentos">
       Descuento
     </button>
     <button type="button" class="btn btn-primary" (click)="changeTable()" [disabled]="form.disabled"
-      *ngIf="auth.user.permisos.cambiomesa">
+      *ngIf="auth?.user?.permisos?.cambiomesa">
       Transferir
     </button>
     <div class="flex-grow-1"></div>

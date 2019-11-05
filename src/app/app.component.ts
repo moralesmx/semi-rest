@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LoginService } from './pages/login/login.service';
+import { ModalsService } from './modals/modals.service';
 
 @Component({
   selector: 'app-root',
@@ -7,8 +7,8 @@ import { LoginService } from './pages/login/login.service';
 })
 export class AppComponent {
   constructor(
-    private login: LoginService
+    private modals: ModalsService
   ) {
-    this.login.login();
+    this.modals.login();
   }
 }

@@ -9,22 +9,22 @@ import { AngularDraggableModule } from 'angular2-draggable';
 import { NgxCurrencyModule } from 'ngx-currency';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AlertComponent } from './modals/alert/alert.component';
+import { AlertModalComponent } from './modals/alert/alert.component';
 import { AreaComponent } from './pages/area/area.component';
-import { BillComponent } from './pages/area/bill/bill.component';
-import { DiscountComponent } from './pages/area/bill/discount/discount.component';
+import { BillModalComponent } from './pages/area/bill/bill.component';
+import { DiscountModalComponent } from './pages/area/bill/discount/discount.component';
 import { CursorEndDirective } from './pages/area/bill/pay/cursor-end.directive';
 import { PayComponent } from './pages/area/bill/pay/pay.component';
 import { NewBillComponent } from './pages/area/new-bill/new-bill.component';
-import { OrderComponent } from './pages/area/bill/order/order.component';
+import { OrderModalComponent } from './pages/area/bill/order/order.component';
 import { ProductComponent } from './pages/area/bill/order/product/product.component';
 import { AreasComponent } from './pages/areas/areas.component';
 import { CloseAreaComponent } from './pages/areas/close-area/close-area.component';
 import { OpenAreaComponent } from './pages/areas/open-area/open-area.component';
-import { LoginComponent } from './pages/login/login.component';
+import { LoginModalComponent } from './modals/login/login.component';
 import { HasPipe, HasNotPipe } from './pipes/has.pipe';
 import { SearchPipe } from './pipes/search.pipe';
-import { ChangeTableComponent } from './pages/area/bill/change-table/change-table.component';
+import { ChangeTableModalComponent } from './pages/area/bill/change-table/change-table.component';
 import {BlockUIModule} from 'primeng/blockui';
 
 @NgModule({
@@ -33,20 +33,20 @@ import {BlockUIModule} from 'primeng/blockui';
     AreasComponent,
     AreaComponent,
 
-    LoginComponent,
+    LoginModalComponent,
 
-    AlertComponent,
+    AlertModalComponent,
 
     OpenAreaComponent,
     CloseAreaComponent,
 
-    BillComponent,
+    BillModalComponent,
     NewBillComponent,
-    OrderComponent,
+    OrderModalComponent,
     ProductComponent,
     PayComponent,
-    DiscountComponent,
-    ChangeTableComponent,
+    DiscountModalComponent,
+    ChangeTableModalComponent,
 
     HasPipe,
     HasNotPipe,
@@ -55,20 +55,20 @@ import {BlockUIModule} from 'primeng/blockui';
     CursorEndDirective,
   ],
   entryComponents: [
-    LoginComponent,
+    LoginModalComponent,
 
-    AlertComponent,
+    AlertModalComponent,
 
     OpenAreaComponent,
     CloseAreaComponent,
 
-    BillComponent,
+    BillModalComponent,
     NewBillComponent,
-    OrderComponent,
+    OrderModalComponent,
     ProductComponent,
     PayComponent,
-    DiscountComponent,
-    ChangeTableComponent,
+    DiscountModalComponent,
+    ChangeTableModalComponent,
   ],
   imports: [
     BrowserModule,

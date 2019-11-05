@@ -1,20 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, timer } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ActionsService } from '../../core/actions.service';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Area, Section, Table, User } from '../../core/models';
 import { ModalsService } from '../../modals/modals.service';
-import { LoginService } from '../login/login.service';
-import { BillComponent } from './bill/bill.component';
-import { OrderComponent } from './bill/order/order.component';
+import { BillModalComponent } from './bill/bill.component';
 import { NewBillComponent } from './new-bill/new-bill.component';
-import { ActionsService } from '../../core/actions.service';
 
 @Component({
   templateUrl: './area.component.html',
 })
-export class AreaComponent {
+export class AreaComponent implements OnDestroy {
+
+  private readonly destroyed: Subject<void> = new Subject<void>();
 
   public search: string = '';
 
@@ -24,30 +26,45 @@ export class AreaComponent {
   constructor(
     private api: ApiService,
     public auth: AuthService,
-    private login: LoginService,
     private router: Router,
     private route: ActivatedRoute,
     private modals: ModalsService,
     private dialog: MatDialog,
     private actions: ActionsService
   ) {
-    this.update();
+    timer(0, 5000).pipe(
+      takeUntil(this.destroyed)
+    ).subscribe({
+      next: () => {
+        this.update();
+      }
+    });
+  }
+
+  public ngOnDestroy(): void {
+    this.destroyed.next();
+    this.destroyed.complete();
   }
 
   public update(): void {
-    this.api.getArea(this.route.snapshot.params.id).subscribe(area => {
-      this.area = area;
-      if (!area.idpvCortes) {
-        this.router.navigateByUrl('/');
+    this.api.getArea(this.route.snapshot.params.id).subscribe({
+      next: area => {
+        this.area = area;
+        if (!area.idpvCortes) {
+          this.router.navigateByUrl('/');
+        }
+        this.activeSection = this.activeSection ?
+          this.area.secciones.find(section => section.idpvSecciones === this.activeSection.idpvSecciones) :
+          this.area.secciones[0];
+      },
+      error: error => {
+        console.error(error);
       }
-      this.activeSection = this.activeSection ?
-        this.area.secciones.find(section => section.idpvSecciones === this.activeSection.idpvSecciones) :
-        this.area.secciones[0];
     });
   }
 
   public async order(table: Table, bypass: boolean = false): Promise<void> {
-    if (bypass || await this.login.login({ cancelable: true })) {
+    if (bypass || await this.modals.login({ cancelable: true })) {
       if (await this.actions.order(table.idpvAreasMesas)) {
         this.update();
       }
@@ -55,34 +72,35 @@ export class AreaComponent {
   }
 
   public async selectTable(table: Table): Promise<void> {
-    const user: User = await this.login.login({ cancelable: true });
-    if (user) {
-      if (table.idpvVentas) {
-        if (user.cajero || user.capitan || user.idpvUsuarios === table.idpvUsuarios) {
-          this.dialog.open(BillComponent, {
-            data: { table }
-          }).afterClosed().pipe(
-            // takeUntil(this.destroyed)
-          ).subscribe(() => this.update());
-        } else {
-          this.modals.alert({
-            title: 'Acceso denegado',
-            message: 'No tienes los permisos para ver esta cuenta',
-            ok: 'Aceptar'
-          });
-        }
-      } else {
-        this.dialog.open(NewBillComponent, {
+    const user: User = await this.modals.login({ cancelable: true });
+    if (!user) {
+      return;
+    }
+    if (table.idpvVentas) {
+      if (user.permisos.comandarotros || user.idpvUsuarios === table.idpvUsuarios) {
+        this.dialog.open(BillModalComponent, {
           data: { table }
         }).afterClosed().pipe(
           // takeUntil(this.destroyed)
-        ).subscribe(changes => {
-          if (changes) {
-            this.update();
-            this.order(table, true);
-          }
+        ).subscribe(() => this.update());
+      } else {
+        this.modals.alert({
+          title: 'Acceso denegado',
+          message: 'No tienes los permisos para ver esta cuenta',
+          ok: 'Aceptar'
         });
       }
+    } else {
+      this.dialog.open(NewBillComponent, {
+        data: { table }
+      }).afterClosed().pipe(
+        // takeUntil(this.destroyed)
+      ).subscribe(changes => {
+        if (changes) {
+          this.update();
+          this.order(table, true);
+        }
+      });
     }
   }
 
@@ -107,6 +125,14 @@ export class AreaComponent {
       nombre: 'Seccion',
       proporcion: 10
     } as any);
+  }
+
+  public trackArea(index: number, area: Area) {
+    return area.idpvAreas;
+  }
+
+  public trackTable(index: number, table: Table) {
+    return table.idpvAreasMesas;
   }
 
 }

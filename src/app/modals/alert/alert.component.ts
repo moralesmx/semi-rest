@@ -1,21 +1,23 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
-export interface AlertOptions {
+export interface AlertModalData {
   title?: string;
   message?: string;
   cancel?: string;
   ok?: string;
 }
 
+export type AlertModalReturn = boolean;
+
 @Component({
   templateUrl: 'alert.component.html'
 })
-export class AlertComponent {
+export class AlertModalComponent {
 
   constructor(
-    private ref: MatDialogRef<AlertComponent, boolean>,
-    @Inject(MAT_DIALOG_DATA) public options: AlertOptions
+    private ref: MatDialogRef<AlertModalComponent, AlertModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: AlertModalData
   ) {
     this.ref.disableClose = !this.cancel;
   }

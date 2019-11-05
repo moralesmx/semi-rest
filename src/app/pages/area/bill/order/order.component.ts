@@ -1,21 +1,33 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { forkJoin, Subject } from 'rxjs';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
-import { FormGroupCustom } from '../../../../core/custom-forms/form-group';
 import { Order, Printer, Product, Table } from '../../../../core/models';
-import { ModalsService } from '../../../../modals/modals.service';
 import { ProductComponent } from './product/product.component';
+
+export interface OrderModalData {
+  tableId: Table['idpvAreasMesas'];
+}
+export type OrderModalReturn = boolean;
 
 @Component({
   templateUrl: 'order.component.html',
 })
-export class OrderComponent implements OnDestroy {
+export class OrderModalComponent implements OnDestroy {
 
   private readonly destroyed: Subject<void> = new Subject();
+
+  private _loading: boolean;
+  public get loading(): boolean {
+    return this._loading;
+  }
+  public set loading(loading: boolean) {
+    this._loading = loading;
+    this.ref.disableClose = loading;
+  }
 
   public activeGroup: any;
   public activeClass: any;
@@ -26,49 +38,56 @@ export class OrderComponent implements OnDestroy {
 
   public orders: Order[] = [];
 
-  public printer: FormControl = new FormControl(undefined);
-  public copy: FormControl = new FormControl(false);
-  public form: FormGroupCustom = new FormGroupCustom({
-    printer: this.printer,
-    copy: this.copy,
-    dummy: new FormControl(undefined)
-  });
+  public form: FormGroupTyped<{
+    printer: Printer['idgeneralImpresoras'],
+    copy: boolean
+  }> = new FormGroup({
+    printer: new FormControl(undefined),
+    copy: new FormControl(false),
+  }) as any;
 
   constructor(
     private api: ApiService,
     private auth: AuthService,
     private dialog: MatDialog,
-    private modals: ModalsService,
-    private ref: MatDialogRef<OrderComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { tableId: Table['idpvAreasMesas'] }
+    private ref: MatDialogRef<OrderModalComponent, OrderModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: OrderModalData
   ) {
-    this.form.disable();
+    this.loading = true;
     forkJoin(
       this.api.getProducts(),
       this.api.getPrinters(),
       this.api.getTable(this.data.tableId)
     ).pipe(
       takeUntil(this.destroyed)
-    ).subscribe(
-      ([products, printers, table]) => {
+    ).subscribe({
+      next: ([products, printers, table]) => {
         this.products = products;
         this.printers = printers;
         this.table = table;
 
-        this.form.enable();
-        if (this.printers.length) {
-          this.printer.setValue(this.printers[0].idgeneralImpresoras);
-        } else {
-          this.copy.disable();
-        }
-        this.copy.valueChanges.pipe(
-          startWith(this.copy.value),
+        this.form.controls.copy.valueChanges.pipe(
           takeUntil(this.destroyed)
         ).subscribe(value => {
-          value ? this.printer.enable() : this.printer.disable();
+          if (value) {
+            this.form.controls.printer.enable()
+          } else {
+            this.form.controls.printer.disable();
+          }
         });
+
+        if (this.printers.length) {
+          this.form.controls.printer.setValue(this.printers[0].idgeneralImpresoras);
+        } else {
+          this.form.controls.copy.disable();
+        }
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
       }
-    );
+    });
   }
 
   public ngOnDestroy(): void {
@@ -110,33 +129,36 @@ export class OrderComponent implements OnDestroy {
   }
 
   public submit(): void {
-    if (this.form.valid) {
-      this.form.disableAndStoreState();
-      this.ref.disableClose = true;
-      this.api.sendOrder(this.table.idpvVentas, {
-        idpvVentas: this.table.idpvVentas,
-        idpvUsuarios: this.auth.user.idpvUsuarios,
-        platillos: this.orders
-      }).pipe(
-        takeUntil(this.destroyed)
-      ).subscribe(
-        ({ folio }: { folio: number }) => {
-          this.api.printOrder(this.table.idpvVentas, folio, this.copy.value ? this.printer.value : undefined).subscribe(
-            console.log,
-            console.error,
-            console.warn
-          );
-          this.ref.close(true);
-        },
-        error => {
-          this.form.enableAndRestoreState();
-          this.ref.disableClose = false;
-          console.error(error);
-        }
-      );
-    } else {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
     }
+    this.loading = true;
+    this.api.sendOrder(this.table.idpvVentas, {
+      idpvVentas: this.table.idpvVentas,
+      idpvUsuarios: this.auth.user.idpvUsuarios,
+      platillos: this.orders
+    }).pipe(
+      takeUntil(this.destroyed)
+    ).subscribe({
+      next: ({ folio }: { folio: number }) => {
+        this.api.printOrder(
+          this.table.idpvVentas,
+          folio,
+          this.form.controls.copy.value ? this.form.controls.printer.value : undefined
+        ).subscribe(
+          console.log,
+          console.error,
+          console.warn
+        );
+        this.ref.close(true);
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
+      }
+    });
   }
 
 }

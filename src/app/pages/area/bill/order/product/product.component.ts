@@ -1,11 +1,10 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { forkJoin, merge, Subject } from 'rxjs';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { combineLatest, forkJoin, Subject } from 'rxjs';
+import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../../core/api.service';
-import { FormGroupCustom } from '../../../../../core/custom-forms/form-group';
 import { Kitchen, Modifier, Order, Product, Term } from '../../../../../core/models';
 
 @Component({
@@ -15,28 +14,38 @@ export class ProductComponent implements OnDestroy {
 
   private readonly destroyed: Subject<void> = new Subject();
 
+  private _loading: boolean;
+  public get loading(): boolean {
+    return this._loading;
+  }
+  public set loading(loading: boolean) {
+    this._loading = loading;
+    this.ref.disableClose = loading;
+  }
+
   public kitchens: Kitchen[];
 
   public product: Product;
 
-  public price: FormControl = new FormControl(undefined, [Validators.required]);
-  public quantity: FormControl = new FormControl(1, [Validators.required]);
-  public total: FormControl = new FormControl(undefined, [Validators.required]);
-  public half: FormControl = new FormControl(false, [Validators.required]);
-  public time: FormControl = new FormControl(1, [Validators.required]);
-  public sub: FormControl = new FormControl(1, [Validators.required]);
-  public kitchen: FormControl = new FormControl(undefined, [Validators.required]);
-  public notes: FormControl = new FormControl('', [Validators.required]);
-  public form: FormGroupCustom = new FormGroupCustom({
-    price: this.price,
-    quantity: this.quantity,
-    total: this.total,
-    half: this.half,
-    time: this.time,
-    sub: this.sub,
-    kitchen: this.kitchen,
-    notes: this.notes
-  });
+  public form: FormGroupTyped<{
+    price: number;
+    quantity: number;
+    total: number;
+    half: boolean;
+    time: number;
+    sub: number;
+    kitchen: Kitchen['idpvCocinas'];
+    notes: string;
+  }> = new FormGroup({
+    price: new FormControl(undefined, [Validators.required]),
+    quantity: new FormControl(1, [Validators.required]),
+    total: new FormControl(undefined, [Validators.required]),
+    half: new FormControl(false, [Validators.required]),
+    time: new FormControl(1, [Validators.required]),
+    sub: new FormControl(1, [Validators.required]),
+    kitchen: new FormControl(undefined, [Validators.required]),
+    notes: new FormControl('', [Validators.required]),
+  }) as any;
 
   public termsSelection: SelectionModel<Term> = new SelectionModel(true, []);
   public modifiersSelection: SelectionModel<Modifier> = new SelectionModel(true, []);
@@ -47,7 +56,38 @@ export class ProductComponent implements OnDestroy {
     @Inject(MAT_DIALOG_DATA) private data: { product: Product, order?: Order }
   ) {
     this.product = this.data.product;
-    this.form.disable();
+
+    combineLatest(
+      this.form.controls.price.valueChanges.pipe(
+        startWith(0)
+      ),
+      this.form.controls.quantity.valueChanges.pipe(
+        startWith(0)
+      )
+    ).pipe(
+      map(([price, quantity]) => price * quantity),
+      takeUntil(this.destroyed)
+    ).subscribe(total => {
+      this.form.controls.total.setValue(total);
+    });
+
+    combineLatest(
+      this.form.controls.half.valueChanges.pipe(
+        map(value => value ? this.product.precioMedia : this.product.precio),
+        startWith(0)
+      ),
+      this.modifiersSelection.changed.pipe(
+        map(value => value.source.selected.reduce((total, modifier) => total + modifier.precio, 0)),
+        startWith(0)
+      )
+    ).pipe(
+      map(([price, modifiers]) => price + modifiers),
+      takeUntil(this.destroyed)
+    ).subscribe(price => {
+      this.form.controls.price.setValue(price);
+    });
+
+    this.loading = true;
     forkJoin(
       this.api.getProduct(this.data.product.idpvPlatillos),
       this.api.getKitchens()
@@ -57,57 +97,38 @@ export class ProductComponent implements OnDestroy {
       this.product = product;
       this.kitchens = kitchens;
 
-      this.form.enable();
       if (this.data.order) {
-        this.quantity.setValue(this.data.order.cantidad);
-        this.total.setValue(this.data.order.total);
-        this.half.setValue(this.data.order.media);
-        this.time.setValue(this.data.order.tiempo);
-        this.sub.setValue(this.data.order.cuenta);
-        this.kitchen.setValue(this.data.order.idpvCocinas);
-        this.notes.setValue(this.data.order.notas);
+        this.form.patchValue({
+          quantity: this.data.order.cantidad,
+          total: this.data.order.total,
+          half: this.data.order.media,
+          time: this.data.order.tiempo,
+          sub: this.data.order.cuenta,
+          kitchen: this.data.order.idpvCocinas,
+          notes: this.data.order.notas,
+        });
 
-        this.product.terminos.filter(term => {
-          return this.data.order.terminos.find(_term => {
+        for (const term of this.product.terminos) {
+          const selected: boolean = this.data.order.terminos.some(_term => {
             return _term.idpvTerminos === term.idpvTerminos;
           });
-        }).forEach(term => {
-          this.termsSelection.toggle(term);
-        });
+          if (selected) {
+            this.termsSelection.toggle(term);
+          }
+        }
 
-        this.product.modificadores.filter(modifier => {
-          return this.data.order.modificadores.find(_modifier => {
+        for (const modifier of this.product.modificadores) {
+          const selected: boolean = this.data.order.modificadores.some(_modifier => {
             return _modifier.idpvPlatillosModificadores === modifier.idpvPlatillosModificadores;
           });
-        }).forEach(modifier => {
-          this.modifiersSelection.toggle(modifier);
-        });
+          if (selected) {
+            this.modifiersSelection.toggle(modifier);
+          }
+        }
       } else {
-        this.kitchen.setValue(this.product.idpvCocinas);
+        this.form.controls.kitchen.setValue(this.product.idpvCocinas);
       }
-
-      merge(
-        this.price.valueChanges,
-        this.quantity.valueChanges
-      ).pipe(
-        takeUntil(this.destroyed)
-      ).subscribe(() => {
-        this.total.setValue(this.price.value * this.quantity.value);
-      });
-
-      merge(
-        this.half.valueChanges,
-        this.modifiersSelection.changed
-      ).pipe(
-        startWith(undefined),
-        takeUntil(this.destroyed)
-      ).subscribe(() => {
-        this.price.setValue(
-          this.modifiersSelection.selected.reduce((total, modifier) => total + modifier.precio, 0) +
-          (this.half.value ? this.product.precioMedia : this.product.precio)
-        );
-      });
-
+      this.loading = false;
     });
   }
 
@@ -125,16 +146,16 @@ export class ProductComponent implements OnDestroy {
       idpvPlatillos: this.product.idpvPlatillos,
       nombre: this.product.nombre,
 
-      cantidad: this.quantity.value,
-      precio: this.price.value,
-      total: this.total.value,
-      media: this.half.value,
-      tiempo: this.time.value,
-      cuenta: this.sub.value,
-      idpvCocinas: this.kitchen.value,
+      cantidad: this.form.value.quantity,
+      precio: this.form.value.price,
+      total: this.form.value.total,
+      media: this.form.value.half,
+      tiempo: this.form.value.time,
+      cuenta: this.form.value.sub,
+      idpvCocinas: this.form.value.kitchen,
       modificadores: this.modifiersSelection.selected,
       terminos: this.termsSelection.selected,
-      notas: this.notes.value
+      notas: this.form.value.notes
     });
   }
 

@@ -7,9 +7,8 @@ import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Area } from '../../core/models';
 import { ModalsService } from '../../modals/modals.service';
-import { LoginService } from '../login/login.service';
-import { OpenAreaComponent } from './open-area/open-area.component';
 import { CloseAreaComponent } from './close-area/close-area.component';
+import { OpenAreaComponent } from './open-area/open-area.component';
 
 @Component({
   templateUrl: './areas.component.html',
@@ -23,7 +22,6 @@ export class AreasComponent implements OnDestroy {
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private login: LoginService,
     private router: Router,
     private dialog: MatDialog,
     private modals: ModalsService
@@ -49,7 +47,7 @@ export class AreasComponent implements OnDestroy {
   }
 
   public async openArea(area: Area): Promise<void> {
-    if (this.auth.user && this.auth.user.cajero) {
+    if (this.auth.user.permisos.cortes) {
       this.dialog.open(OpenAreaComponent, {
         data: { area }
       }).afterClosed().pipe(
@@ -59,14 +57,14 @@ export class AreasComponent implements OnDestroy {
         this.getAreas();
       });
     } else {
-      if (await this.login.login({ cancelable: true, msg: 'Requiere permisos de cajero.' })) {
+      if (await this.modals.login({ cancelable: true, msg: 'Requiere permisos de cajero.' })) {
         this.openArea(area);
       }
     }
   }
 
   public async closeArea(area: Area): Promise<void> {
-    if (this.auth.user && this.auth.user.cajero) {
+    if (this.auth.user.permisos.cortes) {
       this.dialog.open(CloseAreaComponent, {
         data: { area }
       }).afterClosed().pipe(
@@ -76,7 +74,7 @@ export class AreasComponent implements OnDestroy {
         this.getAreas();
       });
     } else {
-      if (await this.login.login({ cancelable: true, msg: 'Requiere permisos de cajero.' })) {
+      if (await this.modals.login({ cancelable: true, msg: 'Requiere permisos de cajero.' })) {
         this.closeArea(area);
       }
     }

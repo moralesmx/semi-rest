@@ -3,13 +3,20 @@
     <h5 class="modal-title">{{ data.area.nombre }}</h5>
   </div>
   <div class="modal-body">
-    <form (ngSubmit)="submit()">
-      <div class="form-group">
-        <label>Fondo de caja</label>
-        <input type="number" class="form-control" [formControl]="funds"
-          [class.is-invalid]="funds.touched && funds.invalid">
-        <div class="invalid-feedback">
-          Campo obligatorio.
+    <form (ngSubmit)="submit()" [formGroup]="form">
+      <div class="form-row">
+        <div class="form-group col-12">
+          <label>Fondo de caja</label>
+          <input class="form-control text-right" formControlName="funds" currencyMask appCursorEnd
+            [class.is-invalid]="form.controls.funds.touched && form.controls.funds.invalid">
+          <div class="invalid-feedback">
+            {{
+              form.controls.funds.errors && (
+                (form.controls.funds.errors['required'] && 'Campo obligatorio.') ||
+                (form.controls.funds.errors['min'] && 'Debe ser mayor o igual a 0.')
+              )
+            }}
+          </div>
         </div>
       </div>
     </form>

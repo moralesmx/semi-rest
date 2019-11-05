@@ -1,11 +1,7 @@
 export interface User {
-  admin: boolean;
-  cajero: boolean;
-  capitan: boolean;
   clave: string;
   estatus: number;
   idpvUsuarios: number;
-  mesero: boolean;
   nombre: string;
   usuario: string;
   permisos: {
@@ -15,7 +11,9 @@ export interface User {
     cobrar: boolean,
     descuentos: boolean,
     cambiomesa: boolean,
-    revivir: boolean
+    revivir: boolean,
+    comandarotros: boolean,
+    cambiomesero: boolean,
   };
 }
 
@@ -46,6 +44,7 @@ export interface Table {
   mesero: string;
   paraLlevar: number;
   total: number;
+  habitacion: string;
 }
 
 export interface Waiter {

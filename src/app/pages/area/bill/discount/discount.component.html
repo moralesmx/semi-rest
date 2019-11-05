@@ -1,4 +1,7 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+
 <div class="modal-content">
+
   <div class="modal-header">
     <h5 class="modal-title">Descuento - {{ data.table.clave }}</h5>
   </div>
@@ -8,20 +11,20 @@
       <div class="form-group">
         <label>Tipo</label>
         <div class="btn-group d-flex">
-          <button type="button" class="btn" [ngClass]="type.value == 1 ? 'btn-primary' : 'btn-secondary'"
-            (click)="type.setValue(1)" [disabled]="type.disabled">
+          <button type="button" class="btn" [ngClass]="form.controls.type.value == 1 ? 'btn-primary' : 'btn-secondary'"
+            (click)="form.controls.type.setValue(1)" [disabled]="form.controls.type.disabled">
             Porcentual
           </button>
-          <button type="button" class="btn" [ngClass]="type.value == 2 ? 'btn-primary' : 'btn-secondary'"
-            (click)="type.setValue(2)" [disabled]="type.disabled">
+          <button type="button" class="btn" [ngClass]="form.controls.type.value == 2 ? 'btn-primary' : 'btn-secondary'"
+            (click)="form.controls.type.setValue(2)" [disabled]="form.controls.type.disabled">
             Directo
           </button>
         </div>
       </div>
       <div class="form-group">
         <label>Porcentaje</label>
-        <input class="form-control text-right" [formControl]="percentage" currencyMask appCursorEnd
-          [class.is-invalid]="percentage.touched && percentage.invalid"
+        <input class="form-control text-right" [formControl]="form.controls.percentage" currencyMask appCursorEnd
+          [class.is-invalid]="form.controls.percentage.touched && form.controls.percentage.invalid"
           [options]="{ prefix: '', suffix: ' %' }">
         <div class="invalid-feedback">
           Porcentaje invalido
@@ -29,8 +32,8 @@
       </div>
       <div class="form-group">
         <label>Monto</label>
-        <input class="form-control text-right" [formControl]="amount" currencyMask appCursorEnd
-          [class.is-invalid]="amount.touched && amount.invalid">
+        <input class="form-control text-right" [formControl]="form.controls.amount" currencyMask appCursorEnd
+          [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid">
         <div class="invalid-feedback">
           Monto invalido
         </div>

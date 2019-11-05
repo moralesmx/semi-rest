@@ -2,26 +2,33 @@ import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { EMPTY, forkJoin, Subject } from 'rxjs';
-import { catchError, debounceTime, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, switchMap, takeUntil, tap, filter } from 'rxjs/operators';
 import { ActionsService } from '../../../core/actions.service';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Bill, Command, Room, Table, Waiter } from '../../../core/models';
 import { ModalsService } from '../../../modals/modals.service';
-import { ChangeTableComponent } from './change-table/change-table.component';
-import { DiscountComponent } from './discount/discount.component';
+import { ChangeTableModalComponent } from './change-table/change-table.component';
+import { DiscountModalComponent } from './discount/discount.component';
 import { PayComponent } from './pay/pay.component';
 
 @Component({
   templateUrl: 'bill.component.html'
 })
-export class BillComponent implements OnDestroy {
+export class BillModalComponent implements OnDestroy {
 
   static readonly defaultName: string = 'Cliente directo';
 
   private readonly destroyed: Subject<void> = new Subject<void>();
 
-  public loading: boolean;
+  private _loading: boolean;
+  public get loading(): boolean {
+    return this._loading;
+  }
+  public set loading(loading: boolean) {
+    this._loading = loading;
+    this.ref.disableClose = loading;
+  }
 
   public waiters: Waiter[];
   public bill: Bill;
@@ -37,10 +44,10 @@ export class BillComponent implements OnDestroy {
     waiter: new FormControl(undefined, [Validators.required]),
     adults: new FormControl(0, [Validators.required, Validators.min(1)]),
     minors: new FormControl(0, [Validators.required, Validators.min(0)]),
-    name: new FormControl(BillComponent.defaultName, [Validators.required]),
+    name: new FormControl(BillModalComponent.defaultName, [Validators.required]),
     room: new FormControl(undefined),
     guest: new FormControl(undefined),
-  }) as FormGroupTyped<any>;
+  }) as any;
 
   constructor(
     private actions: ActionsService,
@@ -48,36 +55,37 @@ export class BillComponent implements OnDestroy {
     public auth: AuthService,
     private dialog: MatDialog,
     private modals: ModalsService,
-    private ref: MatDialogRef<BillComponent>,
+    private ref: MatDialogRef<BillModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { table: Table }
   ) {
-    if (this.auth.user.cajero || this.auth.user.capitan) {
+    if (this.auth.user.permisos.cambiomesero) {
       this.form.controls.waiter.enable();
     } else {
       this.form.controls.waiter.disable();
     }
-    this.form.controls.guest.valueChanges.subscribe(value => {
-      if (value) {
-        this.form.controls.name.disable();
-      } else {
+
+
+    this.form.controls.room.valueChanges.pipe(
+      tap(() => {
+        this.form.controls.guest.setValue(undefined);
+        this.form.controls.name.setValue(BillModalComponent.defaultName);
         this.form.controls.name.enable();
+      }),
+      debounceTime(300),
+      filter(value => !!value),
+      switchMap(value => {
+        return this.api.getRoom(value).pipe(
+          catchError(() => EMPTY)
+        );
+      }),
+      takeUntil(this.destroyed)
+    ).subscribe({
+      next: room => {
+        this.form.controls.guest.setValue(room.idHotel);
+        this.form.controls.name.setValue(room.huesped);
+        this.form.controls.name.disable();
       }
     });
-    this.form.controls.room.valueChanges.pipe(
-      debounceTime(300),
-      switchMap(value => this.api.getRoom(value || undefined).pipe(
-        tap(room => {
-          this.form.controls.guest.setValue(room.idHotel);
-          this.form.controls.name.setValue(room.huesped);
-        }),
-        catchError(() => {
-          this.form.controls.guest.setValue(undefined);
-          this.form.controls.name.setValue(BillComponent.defaultName);
-          return EMPTY;
-        })
-      )),
-      takeUntil(this.destroyed)
-    ).subscribe();
 
     this.loadBill();
   }
@@ -89,18 +97,24 @@ export class BillComponent implements OnDestroy {
       this.api.getBill(this.data.table.idpvVentas)
     ).pipe(
       takeUntil(this.destroyed)
-    ).subscribe(([waiters, bill]) => {
-      this.waiters = waiters;
-      this.bill = bill;
-      this.form.patchValue({
-        waiter: bill.idpvUsuariosMesero,
-        adults: bill.adultos,
-        minors: bill.menores,
-        name: bill.nombre,
-        guest: bill.idHotel,
-        room: bill.habitacion,
-      });
-      this.loading = false;
+    ).subscribe({
+      next: ([waiters, bill]) => {
+        this.waiters = waiters;
+        this.bill = bill;
+        this.form.patchValue({
+          waiter: bill.idpvUsuariosMesero,
+          adults: bill.adultos,
+          minors: bill.menores,
+          name: bill.nombre,
+          guest: bill.idHotel,
+          room: bill.habitacion,
+        });
+        this.loading = false;
+      },
+      error: error => {
+        console.error(error);
+        this.loading = false;
+      }
     });
   }
 
@@ -122,8 +136,11 @@ export class BillComponent implements OnDestroy {
   }
 
   public discount(): void {
-    this.dialog.open(DiscountComponent, {
-      data: { table: this.data.table, bill: this.bill }
+    this.dialog.open(DiscountModalComponent, {
+      data: {
+        table: this.data.table,
+        bill: this.bill
+      }
     }).afterClosed().pipe(
       takeUntil(this.destroyed)
     ).subscribe(result => {
@@ -149,7 +166,7 @@ export class BillComponent implements OnDestroy {
   }
 
   public changeTable(): void {
-    this.dialog.open(ChangeTableComponent, {
+    this.dialog.open(ChangeTableModalComponent, {
       data: {
         table: this.data.table
       }
@@ -172,13 +189,13 @@ export class BillComponent implements OnDestroy {
       this.loading = true;
       this.api.cancelCommand(command.idpvComandas, this.auth.user.idpvUsuarios).subscribe(
         () => {
-          this.loading = false;
           this.loadBill();
+          this.loading = false;
         },
         error => {
           console.error(error);
-          this.loading = false;
           this.loadBill();
+          this.loading = false;
         }
       );
     }
@@ -233,32 +250,31 @@ export class BillComponent implements OnDestroy {
   }
 
   public submit(): void {
-    if (this.form.valid) {
-      this.loading = true;
-      this.ref.disableClose = true;
-      this.api.updateBill({
-        idpvVentas: this.data.table.idpvVentas,
-        idpvUsuariosMesero: this.form.controls.waiter.value,
-        adultos: this.form.controls.adults.value,
-        menores: this.form.controls.minors.value,
-        nombre: this.form.controls.name.value,
-        idHotel: this.form.controls.guest.value,
-        habitacion: this.form.controls.room.value
-      }).pipe(
-        takeUntil(this.destroyed)
-      ).subscribe(
-        () => {
-          this.ref.close();
-        },
-        error => {
-          console.log(error);
-          this.loading = false;
-          this.ref.disableClose = false;
-        }
-      );
-    } else {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
     }
+    this.loading = true;
+    this.api.updateBill({
+      idpvVentas: this.data.table.idpvVentas,
+      idpvUsuariosMesero: this.form.controls.waiter.value,
+      adultos: this.form.controls.adults.value,
+      menores: this.form.controls.minors.value,
+      nombre: this.form.controls.name.value,
+      idHotel: this.form.controls.guest.value,
+      habitacion: this.form.value.guest ? this.form.value.room : undefined
+    }).pipe(
+      takeUntil(this.destroyed)
+    ).subscribe(
+      () => {
+        this.ref.close();
+        this.loading = false;
+      },
+      error => {
+        console.log(error);
+        this.loading = false;
+      }
+    );
   }
 
 }

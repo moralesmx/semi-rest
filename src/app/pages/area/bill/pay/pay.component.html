@@ -1,4 +1,7 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+
 <div class="modal-content">
+
   <div class="modal-header">
     <h5 class="modal-title">Cobrar Cuenta - {{ data.table.clave }}</h5>
   </div>
@@ -24,8 +27,8 @@
           <div class="form-group row">
             <label class="col-form-label col-auto">Propina</label>
             <div class="col">
-              <input class="form-control text-right" [formControl]="tips" currencyMask appCursorEnd
-                [class.is-invalid]="tips.touched && tips.invalid">
+              <input class="form-control text-right" [formControl]="form.controls.tips" currencyMask appCursorEnd
+                [class.is-invalid]="form.controls.tips.touched && form.controls.tips.invalid">
               <div class="invalid-feedback">
                 Debe ser igual o mayor a 0
               </div>
@@ -35,21 +38,21 @@
           <div class="form-group row">
             <label class="col-form-label col-auto">Total</label>
             <div class="col">
-              <input class="form-control text-right" [value]="total.value | currency" readonly>
+              <input class="form-control text-right" [value]="form.controls.total.value | currency" readonly>
             </div>
           </div>
 
           <div class="form-group row">
             <label class="col-form-label col-auto">Pago</label>
             <div class="col">
-              <input class="form-control text-right" [value]="payment.value | currency" readonly>
+              <input class="form-control text-right" [value]="form.controls.payment.value | currency" readonly>
             </div>
           </div>
 
           <div class="form-group row">
             <label class="col-form-label col-auto">Cambio</label>
             <div class="col">
-              <input class="form-control text-right" [value]="change.value | currency" readonly>
+              <input class="form-control text-right" [value]="form.controls.change.value | currency" readonly>
             </div>
           </div>
 
@@ -61,9 +64,9 @@
             <label class="col-form-label col-auto">{{ option.nombre }}</label>
             <div class="col">
               <div class="input-group">
-                <input class="form-control text-right" [formControl]="payments.controls['' + option.idpvFormaPago]"
-                  currencyMask appCursorEnd #control="ngForm"
-                  [class.is-invalid]="control.form?.touched && control.form?.invalid">
+                <input class="form-control text-right"
+                  [formControl]="form.controls.payments.controls['' + option.idpvFormaPago]" currencyMask appCursorEnd
+                  #control="ngForm" [class.is-invalid]="control.form?.touched && control.form?.invalid">
                 <div class="input-group-append">
                   <button type="button" class="btn btn-secondary mdi mdi-minus" [disabled]="control.form?.disabled"
                     (click)="complete(control.form)">
@@ -82,7 +85,9 @@
 
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
+      Cancelar
+    </button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
       <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
       Cobrar
