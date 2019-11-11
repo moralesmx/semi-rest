@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material';
 import { AlertModalComponent, AlertModalData, AlertModalReturn } from './alert/alert.component';
 import { LoginModalData, LoginModalComponent, LoginModalReturn } from './login/login.component';
 import { User } from '../core/models';
+import { SelectModalData, SelectModalComponent, SelectModalReturn } from './select/select.component';
 
 @Injectable({ providedIn: 'root' })
 export class ModalsService {
@@ -13,6 +14,12 @@ export class ModalsService {
 
   public alert(options: AlertModalData): Promise<boolean> {
     return this.dialog.open<AlertModalComponent, AlertModalData, AlertModalReturn>(AlertModalComponent, {
+      data: options
+    }).afterClosed().toPromise();
+  }
+
+  public select(options: SelectModalData): Promise<string> {
+    return this.dialog.open<SelectModalComponent, SelectModalData, SelectModalReturn>(SelectModalComponent, {
       data: options
     }).afterClosed().toPromise();
   }

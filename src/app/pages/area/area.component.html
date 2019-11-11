@@ -1,12 +1,18 @@
+<p-blockUI [blocked]="loading"></p-blockUI>
+
 <div class="container-fluid py-3 h-100">
 
   <div class="row h-100" *ngIf="area">
     <div class="col-3">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title">
-            Cuentas
-          </h5>
+          <div class="card-title d-flex flex-row justify-content-between align-items-start">
+            <h5>
+              {{ showClosed ? 'Cuentas cerradas': 'Cuentas activas'}}
+            </h5>
+            <button type="button" class="btn btn-outline-info btn-sm mdi mdi-card-bulleted"
+              (click)="showClosed = !showClosed"></button>
+          </div>
           <div class="input-group">
             <input class="form-control" placeholder="Buscar" [(ngModel)]="search">
             <div class="input-group-append">
@@ -15,18 +21,34 @@
           </div>
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item list-group-item-action d-flex flex-row" (click)="order(table)"
-            *ngFor="let table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]">
-            <span style="flex-grow: 1">
-              <strong>{{ table.clave }}</strong> {{ table.mesero }}
-            </span>
-            <span *ngIf="table.habitacion">
-              <span class="badge badge-success badge-pill">{{ table.habitacion }}</span>
-            </span>
-            <span>
-              <span class="badge badge-primary badge-pill">{{ table.total | currency}}</span>
-            </span>
-          </li>
+          <ng-container *ngIf="!showClosed">
+            <li class="list-group-item list-group-item-action d-flex flex-row" (click)="order(table)"
+              *ngFor="let table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]">
+              <span style="flex-grow: 1">
+                <strong>{{ table.clave }}</strong> {{ table.mesero }}
+              </span>
+              <span *ngIf="table.habitacion">
+                <span class="badge badge-success badge-pill">{{ table.habitacion }}</span>
+              </span>
+              <span>
+                <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
+              </span>
+            </li>
+          </ng-container>
+          <ng-container *ngIf="showClosed">
+            <li class="list-group-item list-group-item-action d-flex flex-row"
+              *ngFor="let table of closed | search : [['mesero', search]]" (click)="closedOptions(table)">
+              <span style="flex-grow: 1">
+                <strong>{{ table.clave }}</strong> {{ table.mesero }}
+              </span>
+              <span>
+                <span class="badge badge-success badge-pill">{{ table.area }}</span>
+              </span>
+              <span>
+                <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
+              </span>
+            </li>
+          </ng-container>
         </ul>
       </div>
     </div>
@@ -43,15 +65,16 @@
               <span class="nav-link" [class.active]="activeSection == section">
                 {{ section.nombre }}
                 <span class="badge badge-primary badge-pill">{{ (section.mesas | has : 'idpvVentas').length }}</span>
-                </span>
+              </span>
             </li>
           </ul>
         </div>
         <div class="card-body p-1">
           <div class=" embed-responsive embed-responsive-16by9">
             <div class="embed-responsive-item" #box *ngIf="activeSection">
-              <div class="position-absolute p-1" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box" [inBounds]="true"
-                [preventDefaultEvent]="true" *ngFor="let table of activeSection.mesas; trackBy: trackTable"
+              <div class="position-absolute p-1" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box"
+                [inBounds]="true" [preventDefaultEvent]="true"
+                *ngFor="let table of activeSection.mesas; trackBy: trackTable"
                 [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
                 [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
                 [style.height.px]="box.clientWidth / activeSection.proporcion"
@@ -75,4 +98,3 @@
     </div>
   </div>
 </div>
-

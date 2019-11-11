@@ -3,7 +3,7 @@ import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { combineLatest, forkJoin, Subject } from 'rxjs';
-import { map, startWith, takeUntil, tap } from 'rxjs/operators';
+import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../../core/api.service';
 import { Kitchen, Modifier, Order, Product, Term } from '../../../../../core/models';
 
@@ -130,7 +130,7 @@ export class ProductComponent implements OnDestroy {
         } else {
           this.form.patchValue({
             kitchen: this.product.idpvCocinas,
-            half: false, 
+            half: false,
           });
         }
         this.loading = false;

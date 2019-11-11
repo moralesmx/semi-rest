@@ -46,6 +46,7 @@ export interface Table {
   paraLlevar: number;
   total: number;
   habitacion: string;
+  area: string;
 }
 
 export interface Waiter {

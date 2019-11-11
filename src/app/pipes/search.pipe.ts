@@ -12,9 +12,9 @@ export class SearchPipe implements PipeTransform {
       return list;
     }
     return list.filter(item => {
-      return ors.some((ands: [string, string][]) => {
+      return ors.some(ands => {
         return ands.every(([property, text]) => {
-          return (item[property] as string).includes(text);
+          return item[property].toString().toLowerCase().includes(text.toLowerCase());
         });
       });
     });

@@ -234,7 +234,7 @@ export class BillModalComponent implements OnDestroy {
       cancel: 'No'
     })) {
       this.loading = true;
-      this.api.printCheck(this.bill).subscribe({
+      this.api.printCheck(this.bill.idpvVentas).subscribe({
         next: () => {
           this.loading = false;
         },

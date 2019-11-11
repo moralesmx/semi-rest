@@ -5,13 +5,13 @@ import { Area, Bill, Command, Kitchen, PaymentOption, Printer, Product, Room, Ta
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
+  // public url: string = 'http://172.16.0.199:5000/punto-de-venta/pos';
+  public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
   // public url: string = 'http://192.168.195.96:5000/punto-de-venta/pos';
-  public url: string = 'http://192.168.195.201:5000/punto-de-venta/pos';
+  // public url: string = 'http://192.168.195.201:5000/punto-de-venta/pos';
 
   // public url: string = 'http://localhost:5000/punto-de-venta/pos';
   // public url: string = 'http://25.66.208.206:5000/punto-de-venta/pos';
-  // public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
   // public url: string = 'http://192.168.10.34:5000/punto-de-venta/pos';
   // public url: string = 'http://192.168.10.147:5000/punto-de-venta/pos';
   // public url: string = 'http://192.168.1.179:5000/punto-de-venta/pos';
@@ -39,15 +39,19 @@ export class ApiService {
     return this.http.put<any>(`${this.url}/cuentas/${billId}/descuentos`, body);
   }
 
-  public printCheck(bill: Bill): Observable<any> {
-    return this.http.get<any>(`${this.url}/cuentas/${bill.idpvVentas}/cheque`);
+  public printCheck(billId: Bill['idpvVentas']): Observable<any> {
+    return this.http.get<any>(`${this.url}/cuentas/${billId}/cheque`);
+  }
+
+  public reopenCheck(billId: Bill['idpvVentas']): Observable<any> {
+    return this.http.put<any>(`${this.url}/ventas/${billId}/revivir`, {});
   }
 
   public changeSub(command: Command, sub: Command['cuenta']): Observable<any> {
     return this.http.put<any>(`${this.url}/comandas/${command.idpvComandas}`, { cuenta: sub });
   }
 
-  public changeTable(billId: Bill['idpvVentas'], fromTableId: Table['idpvAreasMesas'], toTableId: Table['idpvAreasMesas']){
+  public changeTable(billId: Bill['idpvVentas'], fromTableId: Table['idpvAreasMesas'], toTableId: Table['idpvAreasMesas']) {
     return this.http.put<any>(`${this.url}/cuentas/${billId}/mesas`, {
       ['mesaorigen']: fromTableId,
       ['mesadestino']: toTableId,
@@ -95,8 +99,8 @@ export class ApiService {
   }
 
   // TODO
-  public getChecks(area: Area) {
-    return this.http.get(`${this.url}/ventas/${area.idpvCortes}/cerradas`);
+  public getClosedTables(area: Area): Observable<Table[]> {
+    return this.http.get<Table[]>(`${this.url}/ventas/${area.idpvCortes}/cerradas`);
   }
 
   public getBill(id: number): Observable<Bill> {

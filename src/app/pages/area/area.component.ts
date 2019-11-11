@@ -18,10 +18,15 @@ export class AreaComponent implements OnDestroy {
 
   private readonly destroyed: Subject<void> = new Subject<void>();
 
+  public loading: boolean;
+
   public search: string = '';
 
   public area: Area;
   public activeSection: Section;
+
+  public closed: Table[];
+  public showClosed: boolean;
 
   constructor(
     private api: ApiService,
@@ -56,6 +61,13 @@ export class AreaComponent implements OnDestroy {
         this.activeSection = this.activeSection ?
           this.area.secciones.find(section => section.idpvSecciones === this.activeSection.idpvSecciones) :
           this.area.secciones[0];
+
+        this.api.getClosedTables(this.area).subscribe({
+          next: bills => {
+            this.closed = bills;
+          },
+          error: console.error
+        });
       },
       error: error => {
         console.error(error);
@@ -125,6 +137,71 @@ export class AreaComponent implements OnDestroy {
       nombre: 'Seccion',
       proporcion: 10
     } as any);
+  }
+
+  public async closedOptions(table: Table): Promise<void> {
+    const user: User = await this.modals.login({ cancelable: true });
+    if (!user) {
+      return;
+    }
+    const option: string = await this.modals.select({
+      title: `Cuenta ${table.clave}`,
+      options: {
+        reabrir: 'Reabrir cuenta',
+        reimprimir: 'Reimprimir cuenta'
+      },
+      cancel: 'Cancelar'
+    });
+    switch (option) {
+      case 'reabrir':
+        if (user.permisos.revivir) {
+          const response: boolean = await this.modals.alert({
+            title: `Reabrir cuenta ${table.clave}`,
+            message: '¿Esta seguro de que desea reabrir la cuenta?',
+            cancel: 'Cancelar',
+            ok: 'Aceptar'
+          });
+          if (response) {
+            this.loading = true;
+            this.api.reopenCheck(table.idpvVentas).subscribe({
+              next: () => this.loading = false,
+              error: () => this.loading = false,
+            });
+          }
+        } else {
+          this.modals.alert({
+            title: 'Acceso denegado',
+            message: 'No tienes los permisos para reabrir esta cuenta',
+            ok: 'Aceptar'
+          });
+        }
+        break;
+      case 'reimprimir':
+        if (user.permisos.imprimircheque) {
+          const response: boolean = await this.modals.alert({
+            title: `Reimprimir cuenta ${table.clave}`,
+            message: '¿Esta seguro de que desea reimprimir la cuenta?',
+            cancel: 'Cancelar',
+            ok: 'Aceptar'
+          });
+          if (response) {
+            this.loading = true;
+            this.api.printCheck(table.idpvVentas).subscribe({
+              next: () => this.loading = false,
+              error: () => this.loading = false,
+            });
+          }
+        } else {
+          this.modals.alert({
+            title: 'Acceso denegado',
+            message: 'No tienes los permisos para reimprimir esta cuenta',
+            ok: 'Aceptar'
+          });
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   public trackArea(index: number, area: Area) {

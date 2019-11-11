@@ -1,15 +1,22 @@
 @import '~@angular/material/theming';
 @include mat-core();
 
+$theme-primary: mat-palette($mat-indigo);
+$theme-accent:  mat-palette($mat-pink, A200, A100, A400);
+$theme-theme:   mat-light-theme($theme-primary, $theme-accent);
+
+@include mat-core-theme($theme-theme); 
+@include mat-snack-bar-theme($theme-theme); 
+
+.mat-dialog-container {
+  height: unset !important;
+}
+
 @import '~primeng/resources/components/blockui/blockui.css';
 
 .ui-blockui {
   background-color: rgba(0, 0, 0, 0.4);
   z-index: 100000;
-}
-
-.mat-dialog-container {
-  height: unset !important;
 }
 
 $enable-shadows: true;
