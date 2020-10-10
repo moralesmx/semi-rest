@@ -106,7 +106,7 @@
                 <button type="button" class="btn btn-outline-info btn-sm mdi mdi-printer" [disabled]="form.disabled"
                   *ngIf="command.estatus" (click)="printOrder(command)"></button>
                 <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
-                  *ngIf="command.estatus" (click)="cancelCommand(command)"></button>
+                  *ngIf="command.estatus && auth.user.permisos.cancelaciones" (click)="cancelCommand(command)"></button>
               </td>
             </tr>
             <tr *ngIf="!command.estatus" class="text-danger">
