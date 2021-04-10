@@ -36,7 +36,7 @@ export class DiscountModalComponent implements OnDestroy {
   }> = new FormGroup({
     type: new FormControl(undefined, [Validators.required]),
     percentage: new FormControl(undefined, [Validators.min(0), Validators.max(100)]),
-    amount: new FormControl(undefined, [Validators.min(0)]),
+    amount: new FormControl(undefined, [Validators.min(0), Validators.max(this.data.bill.total)]),
   }) as any;
 
   constructor(
@@ -99,6 +99,9 @@ export class DiscountModalComponent implements OnDestroy {
       return;
     }
     this.loading = true;
+    this.form.controls.percentage.enable();
+    this.form.controls.amount.enable();
+
     this.api.discount(this.data.bill.idpvVentas, {
       descuentoTipo: this.form.value.type,
       descuento: this.form.value.percentage,
