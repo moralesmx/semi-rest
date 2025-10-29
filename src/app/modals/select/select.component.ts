@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export interface SelectModalData {
   title?: string;
@@ -11,6 +11,7 @@ export interface SelectModalData {
 export type SelectModalReturn = string;
 
 @Component({
+  standalone: false,
   templateUrl: 'select.component.html'
 })
 export class SelectModalComponent {

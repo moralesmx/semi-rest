@@ -1,13 +1,14 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { combineLatest, forkJoin, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../../core/api.service';
 import { Kitchen, Modifier, Order, Product, Term } from '../../../../../core/models';
 
 @Component({
+  standalone: false,
   templateUrl: 'product.component.html'
 })
 export class ProductComponent implements OnDestroy {
@@ -27,25 +28,16 @@ export class ProductComponent implements OnDestroy {
 
   public product: Product;
 
-  public form: FormGroupTyped<{
-    price: number;
-    quantity: number;
-    total: number;
-    half: boolean;
-    time: number;
-    sub: number;
-    kitchen: Kitchen['idpvCocinas'];
-    notes: string;
-  }> = new FormGroup({
-    price: new FormControl(undefined, [Validators.required]),
+  public form = new FormGroup({
+    price: new FormControl<number>(undefined, [Validators.required]),
     quantity: new FormControl(1, [Validators.required]),
-    total: new FormControl(undefined, [Validators.required]),
+    total: new FormControl<number>(undefined, [Validators.required]),
     half: new FormControl(false, [Validators.required]),
     time: new FormControl(1, [Validators.required]),
     sub: new FormControl(1, [Validators.required]),
-    kitchen: new FormControl(undefined, [Validators.required]),
+    kitchen: new FormControl<Kitchen['idpvCocinas']>(undefined, [Validators.required]),
     notes: new FormControl('', [Validators.required]),
-  }) as any;
+  });
 
   public termsSelection: SelectionModel<Term> = new SelectionModel(true, []);
   public modifiersSelection: SelectionModel<Modifier> = new SelectionModel(true, []);

@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { BillModalComponent } from './bill/bill.component';
 import { NewBillComponent } from './new-bill/new-bill.component';
 
 @Component({
+  standalone: false,
   templateUrl: './area.component.html',
 })
 export class AreaComponent implements OnDestroy {

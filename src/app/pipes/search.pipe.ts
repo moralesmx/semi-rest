@@ -1,14 +1,14 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { isArray } from 'util';
 
 @Pipe({
+  standalone: false,
   name: 'search',
   pure: true
 })
 
 export class SearchPipe implements PipeTransform {
   public transform(list: any[], ...ors: [string, string][][]): any[] {
-    if (!isArray(list)) {
+    if (!Array.isArray(list)) {
       return list;
     }
     return list.filter(item => {

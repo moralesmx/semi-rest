@@ -1,14 +1,15 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Area } from '../../../core/models';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
+  standalone: false,
   templateUrl: 'open-area.component.html'
 })
 export class OpenAreaComponent implements OnDestroy {
@@ -24,11 +25,9 @@ export class OpenAreaComponent implements OnDestroy {
     this.ref.disableClose = loading;
   }
 
-  public form: FormGroupTyped<{
-    funds: number
-  }> = new FormGroup({
+  public form = new FormGroup({
     funds: new FormControl(0, [Validators.required, Validators.min(0)])
-  }) as any;
+  });
 
   constructor(
     private api: ApiService,

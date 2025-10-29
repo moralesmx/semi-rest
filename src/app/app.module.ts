@@ -1,12 +1,13 @@
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogConfig, MatDialogModule, MatSnackBarModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material';
+import { MatDialogModule, MatDialogConfig, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgAggregatePipesModule, NgArrayPipesModule } from 'angular-pipes';
+import { provideAnimations } from '@angular/platform-browser/animations';
+// import { NgAggregatePipesModule, NgArrayPipesModule } from 'angular-pipes';
 import { AngularDraggableModule } from 'angular2-draggable';
-import { NgxCurrencyModule } from 'ngx-currency';
+import { NgxCurrencyDirective, provideEnvironmentNgxCurrency } from 'ngx-currency';
 import { BlockUIModule } from 'primeng/blockui';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -28,6 +29,9 @@ import { CloseAreaComponent } from './pages/areas/close-area/close-area.componen
 import { OpenAreaComponent } from './pages/areas/open-area/open-area.component';
 import { HasNotPipe, HasPipe } from './pipes/has.pipe';
 import { SearchPipe } from './pipes/search.pipe';
+import { RangePipe } from './pipes/range.pipe';
+import { GroupByPipe } from './pipes/group-by.pipe';
+import { OrderByPipe } from './pipes/order-by.pipe';
 
 @NgModule({
   declarations: [
@@ -54,37 +58,42 @@ import { SearchPipe } from './pipes/search.pipe';
     HasPipe,
     HasNotPipe,
     SearchPipe,
+    RangePipe,
+    GroupByPipe,
+    OrderByPipe,
 
     CursorEndDirective,
   ],
-  entryComponents: [
-    LoginModalComponent,
-
-    AlertModalComponent,
-    SelectModalComponent,
-
-    OpenAreaComponent,
-    CloseAreaComponent,
-
-    BillModalComponent,
-    NewBillComponent,
-    OrderModalComponent,
-    ProductComponent,
-    PayComponent,
-    DiscountModalComponent,
-    ChangeTableModalComponent,
-  ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule,
-    HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
 
     AppRoutingModule,
 
     AngularDraggableModule,
-    NgxCurrencyModule.forRoot({
+    NgxCurrencyDirective,
+
+    BlockUIModule,
+
+    MatDialogModule,
+    MatSnackBarModule,
+
+    // NgAggregatePipesModule,
+    // NgArrayPipesModule,
+  ],
+  providers: [
+    {
+      provide: MAT_DIALOG_DEFAULT_OPTIONS,
+      useValue: { ... new MatDialogConfig(), maxHeight: '100%', maxWidth: '100%' }
+    },
+
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+
+    provideHttpClient(withInterceptorsFromDi()),
+    provideAnimations(),
+
+    provideEnvironmentNgxCurrency({
       align: 'right',
       prefix: '$',
       precision: 2,
@@ -94,23 +103,7 @@ import { SearchPipe } from './pipes/search.pipe';
       thousands: ',',
       nullable: true,
       suffix: ''
-    }),
-
-    BlockUIModule,
-
-    MatDialogModule,
-    MatSnackBarModule,
-
-    NgAggregatePipesModule,
-    NgArrayPipesModule,
-  ],
-  providers: [
-    {
-      provide: MAT_DIALOG_DEFAULT_OPTIONS,
-      useValue: { ... new MatDialogConfig(), maxHeight: '100%', maxWidth: '100%' }
-    },
-
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    })
   ],
   bootstrap: [AppComponent]
 })

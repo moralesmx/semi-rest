@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
@@ -14,6 +14,7 @@ export interface DiscountModalData {
 export type DiscountModalReturn = boolean;
 
 @Component({
+  standalone: false,
   templateUrl: 'discount.component.html'
 })
 export class DiscountModalComponent implements OnDestroy {
@@ -29,15 +30,11 @@ export class DiscountModalComponent implements OnDestroy {
     this.ref.disableClose = loading;
   }
 
-  public form: FormGroupTyped<{
-    type: number;
-    percentage: number;
-    amount: number;
-  }> = new FormGroup({
-    type: new FormControl(undefined, [Validators.required]),
-    percentage: new FormControl(undefined, [Validators.min(0), Validators.max(100)]),
-    amount: new FormControl(undefined, [Validators.min(0), Validators.max(this.data.bill.total)]),
-  }) as any;
+  public form = new FormGroup({
+    type: new FormControl<number>(undefined, [Validators.required]),
+    percentage: new FormControl<number>(undefined, [Validators.min(0), Validators.max(100)]),
+    amount: new FormControl<number>(undefined, [Validators.min(0), Validators.max(this.data.bill.total)]),
+  });
 
   constructor(
     private api: ApiService,

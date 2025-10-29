@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { CloseAreaComponent } from './close-area/close-area.component';
 import { OpenAreaComponent } from './open-area/open-area.component';
 
 @Component({
+  standalone: false,
   templateUrl: './areas.component.html',
 })
 export class AreasComponent implements OnDestroy {

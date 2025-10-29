@@ -1,11 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/auth.service';
 import { User } from '../../core/models';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface LoginModalData {
   cancelable?: boolean;
@@ -15,6 +15,7 @@ export interface LoginModalData {
 export type LoginModalReturn = User;
 
 @Component({
+  standalone: false,
   templateUrl: 'login.component.html'
 })
 export class LoginModalComponent implements OnDestroy {
@@ -32,11 +33,9 @@ export class LoginModalComponent implements OnDestroy {
 
   @ViewChild('input', { static: true }) private input: ElementRef<HTMLInputElement>;
 
-  public form: FormGroupTyped<{
-    pass: string;
-  }> = new FormGroup({
+  public form = new FormGroup({
     pass: new FormControl('', [Validators.required])
-  }) as any;
+  });
 
   constructor(
     private auth: AuthService,

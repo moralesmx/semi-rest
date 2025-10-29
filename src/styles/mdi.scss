@@ -1,5 +1,5 @@
-$mdi-font-path: "node_modules/@mdi/font/fonts";
-@import 'node_modules/@mdi/font/scss/materialdesignicons';
+$mdi-font-path: "@mdi/font/fonts";
+@import '@mdi/font/scss/materialdesignicons';
 
 .alert.mdi::before,
 .breadcrumb .mdi::before,

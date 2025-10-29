@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/auth.service';
 import { Area, PaymentOption } from '../../../core/models';
 
 @Component({
+  standalone: false,
   templateUrl: 'close-area.component.html'
 })
 
@@ -29,15 +30,13 @@ export class CloseAreaComponent implements OnDestroy {
 
   public paymentOptions: PaymentOption[];
 
-  public form: FormGroupTyped<{
-    [key: string]: number
-  }> = new FormGroup({});
+  public form = new FormGroup<{ [key: string]: FormControl<number>; }>({});
 
   constructor(
     private api: ApiService,
     private auth: AuthService,
     private ref: MatDialogRef<CloseAreaComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { area: Area }
+    @Inject(MAT_DIALOG_DATA) public data: { area: Area; }
   ) {
     this.loading = true;
     this.api.getPaymentOptions().pipe(

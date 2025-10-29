@@ -5,8 +5,10 @@ import { Area, Bill, Command, Kitchen, PaymentOption, Printer, Product, Room, Ta
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+  public url: string = 'https://api.rest.insist.pro/punto-de-venta/pos';
+
   // public url: string = 'http://172.16.0.199:5000/punto-de-venta/pos';
-  public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
+  // public url: string = 'http://7.7.7.107:5000/punto-de-venta/pos';
   // public url: string = 'http://192.168.195.96:5000/punto-de-venta/pos';
   // public url: string = 'http://192.168.195.201:5000/punto-de-venta/pos';
 
@@ -75,7 +77,7 @@ export class ApiService {
   }
 
   public printOrder(id: Command['idpvVentas'], folio: Command['folio'], printer?: Printer['idgeneralImpresoras']): Observable<any> {
-    const params: { [key: string]: string } = {};
+    const params: { [key: string]: string; } = {};
     if (printer) {
       params.copia = printer.toString();
     }

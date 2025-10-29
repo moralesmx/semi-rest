@@ -1,8 +1,8 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { EMPTY, forkJoin, Subject } from 'rxjs';
-import { catchError, debounceTime, switchMap, takeUntil, tap, filter } from 'rxjs/operators';
+import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ActionsService } from '../../../core/actions.service';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
@@ -13,6 +13,7 @@ import { DiscountModalComponent } from './discount/discount.component';
 import { PayComponent } from './pay/pay.component';
 
 @Component({
+  standalone: false,
   templateUrl: 'bill.component.html'
 })
 export class BillModalComponent implements OnDestroy {
@@ -33,21 +34,14 @@ export class BillModalComponent implements OnDestroy {
   public waiters: Waiter[];
   public bill: Bill;
 
-  public form: FormGroupTyped<{
-    waiter: Waiter['idpvUsuarios'],
-    adults: number,
-    minors: number,
-    name: string,
-    room: string,
-    guest: Room['idHotel']
-  }> = new FormGroup({
-    waiter: new FormControl(undefined, [Validators.required]),
+  public form = new FormGroup({
+    waiter: new FormControl<Waiter['idpvUsuarios']>(undefined, [Validators.required]),
     adults: new FormControl(0, [Validators.required, Validators.min(1)]),
     minors: new FormControl(0, [Validators.required, Validators.min(0)]),
     name: new FormControl(BillModalComponent.defaultName, [Validators.required]),
-    room: new FormControl(undefined),
-    guest: new FormControl(undefined),
-  }) as any;
+    room: new FormControl<string>(undefined),
+    guest: new FormControl<Room['idHotel']>(undefined),
+  });
 
   constructor(
     private actions: ActionsService,
@@ -56,7 +50,7 @@ export class BillModalComponent implements OnDestroy {
     private dialog: MatDialog,
     private modals: ModalsService,
     private ref: MatDialogRef<BillModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table }
+    @Inject(MAT_DIALOG_DATA) public data: { table: Table; }
   ) {
     if (this.auth.user.permisos.cambiomesero) {
       this.form.controls.waiter.enable();

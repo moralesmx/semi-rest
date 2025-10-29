@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AlertModalComponent, AlertModalData, AlertModalReturn } from './alert/alert.component';
 import { LoginModalData, LoginModalComponent, LoginModalReturn } from './login/login.component';
 import { User } from '../core/models';

@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
@@ -9,6 +9,7 @@ import { Area, Section, Table } from '../../../../core/models';
 export type ChangeTableModalReturn = boolean;
 
 @Component({
+  standalone: false,
   templateUrl: 'change-table.component.html'
 })
 export class ChangeTableModalComponent {
@@ -26,13 +27,10 @@ export class ChangeTableModalComponent {
 
   public area: Area;
 
-  public form: FormGroupTyped<{
-    section: Section,
-    table: Table
-  }> = new FormGroup({
-    section: new FormControl(undefined, [Validators.required]),
-    table: new FormControl(undefined, [Validators.required])
-  }) as any;
+  public form = new FormGroup({
+    section: new FormControl<Section>(undefined, [Validators.required]),
+    table: new FormControl<Table>(undefined, [Validators.required])
+  });
 
   constructor(
     private api: ApiService,

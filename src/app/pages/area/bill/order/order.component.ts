@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
@@ -14,6 +14,7 @@ export interface OrderModalData {
 export type OrderModalReturn = boolean;
 
 @Component({
+  standalone: false,
   templateUrl: 'order.component.html',
 })
 export class OrderModalComponent implements OnDestroy {
@@ -38,13 +39,10 @@ export class OrderModalComponent implements OnDestroy {
 
   public orders: Order[] = [];
 
-  public form: FormGroupTyped<{
-    printer: Printer['idgeneralImpresoras'],
-    copy: boolean
-  }> = new FormGroup({
-    printer: new FormControl(undefined),
+  public form = new FormGroup({
+    printer: new FormControl<Printer['idgeneralImpresoras']>(undefined),
     copy: new FormControl(false),
-  }) as any;
+  });
 
   constructor(
     private api: ApiService,
@@ -70,7 +68,7 @@ export class OrderModalComponent implements OnDestroy {
           takeUntil(this.destroyed)
         ).subscribe(value => {
           if (value) {
-            this.form.controls.printer.enable()
+            this.form.controls.printer.enable();
           } else {
             this.form.controls.printer.disable();
           }
@@ -141,7 +139,7 @@ export class OrderModalComponent implements OnDestroy {
     }).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
-      next: ({ folio }: { folio: number }) => {
+      next: ({ folio }: { folio: number; }) => {
         this.api.printOrder(
           this.table.idpvVentas,
           folio,

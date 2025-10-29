@@ -1,13 +1,14 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { combineLatest, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Bill, PaymentOption, Table } from '../../../../core/models';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
+  standalone: false,
   templateUrl: 'pay.component.html'
 })
 export class PayComponent implements OnDestroy {
@@ -25,17 +26,10 @@ export class PayComponent implements OnDestroy {
 
   public paymentOptions: PaymentOption[];
 
-  public form: FormGroupTyped<{
-    tips: number;
-    total: number;
-    payments: FormGroupTyped<{ [method: string]: number }>
-    payment: number;
-    nonCash: number;
-    change: number;
-  }> = new FormGroup({
+  public form = new FormGroup({
     tips: new FormControl(0, [Validators.min(0)]),
     total: new FormControl(0),
-    payments: new FormGroup({}),
+    payments: new FormGroup<{ [method: string]: FormControl<number>; }>({}),
     payment: new FormControl(0),
     nonCash: new FormControl(0),
     change: new FormControl(0),
@@ -47,13 +41,13 @@ export class PayComponent implements OnDestroy {
       return { change: 'No se puede dar cambio' };
     }
     return null;
-  }]) as any;
+  }]);
 
   constructor(
     private api: ApiService,
     private auth: AuthService,
     private ref: MatDialogRef<PayComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table, bill: Bill }
+    @Inject(MAT_DIALOG_DATA) public data: { table: Table, bill: Bill; }
   ) {
     combineLatest(
       this.form.controls.total.valueChanges,
