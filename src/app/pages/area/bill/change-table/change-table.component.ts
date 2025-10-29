@@ -1,15 +1,31 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { BlockUIModule } from 'primeng/blockui';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { HasNotPipe } from 'src/app/pipes/has.pipe';
 import { ApiService } from '../../../../core/api.service';
 import { Area, Section, Table } from '../../../../core/models';
 
 export type ChangeTableModalReturn = boolean;
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    HasNotPipe,
+    BlockUIModule,
+  ],
   templateUrl: 'change-table.component.html'
 })
 export class ChangeTableModalComponent {
@@ -35,7 +51,7 @@ export class ChangeTableModalComponent {
   constructor(
     private api: ApiService,
     private ref: MatDialogRef<ChangeTableModalComponent, ChangeTableModalReturn>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table }
+    @Inject(MAT_DIALOG_DATA) public data: { table: Table; }
   ) {
     this.loading = true;
     this.api.getArea(this.data.table.idpvAreas).pipe(

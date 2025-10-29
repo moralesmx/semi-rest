@@ -1,5 +1,7 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 
 export interface SelectModalData {
   title?: string;
@@ -11,7 +13,8 @@ export interface SelectModalData {
 export type SelectModalReturn = string;
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
   templateUrl: 'select.component.html'
 })
 export class SelectModalComponent {

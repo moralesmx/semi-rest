@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { EMPTY, forkJoin, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ActionsService } from '../../../core/actions.service';
@@ -11,9 +11,30 @@ import { ModalsService } from '../../../modals/modals.service';
 import { ChangeTableModalComponent } from './change-table/change-table.component';
 import { DiscountModalComponent } from './discount/discount.component';
 import { PayComponent } from './pay/pay.component';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { GroupByPipe } from '../../../pipes/group-by.pipe';
+import { RangePipe } from '../../../pipes/range.pipe';
+import { BlockUIModule } from 'primeng/blockui';
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    GroupByPipe,
+    RangePipe,
+    BlockUIModule
+  ],
   templateUrl: 'bill.component.html'
 })
 export class BillModalComponent implements OnDestroy {

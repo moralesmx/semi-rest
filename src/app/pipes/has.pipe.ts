@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  standalone: false,
+  standalone: true,
   name: 'has',
   pure: true
 })
@@ -12,7 +12,7 @@ export class HasPipe implements PipeTransform {
 }
 
 @Pipe({
-  standalone: false,
+  standalone: true,
   name: 'hasnot',
   pure: true
 })

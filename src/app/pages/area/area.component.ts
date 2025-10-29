@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -10,9 +10,31 @@ import { Area, Section, Table, User } from '../../core/models';
 import { ModalsService } from '../../modals/modals.service';
 import { BillModalComponent } from './bill/bill.component';
 import { NewBillComponent } from './new-bill/new-bill.component';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AngularDraggableModule } from 'angular2-draggable';
+import { BlockUIModule } from 'primeng/blockui';
+import { SearchPipe } from '../../pipes/search.pipe';
+import { HasPipe, HasNotPipe } from '../../pipes/has.pipe';
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    AngularDraggableModule,
+    BlockUIModule,
+    SearchPipe,
+    HasPipe,
+    HasNotPipe
+  ],
   templateUrl: './area.component.html',
 })
 export class AreaComponent implements OnDestroy {

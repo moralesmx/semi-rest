@@ -1,14 +1,32 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { combineLatest, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Bill, PaymentOption, Table } from '../../../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { CursorEndDirective } from './cursor-end.directive';
+import { NgxCurrencyDirective } from 'ngx-currency';
+import { BlockUIModule } from 'primeng/blockui';
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    CursorEndDirective,
+    NgxCurrencyDirective,
+    BlockUIModule
+  ],
   templateUrl: 'pay.component.html'
 })
 export class PayComponent implements OnDestroy {

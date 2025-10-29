@@ -1,11 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Inject, OnDestroy, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/auth.service';
 import { User } from '../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { BlockUIModule } from 'primeng/blockui';
 
 export interface LoginModalData {
   cancelable?: boolean;
@@ -15,7 +20,16 @@ export interface LoginModalData {
 export type LoginModalReturn = User;
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    BlockUIModule
+  ],
   templateUrl: 'login.component.html'
 })
 export class LoginModalComponent implements OnDestroy {

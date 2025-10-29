@@ -1,11 +1,19 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { BlockUIModule } from 'primeng/blockui';
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { OrderByPipe } from 'src/app/pipes/order-by.pipe';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Order, Printer, Product, Table } from '../../../../core/models';
+import { GroupByPipe } from '../../../../pipes/group-by.pipe';
 import { ProductComponent } from './product/product.component';
 
 export interface OrderModalData {
@@ -14,7 +22,19 @@ export interface OrderModalData {
 export type OrderModalReturn = boolean;
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    GroupByPipe,
+    OrderByPipe,
+    BlockUIModule,
+  ],
   templateUrl: 'order.component.html',
 })
 export class OrderModalComponent implements OnDestroy {

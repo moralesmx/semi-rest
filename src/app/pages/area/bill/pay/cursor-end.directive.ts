@@ -1,7 +1,7 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-  standalone: false,
+  standalone: true,
   selector: '[appCursorEnd]'
 })
 export class CursorEndDirective {

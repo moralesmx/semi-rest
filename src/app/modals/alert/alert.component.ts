@@ -1,5 +1,7 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 
 export interface AlertModalData {
   title?: string;
@@ -11,7 +13,8 @@ export interface AlertModalData {
 export type AlertModalReturn = boolean;
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
   templateUrl: 'alert.component.html'
 })
 export class AlertModalComponent {

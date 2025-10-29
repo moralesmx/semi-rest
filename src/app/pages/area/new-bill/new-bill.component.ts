@@ -1,14 +1,32 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Room, Table, Waiter } from '../../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { RangePipe } from '../../../pipes/range.pipe';
+import { BlockUIModule } from 'primeng/blockui';
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    RangePipe,
+    BlockUIModule
+  ],
   templateUrl: 'new-bill.component.html'
 })
 export class NewBillComponent implements OnDestroy {

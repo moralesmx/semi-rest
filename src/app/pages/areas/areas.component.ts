@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -9,9 +9,16 @@ import { Area } from '../../core/models';
 import { ModalsService } from '../../modals/modals.service';
 import { CloseAreaComponent } from './close-area/close-area.component';
 import { OpenAreaComponent } from './open-area/open-area.component';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule
+  ],
   templateUrl: './areas.component.html',
 })
 export class AreasComponent implements OnDestroy {
