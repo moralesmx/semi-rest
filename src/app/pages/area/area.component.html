@@ -2,56 +2,61 @@
 
 <div class="container-fluid py-3 h-100">
 
-  <div class="row h-100" *ngIf="area">
-    <div class="col-3">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title d-flex flex-row justify-content-between align-items-start">
-            <h5>
-              {{ showClosed ? 'Cuentas cerradas': 'Cuentas activas'}}
-            </h5>
-            <button type="button" class="btn btn-outline-info btn-sm mdi mdi-card-bulleted"
-              (click)="showClosed = !showClosed"></button>
-          </div>
-          <div class="input-group">
-            <input class="form-control" placeholder="Buscar" [(ngModel)]="search">
-            <div class="input-group-append">
-              <span class="input-group-text mdi mdi-magnify"></span>
+  @if (area) {
+    <div class="row h-100">
+      <div class="col-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title d-flex flex-row justify-content-between align-items-start">
+              <h5>
+                {{ showClosed ? 'Cuentas cerradas': 'Cuentas activas'}}
+              </h5>
+              <button type="button" class="btn btn-outline-info btn-sm mdi mdi-card-bulleted"
+                (click)="showClosed = !showClosed"></button>
+            </div>
+            <div class="input-group">
+              <input class="form-control" placeholder="Buscar" [(ngModel)]="search">
+              <div class="input-group-append">
+                <span class="input-group-text mdi mdi-magnify"></span>
+              </div>
             </div>
           </div>
+          <ul class="list-group list-group-flush">
+            @if (!showClosed) {
+              @for (table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]; track table.idpvAreasMesas) {
+                <li class="list-group-item list-group-item-action d-flex flex-row" (click)="order(table)">
+                  <span style="flex-grow: 1">
+                    <strong>{{ table.clave }}</strong> {{ table.mesero }}
+                  </span>
+                  @if (table.habitacion) {
+                    <span>
+                      <span class="badge badge-success badge-pill">{{ table.habitacion }}</span>
+                    </span>
+                  }
+                  <span>
+                    <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
+                  </span>
+                </li>
+              }
+            }
+            @if (showClosed) {
+              @for (table of closed | search : [['mesero', search]]; track table.idpvAreasMesas) {
+                <li class="list-group-item list-group-item-action d-flex flex-row" (click)="closedOptions(table)">
+                  <span style="flex-grow: 1">
+                    <strong>{{ table.clave }}</strong> {{ table.mesero }}
+                  </span>
+                  <span>
+                    <span class="badge badge-success badge-pill">{{ table.area }}</span>
+                  </span>
+                  <span>
+                    <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
+                  </span>
+                </li>
+              }
+            }
+          </ul>
         </div>
-        <ul class="list-group list-group-flush">
-          <ng-container *ngIf="!showClosed">
-            <li class="list-group-item list-group-item-action d-flex flex-row" (click)="order(table)"
-              *ngFor="let table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]">
-              <span style="flex-grow: 1">
-                <strong>{{ table.clave }}</strong> {{ table.mesero }}
-              </span>
-              <span *ngIf="table.habitacion">
-                <span class="badge badge-success badge-pill">{{ table.habitacion }}</span>
-              </span>
-              <span>
-                <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
-              </span>
-            </li>
-          </ng-container>
-          <ng-container *ngIf="showClosed">
-            <li class="list-group-item list-group-item-action d-flex flex-row"
-              *ngFor="let table of closed | search : [['mesero', search]]" (click)="closedOptions(table)">
-              <span style="flex-grow: 1">
-                <strong>{{ table.clave }}</strong> {{ table.mesero }}
-              </span>
-              <span>
-                <span class="badge badge-success badge-pill">{{ table.area }}</span>
-              </span>
-              <span>
-                <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
-              </span>
-            </li>
-          </ng-container>
-        </ul>
       </div>
-    </div>
 
     <div class="col-9">
 
@@ -61,40 +66,50 @@
             Mesas
           </h5>
           <ul class="nav nav-tabs nav-fill card-header-tabs">
-            <li class="nav-item" *ngFor="let section of area.secciones" (click)="activeSection = section">
-              <span class="nav-link" [class.active]="activeSection == section">
-                {{ section.nombre }}
-                <span class="badge badge-primary badge-pill">{{ (section.mesas | has : 'idpvVentas').length }}</span>
-              </span>
-            </li>
+            @for (section of area.secciones; track section.idpvSecciones) {
+              <li class="nav-item" (click)="activeSection = section">
+                <span class="nav-link" [class.active]="activeSection == section">
+                  {{ section.nombre }}
+                  <span class="badge badge-primary badge-pill">{{ (section.mesas | has : 'idpvVentas').length }}</span>
+                </span>
+              </li>
+            }
           </ul>
         </div>
         <div class="card-body p-1">
           <div class=" embed-responsive embed-responsive-16by9">
-            <div class="embed-responsive-item" #box *ngIf="activeSection">
-              <div class="position-absolute p-1" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box"
-                [inBounds]="true" [preventDefaultEvent]="true"
-                *ngFor="let table of activeSection.mesas; trackBy: trackTable"
-                [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
-                [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
-                [style.height.px]="box.clientWidth / activeSection.proporcion"
-                [style.width.px]="box.clientWidth / activeSection.proporcion"
-                (endOffset)="table.coordX = $event.x * 100 / box.clientWidth; table.coordY = $event.y * 100 / box.clientWidth">
-                <button type="button" class="btn w-100 h-100"
-                  [ngClass]="table.idpvVentas ? 'btn-primary' : 'btn-secondary'" (click)="selectTable(table)">
-                  {{ table.clave }}
-                </button>
+            @if (activeSection) {
+              <div class="embed-responsive-item" #box>
+                @for (table of activeSection.mesas; track table.idpvAreasMesas) {
+                  <div class="position-absolute p-1" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box"
+                    [inBounds]="true" [preventDefaultEvent]="true"
+                    [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
+                    [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
+                    [style.height.px]="box.clientWidth / activeSection.proporcion"
+                    [style.width.px]="box.clientWidth / activeSection.proporcion"
+                    (endOffset)="table.coordX = $event.x * 100 / box.clientWidth; table.coordY = $event.y * 100 / box.clientWidth">
+                    <button type="button" class="btn w-100 h-100"
+                      [ngClass]="table.idpvVentas ? 'btn-primary' : 'btn-secondary'" (click)="selectTable(table)">
+                      {{ table.clave }}
+                    </button>
+                  </div>
+                }
               </div>
-            </div>
+            }
           </div>
         </div>
-        <div class="card-footer" *ngIf="auth?.user?.permisos?.edit">
-          <button class="btn btn-primary" (click)="updateArea()">Guardar</button>
-          <button class="btn btn-primary" (click)="addTable()">Agregar mesa</button>
-          <button class="btn btn-primary" (click)="addSection()">Agregar seccion</button>
-          <input type="range" min="10" max="30" step="1" *ngIf="activeSection" [(ngModel)]="activeSection.proporcion">
-        </div>
+        @if (auth?.user?.permisos?.edit) {
+          <div class="card-footer">
+            <button class="btn btn-primary" (click)="updateArea()">Guardar</button>
+            <button class="btn btn-primary" (click)="addTable()">Agregar mesa</button>
+            <button class="btn btn-primary" (click)="addSection()">Agregar seccion</button>
+            @if (activeSection) {
+              <input type="range" min="10" max="30" step="1" [(ngModel)]="activeSection.proporcion">
+            }
+          </div>
+        }
       </div>
     </div>
-  </div>
+    </div>
+  }
 </div>

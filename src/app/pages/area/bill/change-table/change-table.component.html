@@ -13,9 +13,11 @@
           <label>Sección</label>
           <select class="form-control" formControlName="section"
             [class.is-invalid]="form.controls.section.touched && form.controls.section.invalid">
-            <option *ngFor="let section of area?.secciones" [ngValue]="section">
-              {{ section.nombre }}
-            </option>
+            @for (section of area?.secciones; track section.idpvSecciones) {
+              <option [ngValue]="section">
+                {{ section.nombre }}
+              </option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -26,9 +28,11 @@
           <label>Mesa</label>
           <select class="form-control" formControlName="table"
             [class.is-invalid]="form.controls.table.touched && form.controls.table.invalid">
-            <option *ngFor="let table of form.controls.section.value?.mesas | hasnot : 'idpvVentas'" [ngValue]="table">
-              {{ table.clave }}
-            </option>
+            @for (table of form.controls.section.value?.mesas | hasnot : 'idpvVentas'; track table.idpvAreasMesas) {
+              <option [ngValue]="table">
+                {{ table.clave }}
+              </option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -43,7 +47,9 @@
       Cancelar
     </button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      @if (form.disabled) {
+        <span class="spinner-border spinner-border-sm"></span>
+      }
       Cambiar
     </button>
   </div>

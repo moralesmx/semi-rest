@@ -44,7 +44,9 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      @if (form.disabled) {
+        <span class="spinner-border spinner-border-sm"></span>
+      }
       Aplicar
     </button>
   </div>

@@ -5,9 +5,13 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'orderBy'
 })
 export class OrderByPipe implements PipeTransform {
-  transform(value: any[], key: string, reverse: boolean = false): any[] {
+  transform<T extends Record<string, any>>(
+    value: T[] | null | undefined,
+    key: keyof T & string,
+    reverse: boolean = false
+  ): T[] {
     if (!value || !Array.isArray(value)) {
-      return value;
+      return [];
     }
 
     const sorted = [...value].sort((a, b) => {

@@ -1,14 +1,20 @@
 <div class="modal-content">
-  <div class="modal-header" *ngIf="data.title">
-    <h5 class="modal-title">{{ data.title }}</h5>
-  </div>
-  <div class="modal-body" *ngIf="data.message">
-    <p>{{ data.message }}</p>
-  </div>
+  @if (data.title) {
+    <div class="modal-header">
+      <h5 class="modal-title">{{ data.title }}</h5>
+    </div>
+  }
+  @if (data.message) {
+    <div class="modal-body">
+      <p>{{ data.message }}</p>
+    </div>
+  }
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" *ngIf="data.cancel" (click)="cancel()">
-      {{ data.cancel }}
-    </button>
+    @if (data.cancel) {
+      <button type="button" class="btn btn-secondary" (click)="cancel()">
+        {{ data.cancel }}
+      </button>
+    }
     <button type="button" class="btn btn-primary" (click)="ok()">
       {{ data.ok || 'Aceptar' }}
     </button>

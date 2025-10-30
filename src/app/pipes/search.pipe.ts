@@ -7,14 +7,22 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 
 export class SearchPipe implements PipeTransform {
-  public transform(list: any[], ...ors: [string, string][][]): any[] {
-    if (!Array.isArray(list)) {
+  public transform<T extends Record<string, any>>(
+    list: T[] | null | undefined,
+    ...ors: [keyof T & string, string][][]
+  ): T[] {
+    if (!list || !Array.isArray(list)) {
+      return [];
+    }
+    if (ors.length === 0) {
       return list;
     }
     return list.filter(item => {
       return ors.some(ands => {
         return ands.every(([property, text]) => {
-          return item[property].toString().toLowerCase().includes(text.toLowerCase());
+          const value = item[property];
+          if (value == null) return false;
+          return String(value).toLowerCase().includes(text.toLowerCase());
         });
       });
     });

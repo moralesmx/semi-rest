@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'range'
 })
 export class RangePipe implements PipeTransform {
-  transform(value: any[], size: number, start: number = 0): number[] {
+  transform(_value: unknown, size: number, start: number = 0): number[] {
     const result: number[] = [];
     for (let i = start; i < size; i++) {
       result.push(i);

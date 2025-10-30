@@ -11,10 +11,12 @@
       <div class="col-3">
         <label>Termino</label>
         <ul class="list-group">
-          <li class="list-group-item list-group-item-action" [class.active]="termsSelection.isSelected(term)"
-            *ngFor="let term of product.terminos" (click)="termsSelection.toggle(term)">
-            {{ term.nombre }}
-          </li>
+          @for (term of product.terminos; track term.idpvTerminos) {
+            <li class="list-group-item list-group-item-action" [class.active]="termsSelection.isSelected(term)"
+              (click)="termsSelection.toggle(term)">
+              {{ term.nombre }}
+            </li>
+          }
         </ul>
       </div>
 
@@ -71,36 +73,42 @@
             <div class="form-group col-lg-6">
               <label>Cocina</label>
               <div class="btn-group d-flex">
-                <button type="button" class="btn"
-                  [ngClass]="form.controls.kitchen.value == k.idpvCocinas ? 'btn-primary' : 'btn-secondary'"
-                  *ngFor="let k of kitchens" (click)="form.controls.kitchen.setValue(k.idpvCocinas)"
-                  [disabled]="form.controls.kitchen.disabled">
-                  {{ k.nombre }}
-                </button>
+                @for (k of kitchens; track k.idpvCocinas) {
+                  <button type="button" class="btn"
+                    [ngClass]="form.controls.kitchen.value == k.idpvCocinas ? 'btn-primary' : 'btn-secondary'"
+                    (click)="form.controls.kitchen.setValue(k.idpvCocinas)"
+                    [disabled]="form.controls.kitchen.disabled">
+                    {{ k.nombre }}
+                  </button>
+                }
               </div>
             </div>
 
             <div class="form-group col-lg-6">
               <label>{{ form.controls.time.value }}° Tiempo</label>
               <div class="btn-group d-flex">
-                <button type="button" class="btn"
-                  [ngClass]="form.controls.time.value == n ? 'btn-primary' : 'btn-secondary'"
-                  *ngFor="let n of [] | range : 5 : 1" (click)="form.controls.time.setValue(n)"
-                  [disabled]="form.controls.time.disabled">
-                  {{ n }}
-                </button>
+                @for (n of [] | range : 5 : 1; track n) {
+                  <button type="button" class="btn"
+                    [ngClass]="form.controls.time.value == n ? 'btn-primary' : 'btn-secondary'"
+                    (click)="form.controls.time.setValue(n)"
+                    [disabled]="form.controls.time.disabled">
+                    {{ n }}
+                  </button>
+                }
               </div>
             </div>
 
             <div class="form-group col-lg-6">
               <label>Subcuenta {{ form.controls.sub.value }}</label>
               <div class="btn-group d-flex">
-                <button type="button" class="btn"
-                  [ngClass]="form.controls.sub.value == n ? 'btn-primary' : 'btn-secondary'"
-                  *ngFor="let n of [] | range : 5 : 1" (click)="form.controls.sub.setValue(n)"
-                  [disabled]="form.controls.sub.disabled">
-                  {{ n }}
-                </button>
+                @for (n of [] | range : 5 : 1; track n) {
+                  <button type="button" class="btn"
+                    [ngClass]="form.controls.sub.value == n ? 'btn-primary' : 'btn-secondary'"
+                    (click)="form.controls.sub.setValue(n)"
+                    [disabled]="form.controls.sub.disabled">
+                    {{ n }}
+                  </button>
+                }
               </div>
             </div>
 
@@ -115,10 +123,12 @@
       <div class="col-3">
         <label>Modificadores</label>
         <ul class="list-group">
-          <li class="list-group-item list-group-item-action" [class.active]="modifiersSelection.isSelected(modifier)"
-            *ngFor="let modifier of product.modificadores" (click)="modifiersSelection.toggle(modifier)">
-            {{ modifier.nombre }}
-          </li>
+          @for (modifier of product.modificadores; track modifier.idpvPlatillosModificadores) {
+            <li class="list-group-item list-group-item-action" [class.active]="modifiersSelection.isSelected(modifier)"
+              (click)="modifiersSelection.toggle(modifier)">
+              {{ modifier.nombre }}
+            </li>
+          }
         </ul>
       </div>
 
@@ -127,7 +137,9 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      @if (form.disabled) {
+        <span class="spinner-border spinner-border-sm"></span>
+      }
       Agregar
     </button>
   </div>

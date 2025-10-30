@@ -40,7 +40,9 @@
           <label>Mesero</label>
           <select class="form-control" formControlName="waiter"
             [class.is-invalid]="form.controls.waiter.touched && form.controls.waiter.invalid">
-            <option *ngFor="let w of waiters" [value]="w.idpvUsuarios">{{ w.nombre }}</option>
+            @for (w of waiters; track w.idpvUsuarios) {
+              <option [value]="w.idpvUsuarios">{{ w.nombre }}</option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -51,7 +53,9 @@
           <label>Adultos</label>
           <select class="form-control" formControlName="adults"
             [class.is-invalid]="form.controls.adults.touched && form.controls.adults.invalid">
-            <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
+            @for (n of [] | range : 10 : 0; track n) {
+              <option [value]="n">{{ n }}</option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -62,7 +66,9 @@
           <label>Menores</label>
           <select class="form-control" formControlName="minors"
             [class.is-invalid]="form.controls.minors.touched && form.controls.minors.invalid">
-            <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
+            @for (n of [] | range : 10 : 0; track n) {
+              <option [value]="n">{{ n }}</option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -87,14 +93,16 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngFor="let command of bill?.comandas">
+          @for (command of bill?.comandas; track command.idpvComandas) {
             <tr>
               <th>{{ command.folio }}</th>
               <td>
                 <div class="form-group m-0">
                   <select class="form-control-plaintext p-0" [ngModel]="command.cuenta"
                     (ngModelChange)="changeSub(command, $event)" [disabled]="form.disabled">
-                    <option [value]="n" *ngFor="let n of [] | range : 5 : 1">{{ n }}</option>
+                    @for (n of [] | range : 5 : 1; track n) {
+                      <option [value]="n">{{ n }}</option>
+                    }
                   </select>
                 </div>
               </td>
@@ -103,22 +111,28 @@
               <td class="text-right">{{ command.precio | currency }}</td>
               <td class="text-right">{{ command.total | currency }}</td>
               <td>
-                <button type="button" class="btn btn-outline-info btn-sm mdi mdi-printer" [disabled]="form.disabled"
-                  *ngIf="command.estatus" (click)="printOrder(command)"></button>
-                <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
-                  *ngIf="command.estatus && auth.user.permisos.cancelaciones" (click)="cancelCommand(command)"></button>
+                @if (command.estatus) {
+                  <button type="button" class="btn btn-outline-info btn-sm mdi mdi-printer" [disabled]="form.disabled"
+                    (click)="printOrder(command)"></button>
+                }
+                @if (command.estatus && auth.user.permisos.cancelaciones) {
+                  <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
+                    (click)="cancelCommand(command)"></button>
+                }
               </td>
             </tr>
-            <tr *ngIf="!command.estatus" class="text-danger">
-              <th>{{ command.folio }}</th>
-              <td>{{ command.cuenta }}</td>
-              <td>{{ command.platillo }}</td>
-              <td class="text-right">{{ -command.cantidad }}</td>
-              <td class="text-right">{{ command.precio | currency }}</td>
-              <td class="text-right">{{ -command.total | currency }}</td>
-              <td></td>
-            </tr>
-          </ng-container>
+            @if (!command.estatus) {
+              <tr class="text-danger">
+                <th>{{ command.folio }}</th>
+                <td>{{ command.cuenta }}</td>
+                <td>{{ command.platillo }}</td>
+                <td class="text-right">{{ -command.cantidad }}</td>
+                <td class="text-right">{{ command.precio | currency }}</td>
+                <td class="text-right">{{ -command.total | currency }}</td>
+                <td></td>
+              </tr>
+            }
+          }
         </tbody>
         <tfoot>
           <tr>
@@ -163,31 +177,39 @@
 
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="order()" [disabled]="form.disabled"
-      *ngIf="auth?.user?.permisos?.comandarotros || auth.user.idpvUsuarios == bill.idpvUsuarios">
-      Comandar
-    </button>
-    <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled" *ngIf="auth?.user?.permisos?.cobrar">
-      Cobrar
-    </button>
-    <button type="button" class="btn btn-primary" (click)="printCheck()" [disabled]="form.disabled"
-      *ngIf="auth?.user?.permisos?.imprimircheque">
-      Imprimir cheque
-    </button>
-    <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled"
-      *ngIf="auth?.user?.permisos?.descuentos">
-      Descuento
-    </button>
-    <button type="button" class="btn btn-primary" (click)="changeTable()" [disabled]="form.disabled"
-      *ngIf="auth?.user?.permisos?.cambiomesa">
-      Transferir
-    </button>
+    @if (auth?.user?.permisos?.comandarotros || auth.user.idpvUsuarios == bill.idpvUsuarios) {
+      <button type="button" class="btn btn-primary" (click)="order()" [disabled]="form.disabled">
+        Comandar
+      </button>
+    }
+    @if (auth?.user?.permisos?.cobrar) {
+      <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled">
+        Cobrar
+      </button>
+    }
+    @if (auth?.user?.permisos?.imprimircheque) {
+      <button type="button" class="btn btn-primary" (click)="printCheck()" [disabled]="form.disabled">
+        Imprimir cheque
+      </button>
+    }
+    @if (auth?.user?.permisos?.descuentos) {
+      <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled">
+        Descuento
+      </button>
+    }
+    @if (auth?.user?.permisos?.cambiomesa) {
+      <button type="button" class="btn btn-primary" (click)="changeTable()" [disabled]="form.disabled">
+        Transferir
+      </button>
+    }
     <div class="flex-grow-1"></div>
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
       Cerrar
     </button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      @if (form.disabled) {
+        <span class="spinner-border spinner-border-sm"></span>
+      }
       Guardar
     </button>
   </div>

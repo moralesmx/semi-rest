@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -15,7 +15,7 @@ import { OpenAreaModalComponent } from './open-area/open-area.component';
 @Component({
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
     MatDialogModule,
     MatButtonModule
   ],

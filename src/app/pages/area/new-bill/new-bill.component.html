@@ -31,7 +31,9 @@
           <label>Mesero</label>
           <select class="form-control" formControlName="waiter"
             [class.is-invalid]="form.controls.waiter.touched && form.controls.waiter.invalid">
-            <option *ngFor="let w of waiters" [value]="w.idpvUsuarios">{{ w.nombre }}</option>
+            @for (w of waiters; track w.idpvUsuarios) {
+              <option [value]="w.idpvUsuarios">{{ w.nombre }}</option>
+            }
           </select>
           <div class="invalid-feedback">
             Selecciona un mesero.
@@ -42,7 +44,9 @@
           <label>Adultos</label>
           <select class="form-control" formControlName="adults"
             [class.is-invalid]="form.controls.adults.touched && form.controls.adults.invalid">
-            <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
+            @for (n of [] | range : 10 : 0; track n) {
+              <option [value]="n">{{ n }}</option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -53,7 +57,9 @@
           <label>Menores</label>
           <select class="form-control" formControlName="minors"
             [class.is-invalid]="form.controls.minors.touched && form.controls.minors.invalid">
-            <option [value]="n" *ngFor="let n of [] | range : 10 : 0">{{ n }}</option>
+            @for (n of [] | range : 10 : 0; track n) {
+              <option [value]="n">{{ n }}</option>
+            }
           </select>
           <div class="invalid-feedback">
             Campo obligatorio.
@@ -66,7 +72,9 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      @if (form.disabled) {
+        <span class="spinner-border spinner-border-sm"></span>
+      }
       Abrir mesa
     </button>
   </div>

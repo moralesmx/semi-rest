@@ -6,39 +6,45 @@
   </div>
   <div class="modal-body">
 
-    <div class="form-group row" *ngFor="let option of paymentOptions">
-      <label class="col-form-label col-auto">{{ option.nombre }}</label>
-      <div class="col">
-        <div class="input-group">
-          <input class="form-control text-right" [formControl]="form.controls['' + option.idpvFormaPago]"
-            #control="ngForm" currencyMask appCursorEnd
-            [class.is-invalid]="control.form.touched && control.form.invalid">
-          <div class="input-group-append">
+    @for (option of paymentOptions; track option.idpvFormaPago) {
+      <div class="form-group row">
+        <label class="col-form-label col-auto">{{ option.nombre }}</label>
+        <div class="col">
+          <div class="input-group">
+            <input class="form-control text-right" [formControl]="form.controls['' + option.idpvFormaPago]"
+              #control="ngForm" currencyMask appCursorEnd
+              [class.is-invalid]="control.form.touched && control.form.invalid">
+            <div class="input-group-append">
+            </div>
+          </div>
+          <div class="invalid-feedback">
+            {{
+              control.form.errors && (
+                (control.form.errors['required'] && 'Campo obligatorio.') ||
+                (control.form.errors['min'] && 'Debe ser mayor o igual a 0.')
+              )
+            }}
           </div>
         </div>
-        <div class="invalid-feedback">
-          {{
-            control.form.errors && (
-              (control.form.errors['required'] && 'Campo obligatorio.') ||
-              (control.form.errors['min'] && 'Debe ser mayor o igual a 0.')
-            )
-          }}
-        </div>
       </div>
-    </div>
+    }
 
-    <div class="alert alert-danger alert-dismissible" *ngIf="error">
-      {{ error }}
-      <button type="button" class="close" (click)="error = undefined">
-        <span>&times;</span>
-      </button>
-    </div>
+    @if (error) {
+      <div class="alert alert-danger alert-dismissible">
+        {{ error }}
+        <button type="button" class="close" (click)="error = undefined">
+          <span>&times;</span>
+        </button>
+      </div>
+    }
 
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      <span class="spinner-border spinner-border-sm" *ngIf="form.disabled"></span>
+      @if (form.disabled) {
+        <span class="spinner-border spinner-border-sm"></span>
+      }
       Cerrar caja
     </button>
   </div>

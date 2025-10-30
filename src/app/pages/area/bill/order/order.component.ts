@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { OrderByPipe } from 'src/app/pipes/order-by.pipe';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Order, Printer, Product, Table } from '../../../../core/models';
-import { GroupByPipe } from '../../../../pipes/group-by.pipe';
+import { GroupByPipe, Grouped } from '../../../../pipes/group-by.pipe';
 import { ProductModalComponent } from './product/product.component';
 
 interface OrderModalData {
@@ -24,7 +24,7 @@ type OrderModalReturn = boolean;
 @Component({
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -58,8 +58,8 @@ export class OrderModalComponent implements OnDestroy {
     this.ref.disableClose = loading;
   }
 
-  public activeGroup: any;
-  public activeClass: any;
+  public activeGroup?: Grouped<Product>;
+  public activeClass?: Grouped<Product>;
 
   public table: Table;
   public products: Product[];

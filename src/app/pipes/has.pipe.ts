@@ -6,7 +6,13 @@ import { Pipe, PipeTransform } from '@angular/core';
   pure: true
 })
 export class HasPipe implements PipeTransform {
-  public transform(list: any[], property: string): any[] {
+  public transform<T extends Record<string, any>>(
+    list: T[] | null | undefined,
+    property: keyof T & string
+  ): T[] {
+    if (!list || !Array.isArray(list)) {
+      return [];
+    }
     return list.filter(item => !!item[property]);
   }
 }
@@ -17,7 +23,13 @@ export class HasPipe implements PipeTransform {
   pure: true
 })
 export class HasNotPipe implements PipeTransform {
-  public transform(list: any[], property: string): any[] {
+  public transform<T extends Record<string, any>>(
+    list: T[] | null | undefined,
+    property: keyof T & string
+  ): T[] {
+    if (!list || !Array.isArray(list)) {
+      return [];
+    }
     return list.filter(item => !item[property]);
   }
 }

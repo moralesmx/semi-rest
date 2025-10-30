@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -15,7 +15,11 @@ export type SelectModalReturn = string;
 
 @Component({
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  imports: [
+    KeyValuePipe,
+    MatDialogModule,
+    MatButtonModule
+  ],
   templateUrl: 'select.component.html'
 })
 export class SelectModalComponent {

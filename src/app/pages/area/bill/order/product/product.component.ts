@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe, NgClass } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,7 +25,8 @@ type ProductModalReturn = Order | undefined;
 @Component({
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
+    CurrencyPipe,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,

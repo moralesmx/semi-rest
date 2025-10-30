@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe, NgClass } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,7 +25,8 @@ import { NewBillModalComponent } from './new-bill/new-bill.component';
 @Component({
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
+    CurrencyPipe,
     FormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -216,14 +217,6 @@ export class AreaComponent implements OnDestroy {
       default:
         break;
     }
-  }
-
-  public trackArea(index: number, area: Area) {
-    return area.idpvAreas;
-  }
-
-  public trackTable(index: number, table: Table) {
-    return table.idpvAreasMesas;
   }
 
 }

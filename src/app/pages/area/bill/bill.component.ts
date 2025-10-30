@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +27,7 @@ type BillModalReturn = void;
 @Component({
   standalone: true,
   imports: [
-    CommonModule,
+    CurrencyPipe,
     FormsModule,
     ReactiveFormsModule,
     MatDialogModule,

@@ -1,19 +1,26 @@
 <div class="modal-content">
-  <div class="modal-header" *ngIf="data.title">
-    <h5 class="modal-title">{{ data.title }}</h5>
-  </div>
-  <div class="modal-body" *ngIf="data.message">
-    <p>{{ data.message }}</p>
-  </div>
+  @if (data.title) {
+    <div class="modal-header">
+      <h5 class="modal-title">{{ data.title }}</h5>
+    </div>
+  }
+  @if (data.message) {
+    <div class="modal-body">
+      <p>{{ data.message }}</p>
+    </div>
+  }
   <div class="modal-body">
-    <button type="button" class="btn btn-primary btn-block" *ngFor="let option of data.options | keyvalue"
-      (click)="submit(option.key)">
-      {{ option.value }}
-    </button>
+    @for (option of data.options | keyvalue; track option.key) {
+      <button type="button" class="btn btn-primary btn-block" (click)="submit(option.key)">
+        {{ option.value }}
+      </button>
+    }
   </div>
-  <div class="modal-footer" *ngIf="data.cancel">
-    <button type="button" class="btn btn-secondary btn-block" (click)="cancel()">
-      {{ data.cancel }}
-    </button>
-  </div>
+  @if (data.cancel) {
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary btn-block" (click)="cancel()">
+        {{ data.cancel }}
+      </button>
+    </div>
+  }
 </div>
