@@ -2,16 +2,19 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BlockUIModule } from 'primeng/blockui';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HasNotPipe } from 'src/app/pipes/has.pipe';
 import { ApiService } from '../../../../core/api.service';
 import { Area, Section, Table } from '../../../../core/models';
 
+interface ChangeTableModalData {
+  table: Table;
+}
 export type ChangeTableModalReturn = boolean;
 
 @Component({
@@ -29,6 +32,12 @@ export type ChangeTableModalReturn = boolean;
   templateUrl: 'change-table.component.html'
 })
 export class ChangeTableModalComponent {
+
+  public static open(dialog: MatDialog, table: Table) {
+    return firstValueFrom(dialog.open<ChangeTableModalComponent, ChangeTableModalData, ChangeTableModalReturn>(ChangeTableModalComponent, {
+      data: { table }
+    }).afterClosed());
+  }
 
   private destroyed: Subject<void> = new Subject<void>();
 
@@ -51,7 +60,7 @@ export class ChangeTableModalComponent {
   constructor(
     private api: ApiService,
     private ref: MatDialogRef<ChangeTableModalComponent, ChangeTableModalReturn>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table; }
+    @Inject(MAT_DIALOG_DATA) public data: ChangeTableModalData
   ) {
     this.loading = true;
     this.api.getArea(this.data.table.idpvAreas).pipe(

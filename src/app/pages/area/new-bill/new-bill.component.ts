@@ -1,18 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { EMPTY, Subject } from 'rxjs';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { BlockUIModule } from 'primeng/blockui';
+import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Room, Table, Waiter } from '../../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { RangePipe } from '../../../pipes/range.pipe';
-import { BlockUIModule } from 'primeng/blockui';
+
+interface NewBillModalData {
+  table: Table;
+}
+type NewBillModalReturn = boolean;
 
 @Component({
   standalone: true,
@@ -29,7 +34,13 @@ import { BlockUIModule } from 'primeng/blockui';
   ],
   templateUrl: 'new-bill.component.html'
 })
-export class NewBillComponent implements OnDestroy {
+export class NewBillModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, table: Table) {
+    return firstValueFrom(dialog.open<NewBillModalComponent, NewBillModalData, NewBillModalReturn>(NewBillModalComponent, {
+      data: { table }
+    }).afterClosed());
+  }
 
   static readonly defaultName: string = 'Cliente directo';
 
@@ -46,11 +57,11 @@ export class NewBillComponent implements OnDestroy {
 
   public waiters: Waiter[];
 
-  public form= new FormGroup({
+  public form = new FormGroup({
     waiter: new FormControl<Waiter['idpvUsuarios']>(undefined, [Validators.required]),
     adults: new FormControl(0, [Validators.required, Validators.min(1)]),
     minors: new FormControl(0, [Validators.required, Validators.min(0)]),
-    name: new FormControl(NewBillComponent.defaultName, [Validators.required]),
+    name: new FormControl(NewBillModalComponent.defaultName, [Validators.required]),
     room: new FormControl<string>(undefined),
     guest: new FormControl<Room['idHotel']>(undefined),
   });
@@ -58,8 +69,8 @@ export class NewBillComponent implements OnDestroy {
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private ref: MatDialogRef<NewBillComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table }
+    private ref: MatDialogRef<NewBillModalComponent, NewBillModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: NewBillModalData
   ) {
     this.loading = true;
     this.api.getWaiters().pipe(
@@ -87,7 +98,7 @@ export class NewBillComponent implements OnDestroy {
     this.form.controls.room.valueChanges.pipe(
       tap(() => {
         this.form.controls.guest.setValue(undefined);
-        this.form.controls.name.setValue(NewBillComponent.defaultName);
+        this.form.controls.name.setValue(NewBillModalComponent.defaultName);
         this.form.controls.name.enable();
       }),
       debounceTime(300),

@@ -1,13 +1,14 @@
-import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { lastValueFrom } from 'rxjs';
 
 export interface SelectModalData {
   title?: string;
   message?: string;
   cancel?: string;
-  options: { [key: string]: string };
+  options: { [key: string]: string; };
 }
 
 export type SelectModalReturn = string;
@@ -18,6 +19,14 @@ export type SelectModalReturn = string;
   templateUrl: 'select.component.html'
 })
 export class SelectModalComponent {
+
+  public static open(dialog: MatDialog, options: SelectModalData) {
+    return lastValueFrom(
+      dialog.open<SelectModalComponent, SelectModalData, SelectModalReturn>(SelectModalComponent, {
+        data: options
+      }).afterClosed()
+    );
+  }
 
   constructor(
     private ref: MatDialogRef<SelectModalComponent, SelectModalReturn>,

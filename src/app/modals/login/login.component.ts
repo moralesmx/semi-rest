@@ -1,16 +1,16 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Inject, OnDestroy, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { AuthService } from '../../core/auth.service';
-import { User } from '../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BlockUIModule } from 'primeng/blockui';
+import { lastValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AuthService } from '../../core/auth.service';
+import { User } from '../../core/models';
 
 export interface LoginModalData {
   cancelable?: boolean;
@@ -33,6 +33,15 @@ export type LoginModalReturn = User;
   templateUrl: 'login.component.html'
 })
 export class LoginModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, options: LoginModalData = {}) {
+    return lastValueFrom(
+      dialog.open<LoginModalComponent, LoginModalData, LoginModalReturn>(LoginModalComponent, {
+        data: options,
+        closeOnNavigation: false
+      }).afterClosed()
+    );
+  }
 
   private readonly destroyed: Subject<void> = new Subject<void>();
 

@@ -2,13 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { BlockUIModule } from 'primeng/blockui';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
@@ -36,6 +36,12 @@ export type DiscountModalReturn = boolean;
   templateUrl: 'discount.component.html'
 })
 export class DiscountModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, table: Table, bill: Bill) {
+    return firstValueFrom(dialog.open<DiscountModalComponent, DiscountModalData, DiscountModalReturn>(DiscountModalComponent, {
+      data: { table, bill }
+    }).afterClosed());
+  }
 
   private readonly destroyed: Subject<void> = new Subject();
 

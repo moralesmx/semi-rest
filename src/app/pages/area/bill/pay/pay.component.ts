@@ -1,18 +1,24 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { combineLatest, Subject } from 'rxjs';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { NgxCurrencyDirective } from 'ngx-currency';
+import { BlockUIModule } from 'primeng/blockui';
+import { combineLatest, firstValueFrom, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Bill, PaymentOption, Table } from '../../../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { CursorEndDirective } from './cursor-end.directive';
-import { NgxCurrencyDirective } from 'ngx-currency';
-import { BlockUIModule } from 'primeng/blockui';
+
+interface PayModalData {
+  table: Table;
+  bill: Bill;
+}
+type PayModalReturn = boolean;
 
 @Component({
   standalone: true,
@@ -29,7 +35,13 @@ import { BlockUIModule } from 'primeng/blockui';
   ],
   templateUrl: 'pay.component.html'
 })
-export class PayComponent implements OnDestroy {
+export class PayModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, table: Table, bill: Bill) {
+    return firstValueFrom(dialog.open<PayModalComponent, PayModalData, PayModalReturn>(PayModalComponent, {
+      data: { table, bill }
+    }).afterClosed());
+  }
 
   private readonly destroyed: Subject<void> = new Subject();
 
@@ -64,8 +76,8 @@ export class PayComponent implements OnDestroy {
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private ref: MatDialogRef<PayComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table, bill: Bill; }
+    private ref: MatDialogRef<PayModalComponent, PayModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: PayModalData
   ) {
     combineLatest(
       this.form.controls.total.valueChanges,

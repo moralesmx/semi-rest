@@ -1,7 +1,8 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { lastValueFrom } from 'rxjs';
 
 export interface AlertModalData {
   title?: string;
@@ -18,6 +19,14 @@ export type AlertModalReturn = boolean;
   templateUrl: 'alert.component.html'
 })
 export class AlertModalComponent {
+
+  public static open(dialog: MatDialog, options: AlertModalData) {
+    return lastValueFrom(
+      dialog.open<AlertModalComponent, AlertModalData, AlertModalReturn>(AlertModalComponent, {
+        data: options
+      }).afterClosed()
+    );
+  }
 
   constructor(
     private ref: MatDialogRef<AlertModalComponent, AlertModalReturn>,

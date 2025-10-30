@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { ModalsService } from './modals/modals.service';
+import { Component, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { LoginModalComponent } from './modals/login/login.component';
 
 @Component({
   standalone: true,
@@ -9,9 +10,9 @@ import { ModalsService } from './modals/modals.service';
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  constructor(
-    private modals: ModalsService
-  ) {
-    this.modals.login();
+  private dialog = inject(MatDialog);
+
+  constructor() {
+    LoginModalComponent.open(this.dialog);
   }
 }

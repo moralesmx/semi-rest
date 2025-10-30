@@ -1,20 +1,26 @@
 import { SelectionModel } from '@angular/cdk/collections';
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { combineLatest, forkJoin, Subject } from 'rxjs';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatSelectModule } from '@angular/material/select';
+import { BlockUIModule } from 'primeng/blockui';
+import { combineLatest, firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../../core/api.service';
 import { Kitchen, Modifier, Order, Product, Term } from '../../../../../core/models';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatListModule } from '@angular/material/list';
 import { RangePipe } from '../../../../../pipes/range.pipe';
-import { BlockUIModule } from 'primeng/blockui';
+
+interface ProductModalData {
+  product: Product | Order;
+  order?: Order;
+}
+type ProductModalReturn = Order | undefined;
 
 @Component({
   standalone: true,
@@ -33,7 +39,13 @@ import { BlockUIModule } from 'primeng/blockui';
   ],
   templateUrl: 'product.component.html'
 })
-export class ProductComponent implements OnDestroy {
+export class ProductModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, product: Product | Order, order?: Order) {
+    return firstValueFrom(dialog.open<ProductModalComponent, ProductModalData, ProductModalReturn>(ProductModalComponent, {
+      data: { product, order }
+    }).afterClosed());
+  }
 
   private readonly destroyed: Subject<void> = new Subject();
 
@@ -66,10 +78,10 @@ export class ProductComponent implements OnDestroy {
 
   constructor(
     private api: ApiService,
-    private ref: MatDialogRef<ProductComponent, Order>,
-    @Inject(MAT_DIALOG_DATA) private data: { product: Product, order?: Order }
+    private ref: MatDialogRef<ProductModalComponent, ProductModalReturn>,
+    @Inject(MAT_DIALOG_DATA) private data: ProductModalData
   ) {
-    this.product = this.data.product;
+    this.product = this.data.product as Product;
 
     combineLatest(
       this.form.controls.price.valueChanges.pipe(

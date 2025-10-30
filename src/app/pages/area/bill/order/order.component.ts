@@ -7,19 +7,19 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BlockUIModule } from 'primeng/blockui';
-import { forkJoin, Subject } from 'rxjs';
+import { firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { OrderByPipe } from 'src/app/pipes/order-by.pipe';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Order, Printer, Product, Table } from '../../../../core/models';
 import { GroupByPipe } from '../../../../pipes/group-by.pipe';
-import { ProductComponent } from './product/product.component';
+import { ProductModalComponent } from './product/product.component';
 
-export interface OrderModalData {
+interface OrderModalData {
   tableId: Table['idpvAreasMesas'];
 }
-export type OrderModalReturn = boolean;
+type OrderModalReturn = boolean;
 
 @Component({
   standalone: true,
@@ -38,6 +38,14 @@ export type OrderModalReturn = boolean;
   templateUrl: 'order.component.html',
 })
 export class OrderModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, tableId: Table['idpvAreasMesas']) {
+    return firstValueFrom(dialog.open<OrderModalComponent, OrderModalData, OrderModalReturn>(OrderModalComponent, {
+      data: { tableId },
+      minWidth: '100%',
+      minHeight: '100%'
+    }).afterClosed());
+  }
 
   private readonly destroyed: Subject<void> = new Subject();
 
@@ -113,28 +121,18 @@ export class OrderModalComponent implements OnDestroy {
     this.destroyed.complete();
   }
 
-  public selectProduct(product: Product): void {
-    this.dialog.open(ProductComponent, {
-      data: { product }
-    }).afterClosed().pipe(
-      takeUntil(this.destroyed)
-    ).subscribe(order => {
-      if (order) {
-        this.orders.push(order);
-      }
-    });
+  public async selectProduct(product: Product): Promise<void> {
+    const order = await ProductModalComponent.open(this.dialog, product);
+    if (order) {
+      this.orders.push(order);
+    }
   }
 
-  public selectOrder(order: Order): void {
-    this.dialog.open(ProductComponent, {
-      data: { product: order, order }
-    }).afterClosed().pipe(
-      takeUntil(this.destroyed)
-    ).subscribe(_order => {
-      if (_order) {
-        this.orders[this.orders.indexOf(order)] = _order;
-      }
-    });
+  public async selectOrder(order: Order): Promise<void> {
+    const _order = await ProductModalComponent.open(this.dialog, order, order);
+    if (_order) {
+      this.orders[this.orders.indexOf(order)] = _order;
+    }
   }
 
   public removeOrder(order: Order): void {

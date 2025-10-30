@@ -1,24 +1,28 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { EMPTY, forkJoin, Subject } from 'rxjs';
-import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { ActionsService } from '../../../core/actions.service';
-import { ApiService } from '../../../core/api.service';
-import { AuthService } from '../../../core/auth.service';
-import { Bill, Command, Room, Table, Waiter } from '../../../core/models';
-import { ModalsService } from '../../../modals/modals.service';
-import { ChangeTableModalComponent } from './change-table/change-table.component';
-import { DiscountModalComponent } from './discount/discount.component';
-import { PayComponent } from './pay/pay.component';
 import { CommonModule } from '@angular/common';
+import { Component, Inject, OnDestroy } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { GroupByPipe } from '../../../pipes/group-by.pipe';
-import { RangePipe } from '../../../pipes/range.pipe';
 import { BlockUIModule } from 'primeng/blockui';
+import { EMPTY, firstValueFrom, forkJoin, Subject } from 'rxjs';
+import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { ApiService } from '../../../core/api.service';
+import { AuthService } from '../../../core/auth.service';
+import { Bill, Command, Room, Table, Waiter } from '../../../core/models';
+import { AlertModalComponent } from '../../../modals/alert/alert.component';
+import { RangePipe } from '../../../pipes/range.pipe';
+import { ChangeTableModalComponent } from './change-table/change-table.component';
+import { DiscountModalComponent } from './discount/discount.component';
+import { OrderModalComponent } from './order/order.component';
+import { PayModalComponent } from './pay/pay.component';
+
+interface BillModalData {
+  table: Table;
+}
+type BillModalReturn = void;
 
 @Component({
   standalone: true,
@@ -31,13 +35,18 @@ import { BlockUIModule } from 'primeng/blockui';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    GroupByPipe,
     RangePipe,
     BlockUIModule
   ],
   templateUrl: 'bill.component.html'
 })
 export class BillModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, table: Table) {
+    return firstValueFrom(dialog.open<BillModalComponent, BillModalData, BillModalReturn>(BillModalComponent, {
+      data: { table }
+    }).afterClosed());
+  }
 
   static readonly defaultName: string = 'Cliente directo';
 
@@ -65,13 +74,11 @@ export class BillModalComponent implements OnDestroy {
   });
 
   constructor(
-    private actions: ActionsService,
     private api: ApiService,
     public auth: AuthService,
     private dialog: MatDialog,
-    private modals: ModalsService,
-    private ref: MatDialogRef<BillModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { table: Table; }
+    private ref: MatDialogRef<BillModalComponent, BillModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: BillModalData
   ) {
     if (this.auth.user.permisos.cambiomesero) {
       this.form.controls.waiter.enable();
@@ -138,31 +145,18 @@ export class BillModalComponent implements OnDestroy {
     this.destroyed.complete();
   }
 
-  public pay(): void {
-    this.dialog.open(PayComponent, {
-      data: { table: this.data.table, bill: this.bill }
-    }).afterClosed().pipe(
-      takeUntil(this.destroyed)
-    ).subscribe(result => {
-      if (result) {
-        this.ref.close();
-      }
-    });
+  public async pay(): Promise<void> {
+    const result = await PayModalComponent.open(this.dialog, this.data.table, this.bill);
+    if (result) {
+      this.ref.close();
+    }
   }
 
-  public discount(): void {
-    this.dialog.open(DiscountModalComponent, {
-      data: {
-        table: this.data.table,
-        bill: this.bill
-      }
-    }).afterClosed().pipe(
-      takeUntil(this.destroyed)
-    ).subscribe(result => {
-      if (result) {
-        this.loadBill();
-      }
-    });
+  public async discount(): Promise<void> {
+    const result = await DiscountModalComponent.open(this.dialog, this.data.table, this.bill);
+    if (result) {
+      this.loadBill();
+    }
   }
 
   public changeSub(command: Command, sub: number): void {
@@ -180,22 +174,15 @@ export class BillModalComponent implements OnDestroy {
     );
   }
 
-  public changeTable(): void {
-    this.dialog.open(ChangeTableModalComponent, {
-      data: {
-        table: this.data.table
-      }
-    }).afterClosed().subscribe({
-      next: changed => {
-        if (changed) {
-          this.loadBill();
-        }
-      }
-    });
+  public async changeTable(): Promise<void> {
+    const changed = await ChangeTableModalComponent.open(this.dialog, this.data.table);
+    if (changed) {
+      this.loadBill();
+    }
   }
 
   public async cancelCommand(command: Command): Promise<void> {
-    if (await this.modals.alert({
+    if (await AlertModalComponent.open(this.dialog, {
       title: 'Cancelar movimiento',
       message: '¿Esta seguro de que desea cancelar el movimiento?',
       ok: 'Si',
@@ -217,7 +204,7 @@ export class BillModalComponent implements OnDestroy {
   }
 
   public async printOrder(command: Command): Promise<void> {
-    if (await this.modals.alert({
+    if (await AlertModalComponent.open(this.dialog, {
       title: 'Reimprimir comanda',
       message: '¿Esta seguro de que desea reimprimir la comanda?',
       ok: 'Si',
@@ -238,11 +225,11 @@ export class BillModalComponent implements OnDestroy {
 
   public async order(): Promise<void> {
     this.ref.close();
-    this.actions.order(this.data.table.idpvAreasMesas);
+    OrderModalComponent.open(this.dialog, this.data.table.idpvAreasMesas);
   }
 
   public async printCheck(): Promise<void> {
-    if (await this.modals.alert({
+    if (await AlertModalComponent.open(this.dialog, {
       title: 'Imprimir cheque',
       message: '¿Esta seguro de que desea imprimir cheque?',
       ok: 'Si',

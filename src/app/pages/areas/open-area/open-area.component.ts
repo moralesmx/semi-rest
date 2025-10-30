@@ -1,18 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { NgxCurrencyDirective } from 'ngx-currency';
+import { BlockUIModule } from 'primeng/blockui';
+import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Area } from '../../../core/models';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { NgxCurrencyDirective } from 'ngx-currency';
-import { BlockUIModule } from 'primeng/blockui';
+
+interface OpenAreaModalData {
+  area: Area;
+}
+type OpenAreaModalReturn = void;
 
 @Component({
   standalone: true,
@@ -28,7 +33,13 @@ import { BlockUIModule } from 'primeng/blockui';
   ],
   templateUrl: 'open-area.component.html'
 })
-export class OpenAreaComponent implements OnDestroy {
+export class OpenAreaModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, area: Area) {
+    return firstValueFrom(dialog.open<OpenAreaModalComponent, OpenAreaModalData, OpenAreaModalReturn>(OpenAreaModalComponent, {
+      data: { area }
+    }).afterClosed());
+  }
 
   private readonly destroyed: Subject<void> = new Subject();
 
@@ -49,8 +60,8 @@ export class OpenAreaComponent implements OnDestroy {
     private api: ApiService,
     private auth: AuthService,
     private router: Router,
-    private ref: MatDialogRef<OpenAreaComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { area: Area }
+    private ref: MatDialogRef<OpenAreaModalComponent, OpenAreaModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: OpenAreaModalData
   ) { }
 
   public ngOnDestroy(): void {

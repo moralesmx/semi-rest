@@ -1,18 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ApiService } from '../../../core/api.service';
-import { AuthService } from '../../../core/auth.service';
-import { Area, PaymentOption } from '../../../core/models';
-import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { BlockUIModule } from 'primeng/blockui';
+import { firstValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ApiService } from '../../../core/api.service';
+import { AuthService } from '../../../core/auth.service';
+import { Area, PaymentOption } from '../../../core/models';
+
+interface CloseAreaModalData {
+  area: Area;
+}
+type CloseAreaModalReturn = void;
 
 @Component({
   standalone: true,
@@ -29,7 +34,13 @@ import { BlockUIModule } from 'primeng/blockui';
   templateUrl: 'close-area.component.html'
 })
 
-export class CloseAreaComponent implements OnDestroy {
+export class CloseAreaModalComponent implements OnDestroy {
+
+  public static open(dialog: MatDialog, area: Area) {
+    return firstValueFrom(dialog.open<CloseAreaModalComponent, CloseAreaModalData, CloseAreaModalReturn>(CloseAreaModalComponent, {
+      data: { area }
+    }).afterClosed());
+  }
 
   private readonly destroyed: Subject<void> = new Subject();
 
@@ -51,8 +62,8 @@ export class CloseAreaComponent implements OnDestroy {
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private ref: MatDialogRef<CloseAreaComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { area: Area; }
+    private ref: MatDialogRef<CloseAreaModalComponent, CloseAreaModalReturn>,
+    @Inject(MAT_DIALOG_DATA) public data: CloseAreaModalData
   ) {
     this.loading = true;
     this.api.getPaymentOptions().pipe(

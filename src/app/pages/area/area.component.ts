@@ -1,24 +1,26 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AngularDraggableModule } from 'angular2-draggable';
+import { BlockUIModule } from 'primeng/blockui';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ActionsService } from '../../core/actions.service';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Area, Section, Table, User } from '../../core/models';
-import { ModalsService } from '../../modals/modals.service';
-import { BillModalComponent } from './bill/bill.component';
-import { NewBillComponent } from './new-bill/new-bill.component';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { AngularDraggableModule } from 'angular2-draggable';
-import { BlockUIModule } from 'primeng/blockui';
+import { AlertModalComponent } from '../../modals/alert/alert.component';
+import { LoginModalComponent } from '../../modals/login/login.component';
+import { SelectModalComponent } from '../../modals/select/select.component';
+import { HasPipe } from '../../pipes/has.pipe';
 import { SearchPipe } from '../../pipes/search.pipe';
-import { HasPipe, HasNotPipe } from '../../pipes/has.pipe';
+import { BillModalComponent } from './bill/bill.component';
+import { OrderModalComponent } from './bill/order/order.component';
+import { NewBillModalComponent } from './new-bill/new-bill.component';
 
 @Component({
   standalone: true,
@@ -33,7 +35,6 @@ import { HasPipe, HasNotPipe } from '../../pipes/has.pipe';
     BlockUIModule,
     SearchPipe,
     HasPipe,
-    HasNotPipe
   ],
   templateUrl: './area.component.html',
 })
@@ -56,9 +57,7 @@ export class AreaComponent implements OnDestroy {
     public auth: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private modals: ModalsService,
-    private dialog: MatDialog,
-    private actions: ActionsService
+    private dialog: MatDialog
   ) {
     timer(0, 5000).pipe(
       takeUntil(this.destroyed)
@@ -99,43 +98,35 @@ export class AreaComponent implements OnDestroy {
   }
 
   public async order(table: Table, bypass: boolean = false): Promise<void> {
-    if (bypass || await this.modals.login({ cancelable: true })) {
-      if (await this.actions.order(table.idpvAreasMesas)) {
+    if (bypass || await LoginModalComponent.open(this.dialog, { cancelable: true })) {
+      if (await OrderModalComponent.open(this.dialog, table.idpvAreasMesas)) {
         this.update();
       }
     }
   }
 
   public async selectTable(table: Table): Promise<void> {
-    const user: User = await this.modals.login({ cancelable: true });
+    const user: User = await LoginModalComponent.open(this.dialog, { cancelable: true });
     if (!user) {
       return;
     }
     if (table.idpvVentas) {
       if (user.permisos.comandarotros || user.idpvUsuarios === table.idpvUsuarios) {
-        this.dialog.open(BillModalComponent, {
-          data: { table }
-        }).afterClosed().pipe(
-          // takeUntil(this.destroyed)
-        ).subscribe(() => this.update());
+        await BillModalComponent.open(this.dialog, table);
+        this.update();
       } else {
-        this.modals.alert({
+        await AlertModalComponent.open(this.dialog, {
           title: 'Acceso denegado',
           message: 'No tienes los permisos para ver esta cuenta',
           ok: 'Aceptar'
         });
       }
     } else {
-      this.dialog.open(NewBillComponent, {
-        data: { table }
-      }).afterClosed().pipe(
-        // takeUntil(this.destroyed)
-      ).subscribe(changes => {
-        if (changes) {
-          this.update();
-          this.order(table, true);
-        }
-      });
+      const changes = await NewBillModalComponent.open(this.dialog, table);
+      if (changes) {
+        this.update();
+        this.order(table, true);
+      }
     }
   }
 
@@ -163,11 +154,11 @@ export class AreaComponent implements OnDestroy {
   }
 
   public async closedOptions(table: Table): Promise<void> {
-    const user: User = await this.modals.login({ cancelable: true });
+    const user: User = await LoginModalComponent.open(this.dialog, { cancelable: true });
     if (!user) {
       return;
     }
-    const option: string = await this.modals.select({
+    const option: string = await SelectModalComponent.open(this.dialog, {
       title: `Cuenta ${table.clave}`,
       options: {
         reabrir: 'Reabrir cuenta',
@@ -178,7 +169,7 @@ export class AreaComponent implements OnDestroy {
     switch (option) {
       case 'reabrir':
         if (user.permisos.revivir) {
-          const response: boolean = await this.modals.alert({
+          const response: boolean = await AlertModalComponent.open(this.dialog, {
             title: `Reabrir cuenta ${table.clave}`,
             message: '¿Esta seguro de que desea reabrir la cuenta?',
             cancel: 'Cancelar',
@@ -192,7 +183,7 @@ export class AreaComponent implements OnDestroy {
             });
           }
         } else {
-          this.modals.alert({
+          await AlertModalComponent.open(this.dialog, {
             title: 'Acceso denegado',
             message: 'No tienes los permisos para reabrir esta cuenta',
             ok: 'Aceptar'
@@ -201,7 +192,7 @@ export class AreaComponent implements OnDestroy {
         break;
       case 'reimprimir':
         if (user.permisos.imprimircheque) {
-          const response: boolean = await this.modals.alert({
+          const response: boolean = await AlertModalComponent.open(this.dialog, {
             title: `Reimprimir cuenta ${table.clave}`,
             message: '¿Esta seguro de que desea reimprimir la cuenta?',
             cancel: 'Cancelar',
@@ -215,7 +206,7 @@ export class AreaComponent implements OnDestroy {
             });
           }
         } else {
-          this.modals.alert({
+          await AlertModalComponent.open(this.dialog, {
             title: 'Acceso denegado',
             message: 'No tienes los permisos para reimprimir esta cuenta',
             ok: 'Aceptar'
