@@ -6,7 +6,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NgxCurrencyDirective } from 'ngx-currency';
-import { BlockUIModule } from 'primeng/blockui';
 import { combineLatest, firstValueFrom, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
@@ -31,8 +30,7 @@ type PayModalReturn = boolean;
     MatFormFieldModule,
     MatInputModule,
     CursorEndDirective,
-    NgxCurrencyDirective,
-    BlockUIModule
+    NgxCurrencyDirective
   ],
   templateUrl: 'pay.component.html'
 })

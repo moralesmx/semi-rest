@@ -7,12 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { NgxCurrencyDirective } from 'ngx-currency';
-import { BlockUIModule } from 'primeng/blockui';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../core/api.service';
 import { AuthService } from '../../../../core/auth.service';
 import { Bill, Table } from '../../../../core/models';
+import { CursorEndDirective } from '../pay/cursor-end.directive';
 
 export interface DiscountModalData {
   table: Table;
@@ -31,7 +31,7 @@ export type DiscountModalReturn = boolean;
     MatInputModule,
     MatRadioModule,
     NgxCurrencyDirective,
-    BlockUIModule,
+    CursorEndDirective
   ],
   templateUrl: 'discount.component.html'
 })

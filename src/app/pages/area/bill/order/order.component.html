@@ -1,6 +1,4 @@
-<p-blockUI [blocked]="loading"></p-blockUI>
-
-<div class="modal-content">
+<div class="modal-content" [inert]="loading">
   <div class="modal-header">
     <h5 class="modal-title">Comandar - {{ table?.clave }}</h5>
   </div>

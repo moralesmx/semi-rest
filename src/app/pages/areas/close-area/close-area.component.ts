@@ -6,12 +6,12 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { NgxCurrencyDirective } from 'ngx-currency';
-import { BlockUIModule } from 'primeng/blockui';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Area, PaymentOption } from '../../../core/models';
+import { CursorEndDirective } from '../../area/bill/pay/cursor-end.directive';
 
 interface CloseAreaModalData {
   area: Area;
@@ -27,7 +27,7 @@ type CloseAreaModalReturn = void;
     MatFormFieldModule,
     MatInputModule,
     NgxCurrencyDirective,
-    BlockUIModule
+    CursorEndDirective
   ],
   templateUrl: 'close-area.component.html'
 })

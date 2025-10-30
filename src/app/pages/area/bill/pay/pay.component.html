@@ -1,6 +1,4 @@
-<p-blockUI [blocked]="loading"></p-blockUI>
-
-<div class="modal-content">
+<div class="modal-content" [inert]="loading">
 
   <div class="modal-header">
     <h5 class="modal-title">Cobrar Cuenta - {{ data.table.clave }}</h5>
@@ -61,24 +59,24 @@
 
         <div class="col-6">
           @for (option of paymentOptions; track option.idpvFormaPago) {
-            <div class="form-group row">
-              <label class="col-form-label col-auto">{{ option.nombre }}</label>
-              <div class="col">
-                <div class="input-group">
-                  <input class="form-control text-right"
-                    [formControl]="form.controls.payments.controls['' + option.idpvFormaPago]" currencyMask appCursorEnd
-                    #control="ngForm" [class.is-invalid]="control.form?.touched && control.form?.invalid">
-                  <div class="input-group-append">
-                    <button type="button" class="btn btn-secondary mdi mdi-minus" [disabled]="control.form?.disabled"
-                      (click)="complete(control.form)">
-                    </button>
-                  </div>
-                </div>
-                <div class="invalid-feedback">
-                  La cantidad debe ser igual o mayor a 0
+          @let control = form.controls.payments.controls['' + option.idpvFormaPago];
+          <div class="form-group row">
+            <label class="col-form-label col-auto">{{ option.nombre }}</label>
+            <div class="col">
+              <div class="input-group">
+                <input class="form-control text-right" [formControl]="control" currencyMask appCursorEnd
+                  [class.is-invalid]="control.touched && control.invalid">
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-secondary mdi mdi-minus" [disabled]="control.disabled"
+                    (click)="complete(control)">
+                  </button>
                 </div>
               </div>
+              <div class="invalid-feedback">
+                La cantidad debe ser igual o mayor a 0
+              </div>
             </div>
+          </div>
           }
 
         </div>
@@ -92,7 +90,7 @@
     </button>
     <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
       @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
+      <span class="spinner-border spinner-border-sm"></span>
       }
       Cobrar
     </button>

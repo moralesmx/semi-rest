@@ -5,7 +5,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { BlockUIModule } from 'primeng/blockui';
 import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
@@ -27,8 +26,7 @@ type NewBillModalReturn = boolean;
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    RangePipe,
-    BlockUIModule
+    RangePipe
   ],
   templateUrl: 'new-bill.component.html'
 })

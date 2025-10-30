@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { BlockUIModule } from 'primeng/blockui';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HasNotPipe } from 'src/app/pipes/has.pipe';
@@ -24,8 +23,7 @@ export type ChangeTableModalReturn = boolean;
     MatButtonModule,
     MatFormFieldModule,
     MatSelectModule,
-    HasNotPipe,
-    BlockUIModule,
+    HasNotPipe
   ],
   templateUrl: 'change-table.component.html'
 })

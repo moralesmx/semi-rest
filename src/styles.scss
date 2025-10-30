@@ -1,5 +1,4 @@
 @use '@angular/material' as mat;
-@use 'primeng/resources/components/blockui/blockui.css';
 @use 'bootstrap/scss/bootstrap' with (
   $enable-shadows: true,
   $enable-validation-icons: false
@@ -21,11 +20,6 @@ $my-theme: mat.m2-define-light-theme((
 
 .mat-dialog-container {
   height: unset !important;
-}
-
-.ui-blockui {
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 100000;
 }
 
 .modal-content {

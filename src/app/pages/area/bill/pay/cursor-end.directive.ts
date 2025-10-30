@@ -2,11 +2,11 @@ import { Directive, HostListener } from '@angular/core';
 
 @Directive({
   standalone: true,
-  selector: '[appCursorEnd]'
+  selector: 'input[appCursorEnd]'
 })
 export class CursorEndDirective {
-  @HostListener('click', ['$event']) private cursorEnd(event: MouseEvent) {
-    const input: HTMLInputElement = event.target as HTMLInputElement;
+  @HostListener('click', ['$event']) cursorEnd(event: Event) {
+    const input = event.target as HTMLInputElement;
     input.selectionStart = input.selectionEnd = input.value.length;
   }
 }

@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { BlockUIModule } from 'primeng/blockui';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/auth.service';
@@ -25,8 +24,7 @@ export type LoginModalReturn = User;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    ReactiveFormsModule,
-    BlockUIModule
+    ReactiveFormsModule
   ],
   templateUrl: 'login.component.html'
 })

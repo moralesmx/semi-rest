@@ -7,7 +7,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularDraggableModule } from 'angular2-draggable';
-import { BlockUIModule } from 'primeng/blockui';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../core/api.service';
@@ -33,9 +32,8 @@ import { NewBillModalComponent } from './new-bill/new-bill.component';
     MatFormFieldModule,
     MatInputModule,
     AngularDraggableModule,
-    BlockUIModule,
     SearchPipe,
-    HasPipe,
+    HasPipe
   ],
   templateUrl: './area.component.html',
 })

@@ -6,12 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { NgxCurrencyDirective } from 'ngx-currency';
-import { BlockUIModule } from 'primeng/blockui';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
 import { AuthService } from '../../../core/auth.service';
 import { Area } from '../../../core/models';
+import { CursorEndDirective } from '../../area/bill/pay/cursor-end.directive';
 
 interface OpenAreaModalData {
   area: Area;
@@ -27,7 +27,7 @@ type OpenAreaModalReturn = void;
     MatFormFieldModule,
     MatInputModule,
     NgxCurrencyDirective,
-    BlockUIModule
+    CursorEndDirective
   ],
   templateUrl: 'open-area.component.html'
 })

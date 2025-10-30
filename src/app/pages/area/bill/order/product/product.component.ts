@@ -9,7 +9,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
-import { BlockUIModule } from 'primeng/blockui';
 import { combineLatest, firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { ApiService } from '../../../../../core/api.service';
@@ -35,8 +34,7 @@ type ProductModalReturn = Order | undefined;
     MatSelectModule,
     MatCheckboxModule,
     MatListModule,
-    RangePipe,
-    BlockUIModule
+    RangePipe
   ],
   templateUrl: 'product.component.html'
 })

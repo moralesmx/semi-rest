@@ -6,7 +6,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { BlockUIModule } from 'primeng/blockui';
 import { firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { OrderByPipe } from 'src/app/pipes/order-by.pipe';
@@ -32,8 +31,7 @@ type OrderModalReturn = boolean;
     MatSelectModule,
     MatCheckboxModule,
     GroupByPipe,
-    OrderByPipe,
-    BlockUIModule,
+    OrderByPipe
   ],
   templateUrl: 'order.component.html',
 })
