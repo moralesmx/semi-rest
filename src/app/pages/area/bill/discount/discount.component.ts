@@ -5,7 +5,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -15,11 +15,11 @@ import { AuthService } from '../../../../core/auth.service';
 import { Bill, Table } from '../../../../core/models';
 import { CursorEndDirective } from '../pay/cursor-end.directive';
 
-export interface DiscountModalData {
+interface DiscountModalData {
   table: Table;
   bill: Bill;
 }
-export type DiscountModalReturn = boolean;
+type DiscountModalReturn = boolean;
 
 @Component({
   standalone: true,
@@ -30,7 +30,7 @@ export type DiscountModalReturn = boolean;
     MatButtonToggleModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatRadioModule,
     NgxCurrencyDirective,
     CursorEndDirective
@@ -45,16 +45,7 @@ export class DiscountModalComponent implements OnDestroy {
     }).afterClosed());
   }
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public form = new FormGroup({
     type: new FormControl<number>(undefined, [Validators.required]),
@@ -121,23 +112,28 @@ export class DiscountModalComponent implements OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    this.loading = true;
     this.form.controls.percentage.enable();
     this.form.controls.amount.enable();
 
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+
     this.api.discount(this.data.bill.idpvVentas, {
-      descuentoTipo: this.form.value.type,
-      descuento: this.form.value.percentage,
-      descuentos: this.form.value.amount,
+      descuentoTipo: value.type,
+      descuento: value.percentage,
+      descuentos: value.amount,
       idpvUsuarios: this.auth.user.idpvUsuarios,
     }).subscribe({
       next: () => {
         this.ref.close(true);
-        this.loading = false;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+        this.form.controls.type.setValue(this.form.value.type);
       }
     });
   }

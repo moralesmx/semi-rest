@@ -1,28 +1,27 @@
 <h2 mat-dialog-title>{{ data.area.nombre }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form (ngSubmit)="submit()" [formGroup]="form">
     <mat-form-field style="width: 100%;">
       <mat-label>Fondo de caja</mat-label>
       <input matInput formControlName="funds" currencyMask appCursorEnd style="text-align: right;">
       @if (form.controls.funds.touched && form.controls.funds.errors) {
-        <mat-error>
-          {{
-            (form.controls.funds.errors['required'] && 'Campo obligatorio.') ||
-            (form.controls.funds.errors['min'] && 'Debe ser mayor o igual a 0.')
-          }}
-        </mat-error>
+      <mat-error>
+        {{
+        (form.controls.funds.errors['required'] && 'Campo obligatorio.') ||
+        (form.controls.funds.errors['min'] && 'Debe ser mayor o igual a 0.')
+        }}
+      </mat-error>
       }
     </mat-form-field>
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Abrir caja
   </button>
 </div>

@@ -1,9 +1,9 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -14,7 +14,7 @@ import { Area, Section, Table } from '../../../../core/models';
 interface ChangeTableModalData {
   table: Table;
 }
-export type ChangeTableModalReturn = boolean;
+type ChangeTableModalReturn = boolean;
 
 @Component({
   standalone: true,
@@ -24,12 +24,12 @@ export type ChangeTableModalReturn = boolean;
     MatButtonModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     HasNotPipe
   ],
   templateUrl: 'change-table.component.html'
 })
-export class ChangeTableModalComponent {
+export class ChangeTableModalComponent implements OnDestroy {
 
   public static open(dialog: MatDialog, table: Table) {
     return firstValueFrom(dialog.open<ChangeTableModalComponent, ChangeTableModalData, ChangeTableModalReturn>(ChangeTableModalComponent, {
@@ -37,16 +37,7 @@ export class ChangeTableModalComponent {
     }).afterClosed());
   }
 
-  private destroyed: Subject<void> = new Subject<void>();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public area: Area;
 
@@ -60,17 +51,21 @@ export class ChangeTableModalComponent {
     private ref: MatDialogRef<ChangeTableModalComponent, ChangeTableModalReturn>,
     @Inject(MAT_DIALOG_DATA) public data: ChangeTableModalData
   ) {
-    this.loading = true;
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+
     this.api.getArea(this.data.table.idpvAreas).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: area => {
         this.area = area;
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
 
@@ -83,6 +78,11 @@ export class ChangeTableModalComponent {
     });
   }
 
+  public ngOnDestroy(): void {
+    this.destroyed.next();
+    this.destroyed.complete();
+  }
+
   public cancel(): void {
     this.ref.close(false);
   }
@@ -92,15 +92,20 @@ export class ChangeTableModalComponent {
     if (this.form.invalid) {
       return;
     }
-    this.loading = true;
-    this.api.changeTable(this.data.table.idpvVentas, this.data.table.idpvAreasMesas, this.form.value.table.idpvAreasMesas).subscribe({
+
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+
+    this.api.changeTable(this.data.table.idpvVentas, this.data.table.idpvAreasMesas, value.table.idpvAreasMesas).subscribe({
       next: () => {
         this.ref.close(true);
-        this.loading = false;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }

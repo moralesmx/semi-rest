@@ -1,13 +1,13 @@
 <h2 mat-dialog-title>Abrir Cuenta - Mesa {{ data.table.clave }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form (ngSubmit)="submit()" [formGroup]="form">
     <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 16px;">
       <mat-form-field>
         <mat-label>Habitacion</mat-label>
         <input matInput formControlName="room">
         @if (form.controls.room.touched && form.controls.room.invalid) {
-          <mat-error>Campo obligatorio.</mat-error>
+        <mat-error>Campo obligatorio.</mat-error>
         }
       </mat-form-field>
 
@@ -15,7 +15,7 @@
         <mat-label>Nombre</mat-label>
         <input matInput formControlName="name">
         @if (form.controls.name.touched && form.controls.name.invalid) {
-          <mat-error>Campo obligatorio.</mat-error>
+        <mat-error>Campo obligatorio.</mat-error>
         }
       </mat-form-field>
     </div>
@@ -25,11 +25,11 @@
         <mat-label>Mesero</mat-label>
         <mat-select formControlName="waiter">
           @for (w of waiters; track w.idpvUsuarios) {
-            <mat-option [value]="w.idpvUsuarios">{{ w.nombre }}</mat-option>
+          <mat-option [value]="w.idpvUsuarios">{{ w.nombre }}</mat-option>
           }
         </mat-select>
         @if (form.controls.waiter.touched && form.controls.waiter.invalid) {
-          <mat-error>Selecciona un mesero.</mat-error>
+        <mat-error>Selecciona un mesero.</mat-error>
         }
       </mat-form-field>
 
@@ -37,11 +37,11 @@
         <mat-label>Adultos</mat-label>
         <mat-select formControlName="adults">
           @for (n of [] | range : 10 : 0; track n) {
-            <mat-option [value]="n">{{ n }}</mat-option>
+          <mat-option [value]="n">{{ n }}</mat-option>
           }
         </mat-select>
         @if (form.controls.adults.touched && form.controls.adults.invalid) {
-          <mat-error>Campo obligatorio.</mat-error>
+        <mat-error>Campo obligatorio.</mat-error>
         }
       </mat-form-field>
 
@@ -49,23 +49,22 @@
         <mat-label>Menores</mat-label>
         <mat-select formControlName="minors">
           @for (n of [] | range : 10 : 0; track n) {
-            <mat-option [value]="n">{{ n }}</mat-option>
+          <mat-option [value]="n">{{ n }}</mat-option>
           }
         </mat-select>
         @if (form.controls.minors.touched && form.controls.minors.invalid) {
-          <mat-error>Campo obligatorio.</mat-error>
+        <mat-error>Campo obligatorio.</mat-error>
         }
       </mat-form-field>
     </div>
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Abrir mesa
   </button>
 </div>

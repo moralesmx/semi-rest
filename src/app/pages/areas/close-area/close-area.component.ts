@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -29,7 +29,7 @@ type CloseAreaModalReturn = void;
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     NgxCurrencyDirective,
     CursorEndDirective
   ],
@@ -44,16 +44,7 @@ export class CloseAreaModalComponent implements OnDestroy {
     }).afterClosed());
   }
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public error: string;
 
@@ -67,7 +58,8 @@ export class CloseAreaModalComponent implements OnDestroy {
     private ref: MatDialogRef<CloseAreaModalComponent, CloseAreaModalReturn>,
     @Inject(MAT_DIALOG_DATA) public data: CloseAreaModalData
   ) {
-    this.loading = true;
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.api.getPaymentOptions().pipe(
       takeUntil(this.destroyed)
     ).subscribe({
@@ -77,11 +69,13 @@ export class CloseAreaModalComponent implements OnDestroy {
           const control: FormControl = new FormControl(0, [Validators.required, Validators.min(0)]);
           this.form.addControl(`${option.idpvFormaPago}`, control);
         }
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }
@@ -100,18 +94,20 @@ export class CloseAreaModalComponent implements OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    this.loading = true;
+    const value = this.form.value;
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.error = undefined;
-    this.api.closeArea(this.data.area, this.auth.user, this.form.value).pipe(
+    this.api.closeArea(this.data.area, this.auth.user, value).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: () => {
         this.ref.close();
-        this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
         this.error = error.error;
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }

@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { combineLatest, firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
@@ -35,7 +35,7 @@ type ProductModalReturn = Order | undefined;
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatSelectModule,
     MatCheckboxModule,
     MatListModule,
@@ -51,16 +51,7 @@ export class ProductModalComponent implements OnDestroy {
     }).afterClosed());
   }
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public kitchens: Kitchen[];
 
@@ -87,21 +78,21 @@ export class ProductModalComponent implements OnDestroy {
   ) {
     this.product = this.data.product as Product;
 
-    combineLatest(
+    combineLatest([
       this.form.controls.price.valueChanges.pipe(
         startWith(this.form.value.price)
       ),
       this.form.controls.quantity.valueChanges.pipe(
         startWith(this.form.value.quantity)
       )
-    ).pipe(
+    ]).pipe(
       map(([price, quantity]) => price * quantity),
       takeUntil(this.destroyed)
     ).subscribe(total => {
       this.form.controls.total.setValue(total);
     });
 
-    combineLatest(
+    combineLatest([
       this.form.controls.half.valueChanges.pipe(
         startWith(this.form.value.half),
         map(value => value ? this.product.precioMedia : this.product.precio),
@@ -111,18 +102,19 @@ export class ProductModalComponent implements OnDestroy {
         map(value => value.source.selected.reduce((total, modifier) => total + modifier.precio, 0)),
         startWith(0)
       )
-    ).pipe(
+    ]).pipe(
       map(([price, modifiers]) => price + modifiers),
       takeUntil(this.destroyed)
     ).subscribe(price => {
       this.form.controls.price.setValue(price);
     });
 
-    this.loading = true;
-    forkJoin(
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+    forkJoin([
       this.api.getProduct(this.data.product.idpvPlatillos),
       this.api.getKitchens()
-    ).pipe(
+    ]).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: ([product, kitchens]) => {
@@ -163,11 +155,13 @@ export class ProductModalComponent implements OnDestroy {
             half: false,
           });
         }
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }

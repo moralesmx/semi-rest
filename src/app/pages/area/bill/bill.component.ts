@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { EMPTY, firstValueFrom, forkJoin, Subject } from 'rxjs';
@@ -37,7 +37,7 @@ type BillModalReturn = void;
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatSelectModule,
     MatTableModule,
     RangePipe
@@ -54,21 +54,10 @@ export class BillModalComponent implements OnDestroy {
 
   static readonly defaultName: string = 'Cliente directo';
 
-  private readonly destroyed: Subject<void> = new Subject<void>();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public waiters: Waiter[];
   public bill: Bill;
-
-  public displayedColumns: string[] = ['folio', 'cuenta', 'platillo', 'cantidad', 'precio', 'total', 'actions'];
 
   public form = new FormGroup({
     waiter: new FormControl<Waiter['idpvUsuarios']>(undefined, [Validators.required]),
@@ -91,7 +80,6 @@ export class BillModalComponent implements OnDestroy {
     } else {
       this.form.controls.waiter.disable();
     }
-
 
     this.form.controls.room.valueChanges.pipe(
       tap(() => {
@@ -118,12 +106,13 @@ export class BillModalComponent implements OnDestroy {
     this.loadBill();
   }
 
-  public loadBill(): void {
-    this.loading = true;
-    forkJoin(
+  public loadBill() {
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+    forkJoin([
       this.api.getWaiters(),
       this.api.getBill(this.data.table.idpvVentas)
-    ).pipe(
+    ]).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: ([waiters, bill]) => {
@@ -137,11 +126,27 @@ export class BillModalComponent implements OnDestroy {
           guest: bill.idHotel,
           room: bill.habitacion,
         });
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        // Re-apply permission-based disabling
+        if (!this.auth.user.permisos.cambiomesero) {
+          this.form.controls.waiter.disable();
+        }
+        // Re-apply name disabling if guest
+        if (bill.idHotel) {
+          this.form.controls.name.disable();
+        }
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        // Re-apply permission-based disabling even on error
+        if (!this.auth.user.permisos.cambiomesero) {
+          this.form.controls.waiter.disable();
+        }
       }
     });
   }
@@ -166,15 +171,14 @@ export class BillModalComponent implements OnDestroy {
   }
 
   public changeSub(command: Command, sub: number): void {
-    this.loading = true;
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.api.changeSub(command, sub).subscribe(
       () => {
-        this.loading = false;
         this.loadBill();
       },
       error => {
         console.error(error);
-        this.loading = false;
         this.loadBill();
       }
     );
@@ -194,16 +198,15 @@ export class BillModalComponent implements OnDestroy {
       ok: 'Si',
       cancel: 'No'
     })) {
-      this.loading = true;
+      this.form.disable();
+      this.ref.disableClose = this.form.disabled;
       this.api.cancelCommand(command.idpvComandas, this.auth.user.idpvUsuarios).subscribe(
         () => {
           this.loadBill();
-          this.loading = false;
         },
         error => {
           console.error(error);
           this.loadBill();
-          this.loading = false;
         }
       );
     }
@@ -216,14 +219,35 @@ export class BillModalComponent implements OnDestroy {
       ok: 'Si',
       cancel: 'No'
     })) {
-      this.loading = true;
+      this.form.disable();
+      this.ref.disableClose = this.form.disabled;
       this.api.printOrder(command.idpvVentas, command.folio).subscribe({
         next: () => {
-          this.loading = false;
+          this.form.enable();
+          this.ref.disableClose = this.form.disabled;
+
+          // Re-apply permission-based disabling
+          if (!this.auth.user.permisos.cambiomesero) {
+            this.form.controls.waiter.disable();
+          }
+          // Re-apply name disabling if guest
+          if (this.bill?.idHotel) {
+            this.form.controls.name.disable();
+          }
         },
         error: error => {
           console.error(error);
-          this.loading = false;
+          this.form.enable();
+          this.ref.disableClose = this.form.disabled;
+
+          // Re-apply permission-based disabling
+          if (!this.auth.user.permisos.cambiomesero) {
+            this.form.controls.waiter.disable();
+          }
+          // Re-apply name disabling if guest
+          if (this.bill?.idHotel) {
+            this.form.controls.name.disable();
+          }
         }
       });
     }
@@ -241,13 +265,34 @@ export class BillModalComponent implements OnDestroy {
       ok: 'Si',
       cancel: 'No'
     })) {
-      this.loading = true;
+      this.form.disable();
+      this.ref.disableClose = this.form.disabled;
       this.api.printCheck(this.bill.idpvVentas).subscribe({
         next: () => {
-          this.loading = false;
+          this.form.enable();
+          this.ref.disableClose = this.form.disabled;
+
+          // Re-apply permission-based disabling
+          if (!this.auth.user.permisos.cambiomesero) {
+            this.form.controls.waiter.disable();
+          }
+          // Re-apply name disabling if guest
+          if (this.bill?.idHotel) {
+            this.form.controls.name.disable();
+          }
         },
         error: () => {
-          this.loading = false;
+          this.form.enable();
+          this.ref.disableClose = this.form.disabled;
+
+          // Re-apply permission-based disabling
+          if (!this.auth.user.permisos.cambiomesero) {
+            this.form.controls.waiter.disable();
+          }
+          // Re-apply name disabling if guest
+          if (this.bill?.idHotel) {
+            this.form.controls.name.disable();
+          }
         }
       });
     }
@@ -262,25 +307,37 @@ export class BillModalComponent implements OnDestroy {
       this.form.markAllAsTouched();
       return;
     }
-    this.loading = true;
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.api.updateBill({
       idpvVentas: this.data.table.idpvVentas,
-      idpvUsuariosMesero: this.form.controls.waiter.value,
-      adultos: this.form.controls.adults.value,
-      menores: this.form.controls.minors.value,
-      nombre: this.form.controls.name.value,
-      idHotel: this.form.controls.guest.value,
-      habitacion: this.form.value.guest ? this.form.value.room : undefined
+      idpvUsuariosMesero: value.waiter,
+      adultos: value.adults,
+      menores: value.minors,
+      nombre: value.name,
+      idHotel: value.guest,
+      habitacion: value.guest ? value.room : undefined
     }).pipe(
       takeUntil(this.destroyed)
     ).subscribe(
       () => {
         this.ref.close();
-        this.loading = false;
       },
       error => {
         console.log(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        // Re-apply permission-based disabling
+        if (!this.auth.user.permisos.cambiomesero) {
+          this.form.controls.waiter.disable();
+        }
+        // Re-apply name disabling if guest
+        if (this.bill?.idHotel) {
+          this.form.controls.name.disable();
+        }
       }
     );
   }

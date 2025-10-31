@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -33,7 +33,7 @@ type OrderModalReturn = boolean;
     MatCheckboxModule,
     MatListModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     GroupByPipe,
     OrderByPipe
   ],
@@ -49,16 +49,7 @@ export class OrderModalComponent implements OnDestroy {
     }).afterClosed());
   }
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public activeGroup?: Grouped<Product>;
   public activeClass?: Grouped<Product>;
@@ -81,12 +72,23 @@ export class OrderModalComponent implements OnDestroy {
     private ref: MatDialogRef<OrderModalComponent, OrderModalReturn>,
     @Inject(MAT_DIALOG_DATA) public data: OrderModalData
   ) {
-    this.loading = true;
-    forkJoin(
+    this.form.controls.copy.valueChanges.pipe(
+      takeUntil(this.destroyed)
+    ).subscribe(value => {
+      if (value) {
+        this.form.controls.printer.enable();
+      } else {
+        this.form.controls.printer.disable();
+      }
+    });
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+    forkJoin([
       this.api.getProducts(),
       this.api.getPrinters(),
       this.api.getTable(this.data.tableId)
-    ).pipe(
+    ]).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: ([products, printers, table]) => {
@@ -94,26 +96,21 @@ export class OrderModalComponent implements OnDestroy {
         this.printers = printers;
         this.table = table;
 
-        this.form.controls.copy.valueChanges.pipe(
-          takeUntil(this.destroyed)
-        ).subscribe(value => {
-          if (value) {
-            this.form.controls.printer.enable();
-          } else {
-            this.form.controls.printer.disable();
-          }
-        });
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
 
         if (this.printers.length) {
           this.form.controls.printer.setValue(this.printers[0].idgeneralImpresoras);
         } else {
           this.form.controls.copy.disable();
         }
-        this.loading = false;
+
+        this.form.controls.copy.setValue(this.form.value.copy);
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }
@@ -147,11 +144,14 @@ export class OrderModalComponent implements OnDestroy {
   }
 
   public submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
-    this.loading = true;
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.api.sendOrder(this.table.idpvVentas, {
       idpvVentas: this.table.idpvVentas,
       idpvUsuarios: this.auth.user.idpvUsuarios,
@@ -163,18 +163,18 @@ export class OrderModalComponent implements OnDestroy {
         this.api.printOrder(
           this.table.idpvVentas,
           folio,
-          this.form.controls.copy.value ? this.form.controls.printer.value : undefined
+          value.copy ? value.printer : undefined
         ).subscribe(
           console.log,
           console.error,
           console.warn
         );
         this.ref.close(true);
-        this.loading = false;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }

@@ -1,42 +1,42 @@
 <h2 mat-dialog-title>Cerrar Caja - {{ data.area.nombre }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form [formGroup]="form">
     <div style="display: flex; flex-direction: column; gap: 16px;">
       @for (option of paymentOptions; track option.idpvFormaPago) {
-        @let control = form.controls[option.idpvFormaPago];
-        <mat-form-field style="width: 100%;">
-          <mat-label>{{ option.nombre }}</mat-label>
-          <input matInput [formControl]="control" currencyMask appCursorEnd style="text-align: right;">
-          @if (control.touched && control.errors) {
-            <mat-error>
-              {{
-                (control.errors['required'] && 'Campo obligatorio.') ||
-                (control.errors['min'] && 'Debe ser mayor o igual a 0.')
-              }}
-            </mat-error>
-          }
-        </mat-form-field>
+      @let control = form.controls[option.idpvFormaPago];
+      <mat-form-field style="width: 100%;">
+        <mat-label>{{ option.nombre }}</mat-label>
+        <input matInput [formControl]="control" currencyMask appCursorEnd style="text-align: right;">
+        @if (control.touched && control.errors) {
+        <mat-error>
+          {{
+          (control.errors['required'] && 'Campo obligatorio.') ||
+          (control.errors['min'] && 'Debe ser mayor o igual a 0.')
+          }}
+        </mat-error>
+        }
+      </mat-form-field>
       }
 
       @if (error) {
-        <div style="padding: 12px; background-color: #f44336; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
-          <span>{{ error }}</span>
-          <button mat-icon-button (click)="error = undefined" style="color: white;">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
+      <div
+        style="padding: 12px; background-color: #f44336; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+        <span>{{ error }}</span>
+        <button mat-icon-button (click)="error = undefined" style="color: white;">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
       }
     </div>
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Cerrar caja
   </button>
 </div>

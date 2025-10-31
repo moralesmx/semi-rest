@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -27,7 +27,7 @@ type OpenAreaModalReturn = void;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     NgxCurrencyDirective,
     CursorEndDirective
   ],
@@ -41,16 +41,7 @@ export class OpenAreaModalComponent implements OnDestroy {
     }).afterClosed());
   }
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public form = new FormGroup({
     funds: new FormControl(0, [Validators.required, Validators.min(0)])
@@ -64,32 +55,37 @@ export class OpenAreaModalComponent implements OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: OpenAreaModalData
   ) { }
 
-  public ngOnDestroy(): void {
+  public ngOnDestroy() {
     this.destroyed.next();
     this.destroyed.complete();
   }
 
-  public cancel(): void {
+  public cancel() {
     this.ref.close();
   }
 
-  public submit(): void {
+  public submit() {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
       return;
     }
-    this.loading = true;
-    this.api.openArea(this.data.area, this.auth.user, this.form.controls.funds.value).pipe(
+
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+
+    this.api.openArea(this.data.area, this.auth.user, value.funds).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: () => {
         this.ref.close();
         this.router.navigateByUrl(`/areas/${this.data.area.idpvAreas}/${this.data.area.nombre}`);
-        this.loading = false;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }

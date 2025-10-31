@@ -5,35 +5,36 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { lastValueFrom, Subject } from 'rxjs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/auth.service';
 import { User } from '../../core/models';
 
-export interface LoginModalData {
+interface LoginModalData {
   cancelable?: boolean;
   msg?: string;
 }
 
-export type LoginModalReturn = User;
+type LoginModalReturn = User;
 
 @Component({
   standalone: true,
   imports: [
+    ReactiveFormsModule,
+
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule,
-    ReactiveFormsModule
+    MatProgressBarModule,
   ],
   templateUrl: 'login.component.html'
 })
 export class LoginModalComponent implements OnDestroy {
 
   public static open(dialog: MatDialog, options: LoginModalData = {}) {
-    return lastValueFrom(
+    return firstValueFrom(
       dialog.open<LoginModalComponent, LoginModalData, LoginModalReturn>(LoginModalComponent, {
         data: options,
         closeOnNavigation: false
@@ -41,16 +42,7 @@ export class LoginModalComponent implements OnDestroy {
     );
   }
 
-  private readonly destroyed: Subject<void> = new Subject<void>();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading || !this.data.cancelable;
-  }
+  private readonly destroyed = new Subject<void>();
 
   @ViewChild('input', { static: true }) private input: ElementRef<HTMLInputElement>;
 
@@ -63,15 +55,15 @@ export class LoginModalComponent implements OnDestroy {
     private ref: MatDialogRef<LoginModalComponent, LoginModalReturn>,
     @Inject(MAT_DIALOG_DATA) public data: LoginModalData
   ) {
-    this.loading = false;
+    this.ref.disableClose = this.form.disabled || !this.data.cancelable;
   }
 
-  public ngOnDestroy(): void {
+  public ngOnDestroy() {
     this.destroyed.next();
     this.destroyed.complete();
   }
 
-  public cancel(): void {
+  public cancel() {
     this.ref.close();
   }
 
@@ -80,13 +72,16 @@ export class LoginModalComponent implements OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    this.loading = true;
-    this.auth.auth(this.form.controls.pass.value).pipe(
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled || !this.data.cancelable;
+
+    this.auth.auth(value.pass).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: user => {
         this.ref.close(user);
-        this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
         if (error.status === 401) {
@@ -95,9 +90,13 @@ export class LoginModalComponent implements OnDestroy {
         } else {
           this.form.controls.pass.setErrors({ auth: error.name });
         }
+
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled || !this.data.cancelable;
+
         this.input.nativeElement.focus();
-        this.loading = false;
       }
     });
   }
+
 }

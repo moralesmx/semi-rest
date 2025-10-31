@@ -7,7 +7,7 @@
   }
   <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
     @for (option of data.options | keyvalue; track option.key) {
-      <button mat-flat-button color="primary" (click)="submit(option.key)" style="width: 100%;">
+      <button matButton="filled" (click)="submit(option.key)" style="width: 100%;">
         {{ option.value }}
       </button>
     }

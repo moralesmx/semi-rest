@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -26,7 +26,7 @@ type NewBillModalReturn = boolean;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatSelectModule,
     RangePipe
   ],
@@ -42,16 +42,7 @@ export class NewBillModalComponent implements OnDestroy {
 
   static readonly defaultName: string = 'Cliente directo';
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public waiters: Waiter[];
 
@@ -70,7 +61,9 @@ export class NewBillModalComponent implements OnDestroy {
     private ref: MatDialogRef<NewBillModalComponent, NewBillModalReturn>,
     @Inject(MAT_DIALOG_DATA) public data: NewBillModalData
   ) {
-    this.loading = true;
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+
     this.api.getWaiters().pipe(
       takeUntil(this.destroyed),
     ).subscribe({
@@ -79,19 +72,23 @@ export class NewBillModalComponent implements OnDestroy {
         if (this.waiters.find(waiter => waiter.idpvUsuarios === this.auth.user.idpvUsuarios)) {
           this.form.controls.waiter.setValue(this.auth.user.idpvUsuarios);
         }
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        if (!this.auth.user.permisos.cambiomesero) {
+          this.form.controls.waiter.disable();
+        }
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        if (!this.auth.user.permisos.cambiomesero) {
+          this.form.controls.waiter.disable();
+        }
       }
     });
-
-    if (this.auth.user.permisos.cambiomesero) {
-      this.form.controls.waiter.enable();
-    } else {
-      this.form.controls.waiter.disable();
-    }
 
     this.form.controls.room.valueChanges.pipe(
       tap(() => {
@@ -130,26 +127,35 @@ export class NewBillModalComponent implements OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    this.loading = true;
+
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
+
     this.api.createBill({
       idpvAreas: this.data.table.idpvAreas,
       idpvAreasMesas: this.data.table.idpvAreasMesas,
-      idpvUsuariosMesero: this.form.value.waiter,
-      adultos: this.form.value.adults,
-      menores: this.form.value.minors,
-      nombre: this.form.value.name,
-      idHotel: this.form.value.guest,
-      habitacion: this.form.value.guest ? this.form.value.room : undefined
+      idpvUsuariosMesero: value.waiter,
+      adultos: value.adults,
+      menores: value.minors,
+      nombre: value.name,
+      idHotel: value.guest,
+      habitacion: value.guest ? value.room : undefined
     }).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: () => {
         this.ref.close(true);
-        this.loading = false;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        if (!this.auth.user.permisos.cambiomesero) {
+          this.form.controls.waiter.disable();
+        }
       }
     });
   }

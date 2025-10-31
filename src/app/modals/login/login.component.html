@@ -1,35 +1,34 @@
 <h2 mat-dialog-title>Login</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form (ngSubmit)="submit()" [formGroup]="form" autocomplete="off">
     <mat-form-field style="width: 100%;">
       <mat-label>Clave</mat-label>
       <input #input matInput placeholder="*****" type="password" formControlName="pass">
       @if (data?.msg) {
-        <mat-hint>{{ data.msg }}</mat-hint>
+      <mat-hint>{{ data.msg }}</mat-hint>
       }
       @if (form.controls.pass.touched && form.controls.pass.errors) {
-        <mat-error>
-          {{
-            (form.controls.pass.errors['auth']) ||
-            (form.controls.pass.errors['required'] && 'Campo obligatorio.')
-          }}
-        </mat-error>
+      <mat-error>
+        {{
+        (form.controls.pass.errors['auth']) ||
+        (form.controls.pass.errors['required'] && 'Campo obligatorio.')
+        }}
+      </mat-error>
       }
     </mat-form-field>
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
   @if (data?.cancelable) {
-    <button mat-button (click)="cancel()">
-      Cancelar
-    </button>
+  <button matButton (click)="cancel()" [disabled]="form.disabled">
+    Cancelar
+  </button>
   }
-  <button mat-flat-button color="primary" (click)="submit()">
-    @if (loading) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Entrar
   </button>
 </div>

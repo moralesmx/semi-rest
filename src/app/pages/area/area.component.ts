@@ -2,6 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -33,6 +34,7 @@ import { NewBillModalComponent } from './new-bill/new-bill.component';
     FormsModule,
     MatDialogModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatCardModule,
     MatChipsModule,
     MatFormFieldModule,
@@ -58,7 +60,7 @@ export class AreaComponent implements OnDestroy {
   public activeSection: Section;
 
   public closed: Table[];
-  public showClosed: boolean;
+  public showClosed = false;
 
   constructor(
     private api: ApiService,
@@ -67,7 +69,7 @@ export class AreaComponent implements OnDestroy {
     private route: ActivatedRoute,
     private dialog: MatDialog
   ) {
-    timer(0, 5000).pipe(
+    timer(0, 15000).pipe(
       takeUntil(this.destroyed)
     ).subscribe({
       next: () => {

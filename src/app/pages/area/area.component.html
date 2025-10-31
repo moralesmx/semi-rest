@@ -1,55 +1,60 @@
 <div style="padding: 16px; height: 100%;" [inert]="loading">
 
   @if (area) {
-    <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 16px; height: 100%;">
-      <div>
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-              <h5 style="margin: 0;">
-                {{ showClosed ? 'Cuentas cerradas': 'Cuentas activas'}}
-              </h5>
-              <button mat-icon-button (click)="showClosed = !showClosed">
-                <mat-icon>credit_card</mat-icon>
-              </button>
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-form-field style="width: 100%;">
-              <mat-label>Buscar</mat-label>
-              <input matInput [(ngModel)]="search">
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+  <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 16px; height: 100%;">
+    <div>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Cuentas</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>
+            <mat-button-toggle-group [(value)]="showClosed" style="width: 100%;">
+              <mat-button-toggle [value]="false" style="width: 50%;">Activas</mat-button-toggle>
+              <mat-button-toggle [value]="true" style="width: 50%;">Cerradas</mat-button-toggle>
+            </mat-button-toggle-group>
+          </p>
 
-            <mat-nav-list>
-              @if (!showClosed) {
-                @for (table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]; track table.idpvAreasMesas) {
-                  <mat-list-item (click)="order(table)" style="cursor: pointer;">
-                    <span style="flex-grow: 1;">
-                      <strong>{{ table.clave }}</strong> {{ table.mesero }}
-                    </span>
-                    @if (table.habitacion) {
-                      <mat-chip style="margin: 0 4px;">{{ table.habitacion }}</mat-chip>
-                    }
-                    <mat-chip highlighted style="margin: 0 4px;">{{ table.total | currency }}</mat-chip>
-                  </mat-list-item>
-                }
+          <mat-form-field style="width: 100%;">
+            <mat-label>Buscar</mat-label>
+            <input matInput [(ngModel)]="search">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-nav-list>
+            @if (!showClosed) {
+            @for (table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero',
+            search]]; track table.idpvAreasMesas) {
+            <mat-list-item (click)="order(table)">
+              <strong>{{ table.clave }}</strong> {{ table.mesero }}
+              @if (table.habitacion) {
+              <mat-chip matListItemMeta>{{ table.habitacion }}</mat-chip>
               }
-              @if (showClosed) {
-                @for (table of closed | search : [['mesero', search]]; track table.idpvAreasMesas) {
-                  <mat-list-item (click)="closedOptions(table)" style="cursor: pointer;">
-                    <span style="flex-grow: 1;">
-                      <strong>{{ table.clave }}</strong> {{ table.mesero }}
-                    </span>
-                    <mat-chip style="margin: 0 4px;">{{ table.area }}</mat-chip>
-                    <mat-chip highlighted style="margin: 0 4px;">{{ table.total | currency }}</mat-chip>
-                  </mat-list-item>
-                }
-              }
-            </mat-nav-list>
-          </mat-card-content>
-        </mat-card>
-      </div>
+              <mat-chip matListItemMeta highlighted>{{ table.total | currency }}</mat-chip>
+            </mat-list-item>
+            } @empty {
+            <mat-list-item disabled>
+              No hay cuentas abiertas
+            </mat-list-item>
+            }
+            }
+            @if (showClosed) {
+            @for (table of closed | search : [['mesero', search]]; track table.idpvAreasMesas) {
+            <mat-list-item (click)="closedOptions(table)">
+              <strong>{{ table.clave }}</strong> {{ table.mesero }}
+              <mat-chip matListItemMeta>{{ table.area }}</mat-chip>
+              <mat-chip matListItemMeta highlighted>{{ table.total | currency }}</mat-chip>
+            </mat-list-item>
+            } @empty {
+            <mat-list-item disabled>
+              No hay cuentas cerradas
+            </mat-list-item>
+            }
+            }
+          </mat-nav-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
 
     <div>
 
@@ -61,48 +66,50 @@
         </mat-card-header>
         <mat-card-content style="padding: 0;">
           <mat-tab-group (selectedIndexChange)="onTabChange($event)">
-            @for (section of area.secciones; track section.idpvSecciones; let i = $index) {
-              <mat-tab>
-                <ng-template mat-tab-label>
-                  {{ section.nombre }}
-                  <mat-chip highlighted style="margin-left: 8px;">{{ (section.mesas | has : 'idpvVentas').length }}</mat-chip>
-                </ng-template>
-                <div style="position: relative; width: 100%; padding-top: 56.25%;">
-                  @if (activeSection) {
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" #box>
-                      @for (table of activeSection.mesas; track table.idpvAreasMesas) {
-                        <div style="position: absolute; padding: 4px;" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box"
-                          [inBounds]="true" [preventDefaultEvent]="true"
-                          [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
-                          [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
-                          [style.height.px]="box.clientWidth / activeSection.proporcion"
-                          [style.width.px]="box.clientWidth / activeSection.proporcion"
-                          (endOffset)="table.coordX = $event.x * 100 / box.clientWidth; table.coordY = $event.y * 100 / box.clientWidth">
-                          <button [matButton]="table.idpvVentas ? 'filled' : 'tonal'"
-                            style="width: 100%; height: 100%;" (click)="selectTable(table)">
-                            {{ table.clave }}
-                          </button>
-                        </div>
-                      }
-                    </div>
+            @for (section of area.secciones; track section.idpvSecciones) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                {{ section.nombre }}
+                <mat-chip highlighted style="margin-left: 8px;">
+                  {{ (section.mesas | has : 'idpvVentas').length }}
+                </mat-chip>
+              </ng-template>
+              <div style="position: relative; width: 100%; padding-top: 56.25%;">
+                @if (activeSection) {
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" #box>
+                  @for (table of activeSection.mesas; track table.idpvAreasMesas) {
+                  <div style="position: absolute; padding: 4px;" [ngDraggable]="auth?.user?.permisos?.edit"
+                    [bounds]="box" [inBounds]="true" [preventDefaultEvent]="true"
+                    [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
+                    [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
+                    [style.height.px]="box.clientWidth / activeSection.proporcion"
+                    [style.width.px]="box.clientWidth / activeSection.proporcion"
+                    (endOffset)="table.coordX = $event.x * 100 / box.clientWidth; table.coordY = $event.y * 100 / box.clientWidth">
+                    <button [matButton]="table.idpvVentas ? 'filled' : 'tonal'" style="width: 100%; height: 100%;"
+                      (click)="selectTable(table)">
+                      {{ table.clave }}
+                    </button>
+                  </div>
                   }
                 </div>
-              </mat-tab>
+                }
+              </div>
+            </mat-tab>
             }
           </mat-tab-group>
         </mat-card-content>
         @if (auth?.user?.permisos?.edit) {
-          <mat-card-actions>
-            <button mat-flat-button color="primary" (click)="updateArea()">Guardar</button>
-            <button mat-flat-button color="primary" (click)="addTable()">Agregar mesa</button>
-            <button mat-flat-button color="primary" (click)="addSection()">Agregar seccion</button>
-            @if (activeSection) {
-              <input type="range" min="10" max="30" step="1" [(ngModel)]="activeSection.proporcion">
-            }
-          </mat-card-actions>
+        <mat-card-actions>
+          <button matButton="filled" (click)="updateArea()">Guardar</button>
+          <button matButton="filled" (click)="addTable()">Agregar mesa</button>
+          <button matButton="filled" (click)="addSection()">Agregar seccion</button>
+          @if (activeSection) {
+          <input type="range" min="10" max="30" step="1" [(ngModel)]="activeSection.proporcion">
+          }
+        </mat-card-actions>
         }
       </mat-card>
     </div>
-    </div>
+  </div>
   }
 </div>

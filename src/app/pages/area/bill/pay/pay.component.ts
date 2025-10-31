@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { combineLatest, firstValueFrom, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
@@ -32,7 +32,7 @@ type PayModalReturn = boolean;
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     CursorEndDirective,
     NgxCurrencyDirective
   ],
@@ -46,16 +46,7 @@ export class PayModalComponent implements OnDestroy {
     }).afterClosed());
   }
 
-  private readonly destroyed: Subject<void> = new Subject();
-
-  private _loading: boolean;
-  public get loading(): boolean {
-    return this._loading;
-  }
-  public set loading(loading: boolean) {
-    this._loading = loading;
-    this.ref.disableClose = loading;
-  }
+  private readonly destroyed = new Subject<void>();
 
   public paymentOptions: PaymentOption[];
 
@@ -116,7 +107,8 @@ export class PayModalComponent implements OnDestroy {
       this.form.controls.nonCash.setValue(nonCash);
     });
 
-    this.loading = true;
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.api.getPaymentOptions().pipe(
       takeUntil(this.destroyed)
     ).subscribe({
@@ -136,11 +128,21 @@ export class PayModalComponent implements OnDestroy {
           }
           (this.form.controls.payments as FormGroup).addControl(`${option.idpvFormaPago}`, control);
         }
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
+
+        // Re-disable hotel controls if needed
+        for (const option of this.paymentOptions) {
+          if (option.hotel && !this.data.bill.idHotel) {
+            const control = (this.form.controls.payments as FormGroup).controls[`${option.idpvFormaPago}`];
+            control.disable();
+          }
+        }
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }
@@ -160,27 +162,30 @@ export class PayModalComponent implements OnDestroy {
   }
 
   public submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
-    this.loading = true;
+    const value = this.form.value;
+
+    this.form.disable();
+    this.ref.disableClose = this.form.disabled;
     this.api.payBill(this.data.bill, {
       idHotel: this.data.bill.idHotel,
       subtotal: this.data.bill.total,
       descuentos: this.data.bill.descuentos,
-      propina: this.form.value.tips,
-      cambio: this.form.value.change,
-      formadepago: this.form.value.payments,
+      propina: value.tips,
+      cambio: value.change,
+      formadepago: value.payments,
       idpvUsuarios: this.auth.user.idpvUsuarios,
     }).subscribe({
       next: () => {
         this.ref.close(true);
-        this.loading = false;
       },
       error: error => {
         console.error(error);
-        this.loading = false;
+        this.form.enable();
+        this.ref.disableClose = this.form.disabled;
       }
     });
   }

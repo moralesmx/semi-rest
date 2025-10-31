@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Descuento - {{ data.table.clave }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form (ngSubmit)="submit()" [formGroup]="form">
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <div>
@@ -16,7 +16,7 @@
         <input matInput [formControl]="form.controls.percentage" currencyMask appCursorEnd
           [options]="{ prefix: '', suffix: ' %' }" style="text-align: right;">
         @if (form.controls.percentage.touched && form.controls.percentage.invalid) {
-          <mat-error>Porcentaje invalido</mat-error>
+        <mat-error>Porcentaje invalido</mat-error>
         }
       </mat-form-field>
 
@@ -24,19 +24,18 @@
         <mat-label>Monto</mat-label>
         <input matInput [formControl]="form.controls.amount" currencyMask appCursorEnd style="text-align: right;">
         @if (form.controls.amount.touched && form.controls.amount.invalid) {
-          <mat-error>Monto invalido</mat-error>
+        <mat-error>Monto invalido</mat-error>
         }
       </mat-form-field>
     </div>
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Aplicar
   </button>
 </div>

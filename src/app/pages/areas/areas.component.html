@@ -11,7 +11,7 @@
         <mat-card-content>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-flat-button color="primary" (click)="selectArea(area)" [disabled]="!area.idpvCortes">
+          <button matButton="filled" (click)="selectArea(area)" [disabled]="!area.idpvCortes">
             Abrir area
           </button>
           <button mat-flat-button color="accent" (click)="openArea(area)" [disabled]="area.idpvCortes">

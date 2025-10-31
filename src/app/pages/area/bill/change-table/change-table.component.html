@@ -1,19 +1,19 @@
 <h2 mat-dialog-title>Cambio de mesa - {{ data.table.clave }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form (ngSubmit)="submit()" [formGroup]="form">
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <mat-form-field style="width: 100%;">
         <mat-label>Sección</mat-label>
         <mat-select formControlName="section">
           @for (section of area?.secciones; track section.idpvSecciones) {
-            <mat-option [value]="section">
-              {{ section.nombre }}
-            </mat-option>
+          <mat-option [value]="section">
+            {{ section.nombre }}
+          </mat-option>
           }
         </mat-select>
         @if (form.controls.section.touched && form.controls.section.invalid) {
-          <mat-error>Campo obligatorio.</mat-error>
+        <mat-error>Campo obligatorio.</mat-error>
         }
       </mat-form-field>
 
@@ -21,27 +21,26 @@
         <mat-label>Mesa</mat-label>
         <mat-select formControlName="table">
           @for (table of form.controls.section.value?.mesas | hasnot : 'idpvVentas'; track table.idpvAreasMesas) {
-            <mat-option [value]="table">
-              {{ table.clave }}
-            </mat-option>
+          <mat-option [value]="table">
+            {{ table.clave }}
+          </mat-option>
           }
         </mat-select>
         @if (form.controls.table.touched && form.controls.table.invalid) {
-          <mat-error>Campo obligatorio.</mat-error>
+        <mat-error>Campo obligatorio.</mat-error>
         }
       </mat-form-field>
     </div>
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">
     Cancelar
   </button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Cambiar
   </button>
 </div>

@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Comandar - {{ table?.clave }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   @if (products) {
     <div style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; gap: 16px; height: 60vh;">
       <div style="display: flex; flex-direction: column;">
@@ -59,7 +59,9 @@
   }
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
   <div style="display: flex; align-items: center; gap: 8px; margin-right: auto;">
     <button mat-raised-button [color]="form.controls.copy.value ? 'primary' : undefined"
       (click)="form.controls.copy.setValue(!form.controls.copy.value)" [disabled]="form.controls.copy.disabled">
@@ -69,17 +71,14 @@
       <mat-label>Impresora</mat-label>
       <mat-select [formControl]="form.controls.printer">
         @for (p of printers; track p.idgeneralImpresoras) {
-          <mat-option [value]="p.idgeneralImpresoras">{{ p.nombre }}</mat-option>
+        <mat-option [value]="p.idgeneralImpresoras">{{ p.nombre }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
   </div>
 
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+  <button matButton (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Comandar
   </button>
 </div>

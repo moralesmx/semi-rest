@@ -6,7 +6,7 @@
 }
 <div mat-dialog-actions align="end">
   @if (data.cancel) {
-  <button mat-button (click)="cancel()">{{ data.cancel }}</button>
+  <button matButton (click)="cancel()">{{ data.cancel }}</button>
   }
-  <button mat-flat-button color="primary" (click)="ok()">{{ data.ok || 'Aceptar' }}</button>
+  <button matButton="filled" (click)="ok()">{{ data.ok || 'Aceptar' }}</button>
 </div>

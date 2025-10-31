@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>{{ product.nombre }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 16px;">
     <div style="display: flex; flex-direction: column;">
       <label style="margin-bottom: 8px; font-weight: 500;">Termino</label>
@@ -97,12 +97,11 @@
   </div>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Agregar
   </button>
 </div>

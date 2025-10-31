@@ -23,7 +23,7 @@ import { OpenAreaModalComponent } from './open-area/open-area.component';
 })
 export class AreasComponent implements OnDestroy {
 
-  private readonly destroyed: Subject<void> = new Subject();
+  private readonly destroyed = new Subject<void>();
 
   public areas: Area[];
 

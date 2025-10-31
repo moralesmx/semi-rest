@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Cobrar Cuenta - {{ data.table.clave }}</h2>
 
-<div mat-dialog-content [inert]="loading">
+<div mat-dialog-content>
   <form (ngSubmit)="submit()" [formGroup]="form">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
       <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -59,14 +59,13 @@
   </form>
 </div>
 
-<div mat-dialog-actions align="end" [inert]="loading">
-  <button mat-button (click)="cancel()" [disabled]="form.disabled">
+<mat-progress-bar [mode]="form.disabled ? 'indeterminate': 'determinate'"></mat-progress-bar>
+
+<div mat-dialog-actions align="end">
+  <button matButton (click)="cancel()" [disabled]="form.disabled">
     Cancelar
   </button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
-    @if (form.disabled) {
-      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
-    }
+  <button matButton="filled" (click)="submit()" [disabled]="form.disabled">
     Cobrar
   </button>
 </div>
