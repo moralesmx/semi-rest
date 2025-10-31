@@ -1,54 +1,47 @@
-<div class="modal-content" [inert]="loading">
-  <div class="modal-header">
-    <h5 class="modal-title">Cambio de mesa - {{ data.table.clave }}</h5>
-  </div>
-  <div class="modal-body">
+<h2 mat-dialog-title>Cambio de mesa - {{ data.table.clave }}</h2>
 
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="form-row">
+<div mat-dialog-content [inert]="loading">
+  <form (ngSubmit)="submit()" [formGroup]="form">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <mat-form-field style="width: 100%;">
+        <mat-label>Sección</mat-label>
+        <mat-select formControlName="section">
+          @for (section of area?.secciones; track section.idpvSecciones) {
+            <mat-option [value]="section">
+              {{ section.nombre }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (form.controls.section.touched && form.controls.section.invalid) {
+          <mat-error>Campo obligatorio.</mat-error>
+        }
+      </mat-form-field>
 
-        <div class="form-group col-12">
-          <label>Sección</label>
-          <select class="form-control" formControlName="section"
-            [class.is-invalid]="form.controls.section.touched && form.controls.section.invalid">
-            @for (section of area?.secciones; track section.idpvSecciones) {
-              <option [ngValue]="section">
-                {{ section.nombre }}
-              </option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Mesa</mat-label>
+        <mat-select formControlName="table">
+          @for (table of form.controls.section.value?.mesas | hasnot : 'idpvVentas'; track table.idpvAreasMesas) {
+            <mat-option [value]="table">
+              {{ table.clave }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (form.controls.table.touched && form.controls.table.invalid) {
+          <mat-error>Campo obligatorio.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </form>
+</div>
 
-        <div class="form-group col-12">
-          <label>Mesa</label>
-          <select class="form-control" formControlName="table"
-            [class.is-invalid]="form.controls.table.touched && form.controls.table.invalid">
-            @for (table of form.controls.section.value?.mesas | hasnot : 'idpvVentas'; track table.idpvAreasMesas) {
-              <option [ngValue]="table">
-                {{ table.clave }}
-              </option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
-
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
-      Cancelar
-    </button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
-      }
-      Cambiar
-    </button>
-  </div>
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">
+    Cancelar
+  </button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Cambiar
+  </button>
 </div>

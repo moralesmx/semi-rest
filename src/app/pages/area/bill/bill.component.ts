@@ -4,8 +4,11 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { EMPTY, firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ApiService } from '../../../core/api.service';
@@ -32,8 +35,11 @@ type BillModalReturn = void;
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
+    MatTableModule,
     RangePipe
   ],
   templateUrl: 'bill.component.html'
@@ -61,6 +67,8 @@ export class BillModalComponent implements OnDestroy {
 
   public waiters: Waiter[];
   public bill: Bill;
+
+  public displayedColumns: string[] = ['folio', 'cuenta', 'platillo', 'cantidad', 'precio', 'total', 'actions'];
 
   public form = new FormGroup({
     waiter: new FormControl<Waiter['idpvUsuarios']>(undefined, [Validators.required]),

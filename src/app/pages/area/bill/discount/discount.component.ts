@@ -1,10 +1,11 @@
-import { NgClass } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -23,12 +24,13 @@ export type DiscountModalReturn = boolean;
 @Component({
   standalone: true,
   imports: [
-    NgClass,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatFormFieldModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatRadioModule,
     NgxCurrencyDirective,
     CursorEndDirective

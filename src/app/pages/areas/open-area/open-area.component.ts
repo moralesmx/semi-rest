@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -26,6 +27,7 @@ type OpenAreaModalReturn = void;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     NgxCurrencyDirective,
     CursorEndDirective
   ],

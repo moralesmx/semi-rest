@@ -1,23 +1,27 @@
-<div class="container-fluid">
-  <div class="row">
+<div style="padding: 16px;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
     @for (area of areas; track area.idpvAreas) {
-      <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title">{{ area.nombre }}</h5>
-            <h6 class="card-subtitle" [ngClass]="area.idpvCortes ? 'text-primary' : 'text-muted'">{{ area.idpvCortes ? 'Abierto' : 'Cerrado' }}</h6>
-            <button class="btn btn-primary" (click)="selectArea(area)"  [disabled]="!area.idpvCortes">
-              Abrir area
-            </button>
-            <button class="btn btn-success" (click)="openArea(area)" [disabled]="area.idpvCortes">
-              Abrir caja
-            </button>
-            <button class="btn btn-danger" (click)="closeArea(area)" [disabled]="!area.idpvCortes ">
-              Cerrar caja
-            </button>
-          </div>
-        </div>
-      </div>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ area.nombre }}</mat-card-title>
+          <mat-card-subtitle [style.color]="area.idpvCortes ? 'var(--mat-sys-primary)' : 'rgba(0, 0, 0, 0.6)'">
+            {{ area.idpvCortes ? 'Abierto' : 'Cerrado' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" (click)="selectArea(area)" [disabled]="!area.idpvCortes">
+            Abrir area
+          </button>
+          <button mat-flat-button color="accent" (click)="openArea(area)" [disabled]="area.idpvCortes">
+            Abrir caja
+          </button>
+          <button mat-flat-button color="warn" (click)="closeArea(area)" [disabled]="!area.idpvCortes">
+            Cerrar caja
+          </button>
+        </mat-card-actions>
+      </mat-card>
     }
   </div>
 </div>

@@ -4,7 +4,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -26,6 +28,8 @@ type CloseAreaModalReturn = void;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     NgxCurrencyDirective,
     CursorEndDirective
   ],

@@ -1,51 +1,42 @@
-<div class="modal-content" [inert]="loading">
+<h2 mat-dialog-title>Descuento - {{ data.table.clave }}</h2>
 
-  <div class="modal-header">
-    <h5 class="modal-title">Descuento - {{ data.table.clave }}</h5>
-  </div>
+<div mat-dialog-content [inert]="loading">
+  <form (ngSubmit)="submit()" [formGroup]="form">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <label style="display: block; margin-bottom: 8px;">Tipo</label>
+        <mat-button-toggle-group formControlName="type" style="width: 100%;">
+          <mat-button-toggle [value]="1" style="width: 50%;">Porcentual</mat-button-toggle>
+          <mat-button-toggle [value]="2" style="width: 50%;">Directo</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
 
-  <div class="modal-body">
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="form-group">
-        <label>Tipo</label>
-        <div class="btn-group d-flex">
-          <button type="button" class="btn" [ngClass]="form.controls.type.value == 1 ? 'btn-primary' : 'btn-secondary'"
-            (click)="form.controls.type.setValue(1)" [disabled]="form.controls.type.disabled">
-            Porcentual
-          </button>
-          <button type="button" class="btn" [ngClass]="form.controls.type.value == 2 ? 'btn-primary' : 'btn-secondary'"
-            (click)="form.controls.type.setValue(2)" [disabled]="form.controls.type.disabled">
-            Directo
-          </button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Porcentaje</label>
-        <input class="form-control text-right" [formControl]="form.controls.percentage" currencyMask appCursorEnd
-          [class.is-invalid]="form.controls.percentage.touched && form.controls.percentage.invalid"
-          [options]="{ prefix: '', suffix: ' %' }">
-        <div class="invalid-feedback">
-          Porcentaje invalido
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Monto</label>
-        <input class="form-control text-right" [formControl]="form.controls.amount" currencyMask appCursorEnd
-          [class.is-invalid]="form.controls.amount.touched && form.controls.amount.invalid">
-        <div class="invalid-feedback">
-          Monto invalido
-        </div>
-      </div>
-    </form>
-  </div>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Porcentaje</mat-label>
+        <input matInput [formControl]="form.controls.percentage" currencyMask appCursorEnd
+          [options]="{ prefix: '', suffix: ' %' }" style="text-align: right;">
+        @if (form.controls.percentage.touched && form.controls.percentage.invalid) {
+          <mat-error>Porcentaje invalido</mat-error>
+        }
+      </mat-form-field>
 
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
-      }
-      Aplicar
-    </button>
-  </div>
+      <mat-form-field style="width: 100%;">
+        <mat-label>Monto</mat-label>
+        <input matInput [formControl]="form.controls.amount" currencyMask appCursorEnd style="text-align: right;">
+        @if (form.controls.amount.touched && form.controls.amount.invalid) {
+          <mat-error>Monto invalido</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Aplicar
+  </button>
 </div>

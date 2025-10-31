@@ -1,33 +1,28 @@
-<div class="modal-content" [inert]="loading">
-  <div class="modal-header">
-    <h5 class="modal-title">{{ data.area.nombre }}</h5>
-  </div>
-  <div class="modal-body">
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="form-row">
-        <div class="form-group col-12">
-          <label>Fondo de caja</label>
-          <input class="form-control text-right" formControlName="funds" currencyMask appCursorEnd
-            [class.is-invalid]="form.controls.funds.touched && form.controls.funds.invalid">
-          <div class="invalid-feedback">
-            {{
-              form.controls.funds.errors && (
-                (form.controls.funds.errors['required'] && 'Campo obligatorio.') ||
-                (form.controls.funds.errors['min'] && 'Debe ser mayor o igual a 0.')
-              )
-            }}
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
+<h2 mat-dialog-title>{{ data.area.nombre }}</h2>
+
+<div mat-dialog-content [inert]="loading">
+  <form (ngSubmit)="submit()" [formGroup]="form">
+    <mat-form-field style="width: 100%;">
+      <mat-label>Fondo de caja</mat-label>
+      <input matInput formControlName="funds" currencyMask appCursorEnd style="text-align: right;">
+      @if (form.controls.funds.touched && form.controls.funds.errors) {
+        <mat-error>
+          {{
+            (form.controls.funds.errors['required'] && 'Campo obligatorio.') ||
+            (form.controls.funds.errors['min'] && 'Debe ser mayor o igual a 0.')
+          }}
+        </mat-error>
       }
-      Abrir caja
-    </button>
-  </div>
+    </mat-form-field>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Abrir caja
+  </button>
 </div>

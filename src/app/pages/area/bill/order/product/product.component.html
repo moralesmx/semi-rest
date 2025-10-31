@@ -1,144 +1,108 @@
-<div class="modal-content" [inert]="loading">
+<h2 mat-dialog-title>{{ product.nombre }}</h2>
 
-  <div class="modal-header">
-    <h5 class="modal-title">{{ product.nombre }}</h5>
-  </div>
-  <div class="modal-body">
-    <div class="row">
+<div mat-dialog-content [inert]="loading">
+  <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 16px;">
+    <div style="display: flex; flex-direction: column;">
+      <label style="margin-bottom: 8px; font-weight: 500;">Termino</label>
+      <mat-selection-list style="flex: 1; overflow-y: auto;">
+        @for (term of product.terminos; track term.idpvTerminos) {
+          <mat-list-option [selected]="termsSelection.isSelected(term)" (click)="termsSelection.toggle(term)">
+            {{ term.nombre }}
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    </div>
 
-      <div class="col-3">
-        <label>Termino</label>
-        <ul class="list-group">
-          @for (term of product.terminos; track term.idpvTerminos) {
-            <li class="list-group-item list-group-item-action" [class.active]="termsSelection.isSelected(term)"
-              (click)="termsSelection.toggle(term)">
-              {{ term.nombre }}
-            </li>
-          }
-        </ul>
-      </div>
+    <div>
+      <form (ngSubmit)="submit()" [formGroup]="form">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+          <mat-form-field>
+            <mat-label>Cantidad</mat-label>
+            <input matInput readonly [formControl]="form.controls.quantity">
+            <button mat-icon-button matSuffix type="button" [disabled]="form.controls.quantity.disabled || form.controls.quantity.value <= 1"
+              (click)="form.controls.quantity.setValue(form.controls.quantity.value - 1)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <button mat-icon-button matSuffix type="button" [disabled]="form.controls.quantity.disabled"
+              (click)="form.controls.quantity.setValue(form.controls.quantity.value + 1)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </mat-form-field>
 
-      <div class="col-6">
+          <mat-form-field>
+            <mat-label>Precio</mat-label>
+            <input matInput [value]="form.controls.price.value | currency" readonly>
+          </mat-form-field>
 
-        <form (ngSubmit)="submit()" [formGroup]="form">
+          <mat-form-field>
+            <mat-label>Total</mat-label>
+            <input matInput [value]="form.controls.total.value | currency" readonly>
+          </mat-form-field>
+        </div>
 
-          <div class="form-row">
-
-            <div class="form-group col-lg-4">
-              <label>Cantidad</label>
-
-              <div class="input-group">
-                <input class="form-control" readonly [formControl]="form.controls.quantity">
-                <div class="input-group-append">
-                  <button type="button" class="btn btn-secondary mdi mdi-minus"
-                    [disabled]="form.controls.quantity.disabled"
-                    (click)="form.controls.quantity.value > 1 && form.controls.quantity.setValue(form.controls.quantity.value - 1)">
-                  </button>
-                  <button type="button" class="btn btn-secondary mdi mdi-plus"
-                    [disabled]="form.controls.quantity.disabled"
-                    (click)="form.controls.quantity.setValue(form.controls.quantity.value + 1)">
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group col-lg-4">
-              <label>Precio</label>
-              <input class="form-control" [value]="form.controls.price.value | currency" readonly>
-            </div>
-
-            <div class="form-group col-lg-4">
-              <label>Total</label>
-              <input class="form-control" [value]="form.controls.total.value | currency" readonly>
-            </div>
-
-            <div class="form-group col-lg-6">
-              <label>Orden</label>
-              <div class="btn-group d-flex">
-                <button type="button" class="btn"
-                  [ngClass]="!form.controls.half.value ? 'btn-primary' : 'btn-secondary'"
-                  (click)="form.controls.half.setValue(false)" [disabled]="form.controls.half.disabled">
-                  Completa
-                </button>
-                <button type="button" class="btn" [ngClass]="form.controls.half.value ? 'btn-primary' : 'btn-secondary'"
-                  (click)="form.controls.half.setValue(true)"
-                  [disabled]="form.controls.half.disabled || !product.precioMedia">
-                  Media
-                </button>
-              </div>
-            </div>
-
-            <div class="form-group col-lg-6">
-              <label>Cocina</label>
-              <div class="btn-group d-flex">
-                @for (k of kitchens; track k.idpvCocinas) {
-                  <button type="button" class="btn"
-                    [ngClass]="form.controls.kitchen.value == k.idpvCocinas ? 'btn-primary' : 'btn-secondary'"
-                    (click)="form.controls.kitchen.setValue(k.idpvCocinas)"
-                    [disabled]="form.controls.kitchen.disabled">
-                    {{ k.nombre }}
-                  </button>
-                }
-              </div>
-            </div>
-
-            <div class="form-group col-lg-6">
-              <label>{{ form.controls.time.value }}° Tiempo</label>
-              <div class="btn-group d-flex">
-                @for (n of [] | range : 5 : 1; track n) {
-                  <button type="button" class="btn"
-                    [ngClass]="form.controls.time.value == n ? 'btn-primary' : 'btn-secondary'"
-                    (click)="form.controls.time.setValue(n)"
-                    [disabled]="form.controls.time.disabled">
-                    {{ n }}
-                  </button>
-                }
-              </div>
-            </div>
-
-            <div class="form-group col-lg-6">
-              <label>Subcuenta {{ form.controls.sub.value }}</label>
-              <div class="btn-group d-flex">
-                @for (n of [] | range : 5 : 1; track n) {
-                  <button type="button" class="btn"
-                    [ngClass]="form.controls.sub.value == n ? 'btn-primary' : 'btn-secondary'"
-                    (click)="form.controls.sub.setValue(n)"
-                    [disabled]="form.controls.sub.disabled">
-                    {{ n }}
-                  </button>
-                }
-              </div>
-            </div>
-
-            <div class="form-group col-12">
-              <label>Notas</label>
-              <textarea class="form-control" [formControl]="form.controls.notes"></textarea>
-            </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px;">
+          <div>
+            <label style="display: block; margin-bottom: 8px;">Orden</label>
+            <mat-button-toggle-group formControlName="half" style="width: 100%;">
+              <mat-button-toggle [value]="false" style="width: 50%;">Completa</mat-button-toggle>
+              <mat-button-toggle [value]="true" [disabled]="!product.precioMedia" style="width: 50%;">Media</mat-button-toggle>
+            </mat-button-toggle-group>
           </div>
-        </form>
-      </div>
 
-      <div class="col-3">
-        <label>Modificadores</label>
-        <ul class="list-group">
-          @for (modifier of product.modificadores; track modifier.idpvPlatillosModificadores) {
-            <li class="list-group-item list-group-item-action" [class.active]="modifiersSelection.isSelected(modifier)"
-              (click)="modifiersSelection.toggle(modifier)">
-              {{ modifier.nombre }}
-            </li>
-          }
-        </ul>
-      </div>
+          <div>
+            <label style="display: block; margin-bottom: 8px;">Cocina</label>
+            <mat-button-toggle-group formControlName="kitchen" style="width: 100%; display: flex;">
+              @for (k of kitchens; track k.idpvCocinas) {
+                <mat-button-toggle [value]="k.idpvCocinas" style="flex: 1;">{{ k.nombre }}</mat-button-toggle>
+              }
+            </mat-button-toggle-group>
+          </div>
 
+          <div>
+            <label style="display: block; margin-bottom: 8px;">{{ form.controls.time.value }}° Tiempo</label>
+            <mat-button-toggle-group formControlName="time" style="width: 100%; display: flex;">
+              @for (n of [] | range : 5 : 1; track n) {
+                <mat-button-toggle [value]="n" style="flex: 1;">{{ n }}</mat-button-toggle>
+              }
+            </mat-button-toggle-group>
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 8px;">Subcuenta {{ form.controls.sub.value }}</label>
+            <mat-button-toggle-group formControlName="sub" style="width: 100%; display: flex;">
+              @for (n of [] | range : 5 : 1; track n) {
+                <mat-button-toggle [value]="n" style="flex: 1;">{{ n }}</mat-button-toggle>
+              }
+            </mat-button-toggle-group>
+          </div>
+        </div>
+
+        <mat-form-field style="width: 100%; margin-top: 16px;">
+          <mat-label>Notas</mat-label>
+          <textarea matInput [formControl]="form.controls.notes" rows="3"></textarea>
+        </mat-form-field>
+      </form>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+      <label style="margin-bottom: 8px; font-weight: 500;">Modificadores</label>
+      <mat-selection-list style="flex: 1; overflow-y: auto;">
+        @for (modifier of product.modificadores; track modifier.idpvPlatillosModificadores) {
+          <mat-list-option [selected]="modifiersSelection.isSelected(modifier)" (click)="modifiersSelection.toggle(modifier)">
+            {{ modifier.nombre }}
+          </mat-list-option>
+        }
+      </mat-selection-list>
     </div>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
-      }
-      Agregar
-    </button>
-  </div>
+</div>
+
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Agregar
+  </button>
 </div>

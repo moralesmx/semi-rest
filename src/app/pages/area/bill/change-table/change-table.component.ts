@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -23,6 +24,7 @@ export type ChangeTableModalReturn = boolean;
     MatButtonModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
     HasNotPipe
   ],
   templateUrl: 'change-table.component.html'

@@ -4,7 +4,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { combineLatest, firstValueFrom, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
@@ -29,6 +31,8 @@ type PayModalReturn = boolean;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     CursorEndDirective,
     NgxCurrencyDirective
   ],

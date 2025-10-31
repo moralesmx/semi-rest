@@ -1,79 +1,71 @@
-<div class="modal-content" [inert]="loading">
+<h2 mat-dialog-title>Abrir Cuenta - Mesa {{ data.table.clave }}</h2>
 
-  <div class="modal-header">
-    <h5 class="modal-title">Abrir Cuenta - Mesa {{ data.table.clave }}</h5>
-  </div>
-  <div class="modal-body">
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="form-row">
+<div mat-dialog-content [inert]="loading">
+  <form (ngSubmit)="submit()" [formGroup]="form">
+    <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 16px;">
+      <mat-form-field>
+        <mat-label>Habitacion</mat-label>
+        <input matInput formControlName="room">
+        @if (form.controls.room.touched && form.controls.room.invalid) {
+          <mat-error>Campo obligatorio.</mat-error>
+        }
+      </mat-form-field>
 
-        <div class="form-group col-3">
-          <label>Habitacion</label>
-          <input class="form-control" formControlName="room"
-            [class.is-invalid]="form.controls.room.touched && form.controls.room.invalid">
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+      <mat-form-field>
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name">
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <mat-error>Campo obligatorio.</mat-error>
+        }
+      </mat-form-field>
+    </div>
 
-        <div class="form-group col-9">
-          <label>Nombre</label>
-          <input class="form-control" formControlName="name"
-            [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid">
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+      <mat-form-field>
+        <mat-label>Mesero</mat-label>
+        <mat-select formControlName="waiter">
+          @for (w of waiters; track w.idpvUsuarios) {
+            <mat-option [value]="w.idpvUsuarios">{{ w.nombre }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.waiter.touched && form.controls.waiter.invalid) {
+          <mat-error>Selecciona un mesero.</mat-error>
+        }
+      </mat-form-field>
 
-        <div class="form-group col-6">
-          <label>Mesero</label>
-          <select class="form-control" formControlName="waiter"
-            [class.is-invalid]="form.controls.waiter.touched && form.controls.waiter.invalid">
-            @for (w of waiters; track w.idpvUsuarios) {
-              <option [value]="w.idpvUsuarios">{{ w.nombre }}</option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Selecciona un mesero.
-          </div>
-        </div>
+      <mat-form-field>
+        <mat-label>Adultos</mat-label>
+        <mat-select formControlName="adults">
+          @for (n of [] | range : 10 : 0; track n) {
+            <mat-option [value]="n">{{ n }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.adults.touched && form.controls.adults.invalid) {
+          <mat-error>Campo obligatorio.</mat-error>
+        }
+      </mat-form-field>
 
-        <div class="form-group col-3">
-          <label>Adultos</label>
-          <select class="form-control" formControlName="adults"
-            [class.is-invalid]="form.controls.adults.touched && form.controls.adults.invalid">
-            @for (n of [] | range : 10 : 0; track n) {
-              <option [value]="n">{{ n }}</option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+      <mat-form-field>
+        <mat-label>Menores</mat-label>
+        <mat-select formControlName="minors">
+          @for (n of [] | range : 10 : 0; track n) {
+            <mat-option [value]="n">{{ n }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.minors.touched && form.controls.minors.invalid) {
+          <mat-error>Campo obligatorio.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </form>
+</div>
 
-        <div class="form-group col-3">
-          <label>Menores</label>
-          <select class="form-control" formControlName="minors"
-            [class.is-invalid]="form.controls.minors.touched && form.controls.minors.invalid">
-            @for (n of [] | range : 10 : 0; track n) {
-              <option [value]="n">{{ n }}</option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
-
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
-      }
-      Abrir mesa
-    </button>
-  </div>
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Abrir mesa
+  </button>
 </div>

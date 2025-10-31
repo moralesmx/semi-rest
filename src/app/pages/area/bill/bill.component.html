@@ -1,214 +1,230 @@
-<div class="modal-content" [inert]="loading">
+<h2 mat-dialog-title>Cuenta - {{ data.table.clave }}</h2>
 
-  <div class="modal-header">
-    <h5 class="modal-title">Cuenta - {{ data.table.clave }}</h5>
-  </div>
-  <div class="modal-body">
+<div mat-dialog-content [inert]="loading">
 
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="form-row">
+  <form (ngSubmit)="submit()" [formGroup]="form">
+    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 16px; margin-bottom: 16px;">
 
-        <div class="form-group col-3">
-          <label>Habitacion</label>
-          <input class="form-control" formControlName="room"
-            [class.is-invalid]="form.controls.room.touched && form.controls.room.invalid">
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+      <mat-form-field>
+        <mat-label>Habitacion</mat-label>
+        <input matInput formControlName="room">
+        @if (form.controls.room.touched && form.controls.room.errors) {
+          <mat-error>
+            {{ form.controls.room.errors['required'] && 'Campo obligatorio.' }}
+          </mat-error>
+        }
+      </mat-form-field>
 
-        <div class="form-group col-6">
-          <label>Nombre</label>
-          <input class="form-control" formControlName="name"
-            [class.is-invalid]="form.controls.name.touched && form.controls.name.invalid">
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+      <mat-form-field>
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name">
+        @if (form.controls.name.touched && form.controls.name.errors) {
+          <mat-error>
+            {{ form.controls.name.errors['required'] && 'Campo obligatorio.' }}
+          </mat-error>
+        }
+      </mat-form-field>
 
-        <div class="form-group col-3">
-          <label>Credito</label>
-          <input class="form-control" disabled [value]="bill?.credito | currency">
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
+      <mat-form-field>
+        <mat-label>Credito</mat-label>
+        <input matInput disabled [value]="bill?.credito | currency">
+      </mat-form-field>
 
-        <div class="form-group col-6">
-          <label>Mesero</label>
-          <select class="form-control" formControlName="waiter"
-            [class.is-invalid]="form.controls.waiter.touched && form.controls.waiter.invalid">
-            @for (w of waiters; track w.idpvUsuarios) {
-              <option [value]="w.idpvUsuarios">{{ w.nombre }}</option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
-
-        <div class="form-group col-3">
-          <label>Adultos</label>
-          <select class="form-control" formControlName="adults"
-            [class.is-invalid]="form.controls.adults.touched && form.controls.adults.invalid">
-            @for (n of [] | range : 10 : 0; track n) {
-              <option [value]="n">{{ n }}</option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
-
-        <div class="form-group col-3">
-          <label>Menores</label>
-          <select class="form-control" formControlName="minors"
-            [class.is-invalid]="form.controls.minors.touched && form.controls.minors.invalid">
-            @for (n of [] | range : 10 : 0; track n) {
-              <option [value]="n">{{ n }}</option>
-            }
-          </select>
-          <div class="invalid-feedback">
-            Campo obligatorio.
-          </div>
-        </div>
-
-      </div>
-    </form>
-
-    <label>Comandas</label>
-    <div class="table-responsive border rounded">
-      <table class="table table-hover m-0">
-        <thead>
-          <tr>
-            <th>Folio</th>
-            <th>Cuenta</th>
-            <th>Platillo</th>
-            <th>Cantidad</th>
-            <th class="text-right">Precio</th>
-            <th class="text-right">Total</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (command of bill?.comandas; track command.idpvComandas) {
-            <tr>
-              <th>{{ command.folio }}</th>
-              <td>
-                <div class="form-group m-0">
-                  <select class="form-control-plaintext p-0" [ngModel]="command.cuenta"
-                    (ngModelChange)="changeSub(command, $event)" [disabled]="form.disabled">
-                    @for (n of [] | range : 5 : 1; track n) {
-                      <option [value]="n">{{ n }}</option>
-                    }
-                  </select>
-                </div>
-              </td>
-              <td>{{ command.platillo }}</td>
-              <td class="text-right">{{ command.cantidad }}</td>
-              <td class="text-right">{{ command.precio | currency }}</td>
-              <td class="text-right">{{ command.total | currency }}</td>
-              <td>
-                @if (command.estatus) {
-                  <button type="button" class="btn btn-outline-info btn-sm mdi mdi-printer" [disabled]="form.disabled"
-                    (click)="printOrder(command)"></button>
-                }
-                @if (command.estatus && auth.user.permisos.cancelaciones) {
-                  <button type="button" class="btn btn-outline-danger btn-sm mdi mdi-delete" [disabled]="form.disabled"
-                    (click)="cancelCommand(command)"></button>
-                }
-              </td>
-            </tr>
-            @if (!command.estatus) {
-              <tr class="text-danger">
-                <th>{{ command.folio }}</th>
-                <td>{{ command.cuenta }}</td>
-                <td>{{ command.platillo }}</td>
-                <td class="text-right">{{ -command.cantidad }}</td>
-                <td class="text-right">{{ command.precio | currency }}</td>
-                <td class="text-right">{{ -command.total | currency }}</td>
-                <td></td>
-              </tr>
-            }
-          }
-        </tbody>
-        <tfoot>
-          <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th>Subtotal</th>
-            <th class="text-right">{{ bill?.total | currency }}</th>
-            <td></td>
-          </tr>
-          <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th>Creditos</th>
-            <th class="text-right">{{ bill?.credito | currency }}</th>
-            <td></td>
-          </tr>
-          <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th>Descuentos</th>
-            <th class="text-right">{{ bill?.descuentos | currency }}</th>
-            <td></td>
-          </tr>
-          <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th>Saldo</th>
-            <th class="text-right">{{ bill?.credito - (bill?.total - bill?.descuentos)  | currency }}</th>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
     </div>
 
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+
+      <mat-form-field>
+        <mat-label>Mesero</mat-label>
+        <mat-select formControlName="waiter">
+          @for (w of waiters; track w.idpvUsuarios) {
+            <mat-option [value]="w.idpvUsuarios">{{ w.nombre }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.waiter.touched && form.controls.waiter.errors) {
+          <mat-error>
+            {{ form.controls.waiter.errors['required'] && 'Campo obligatorio.' }}
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Adultos</mat-label>
+        <mat-select formControlName="adults">
+          @for (n of [] | range : 10 : 0; track n) {
+            <mat-option [value]="n">{{ n }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.adults.touched && form.controls.adults.errors) {
+          <mat-error>
+            {{ form.controls.adults.errors['required'] && 'Campo obligatorio.' }}
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Menores</mat-label>
+        <mat-select formControlName="minors">
+          @for (n of [] | range : 10 : 0; track n) {
+            <mat-option [value]="n">{{ n }}</mat-option>
+          }
+        </mat-select>
+        @if (form.controls.minors.touched && form.controls.minors.errors) {
+          <mat-error>
+            {{ form.controls.minors.errors['required'] && 'Campo obligatorio.' }}
+          </mat-error>
+        }
+      </mat-form-field>
+
+    </div>
+  </form>
+
+  <label style="display: block; margin-top: 16px; margin-bottom: 8px; font-weight: 500;">Comandas</label>
+  <div style="border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 4px; overflow: auto;">
+    <table mat-table [dataSource]="bill?.comandas || []" style="width: 100%;">
+
+      <ng-container matColumnDef="folio">
+        <th mat-header-cell *matHeaderCellDef>Folio</th>
+        <td mat-cell *matCellDef="let command">{{ command.folio }}</td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="cuenta">
+        <th mat-header-cell *matHeaderCellDef>Cuenta</th>
+        <td mat-cell *matCellDef="let command">
+          <mat-form-field style="width: 60px;">
+            <mat-select [ngModel]="command.cuenta" (ngModelChange)="changeSub(command, $event)" [disabled]="form.disabled">
+              @for (n of [] | range : 5 : 1; track n) {
+                <mat-option [value]="n">{{ n }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="platillo">
+        <th mat-header-cell *matHeaderCellDef>Platillo</th>
+        <td mat-cell *matCellDef="let command">{{ command.platillo }}</td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="cantidad">
+        <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+        <td mat-cell *matCellDef="let command" style="text-align: right;">
+          <span [style.color]="!command.estatus ? '#f44336' : undefined">
+            {{ !command.estatus ? -command.cantidad : command.cantidad }}
+          </span>
+        </td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="precio">
+        <th mat-header-cell *matHeaderCellDef style="text-align: right;">Precio</th>
+        <td mat-cell *matCellDef="let command" style="text-align: right;">
+          <span [style.color]="!command.estatus ? '#f44336' : undefined">
+            {{ command.precio | currency }}
+          </span>
+        </td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef style="text-align: right;">Total</th>
+        <td mat-cell *matCellDef="let command" style="text-align: right;">
+          <span [style.color]="!command.estatus ? '#f44336' : undefined">
+            {{ (!command.estatus ? -command.total : command.total) | currency }}
+          </span>
+        </td>
+        <td mat-footer-cell *matFooterCellDef style="text-align: right; font-weight: bold;"></td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let command">
+          @if (command.estatus) {
+            <button mat-icon-button [disabled]="form.disabled" (click)="printOrder(command)">
+              <mat-icon>print</mat-icon>
+            </button>
+          }
+          @if (command.estatus && auth.user.permisos.cancelaciones) {
+            <button mat-icon-button color="warn" [disabled]="form.disabled" (click)="cancelCommand(command)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="subtotal">
+        <td mat-footer-cell *matFooterCellDef colspan="5" style="text-align: right; font-weight: bold;">Subtotal</td>
+        <td mat-footer-cell *matFooterCellDef style="text-align: right; font-weight: bold;">{{ bill?.total | currency }}</td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="creditos">
+        <td mat-footer-cell *matFooterCellDef colspan="5" style="text-align: right; font-weight: bold;">Creditos</td>
+        <td mat-footer-cell *matFooterCellDef style="text-align: right; font-weight: bold;">{{ bill?.credito | currency }}</td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="descuentos">
+        <td mat-footer-cell *matFooterCellDef colspan="5" style="text-align: right; font-weight: bold;">Descuentos</td>
+        <td mat-footer-cell *matFooterCellDef style="text-align: right; font-weight: bold;">{{ bill?.descuentos | currency }}</td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <ng-container matColumnDef="saldo">
+        <td mat-footer-cell *matFooterCellDef colspan="5" style="text-align: right; font-weight: bold;">Saldo</td>
+        <td mat-footer-cell *matFooterCellDef style="text-align: right; font-weight: bold;">{{ bill?.credito - (bill?.total - bill?.descuentos) | currency }}</td>
+        <td mat-footer-cell *matFooterCellDef></td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-footer-row *matFooterRowDef="['folio', 'cuenta', 'platillo', 'cantidad', 'precio', 'subtotal']"></tr>
+      <tr mat-footer-row *matFooterRowDef="['folio', 'cuenta', 'platillo', 'cantidad', 'precio', 'creditos']"></tr>
+      <tr mat-footer-row *matFooterRowDef="['folio', 'cuenta', 'platillo', 'cantidad', 'precio', 'descuentos']"></tr>
+      <tr mat-footer-row *matFooterRowDef="['folio', 'cuenta', 'platillo', 'cantidad', 'precio', 'saldo']"></tr>
+    </table>
   </div>
-  <div class="modal-footer">
-    @if (auth?.user?.permisos?.comandarotros || auth.user.idpvUsuarios == bill.idpvUsuarios) {
-      <button type="button" class="btn btn-primary" (click)="order()" [disabled]="form.disabled">
-        Comandar
-      </button>
-    }
-    @if (auth?.user?.permisos?.cobrar) {
-      <button type="button" class="btn btn-primary" (click)="pay()" [disabled]="form.disabled">
-        Cobrar
-      </button>
-    }
-    @if (auth?.user?.permisos?.imprimircheque) {
-      <button type="button" class="btn btn-primary" (click)="printCheck()" [disabled]="form.disabled">
-        Imprimir cheque
-      </button>
-    }
-    @if (auth?.user?.permisos?.descuentos) {
-      <button type="button" class="btn btn-primary" (click)="discount()" [disabled]="form.disabled">
-        Descuento
-      </button>
-    }
-    @if (auth?.user?.permisos?.cambiomesa) {
-      <button type="button" class="btn btn-primary" (click)="changeTable()" [disabled]="form.disabled">
-        Transferir
-      </button>
-    }
-    <div class="flex-grow-1"></div>
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
-      Cerrar
+
+</div>
+
+<div mat-dialog-actions align="start" [inert]="loading" style="flex-wrap: wrap;">
+  @if (auth?.user?.permisos?.comandarotros || auth.user.idpvUsuarios == bill.idpvUsuarios) {
+    <button mat-flat-button color="primary" (click)="order()" [disabled]="form.disabled">
+      Comandar
     </button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-        <span class="spinner-border spinner-border-sm"></span>
-      }
-      Guardar
+  }
+  @if (auth?.user?.permisos?.cobrar) {
+    <button mat-flat-button color="primary" (click)="pay()" [disabled]="form.disabled">
+      Cobrar
     </button>
-  </div>
+  }
+  @if (auth?.user?.permisos?.imprimircheque) {
+    <button mat-flat-button color="primary" (click)="printCheck()" [disabled]="form.disabled">
+      Imprimir cheque
+    </button>
+  }
+  @if (auth?.user?.permisos?.descuentos) {
+    <button mat-flat-button color="primary" (click)="discount()" [disabled]="form.disabled">
+      Descuento
+    </button>
+  }
+  @if (auth?.user?.permisos?.cambiomesa) {
+    <button mat-flat-button color="primary" (click)="changeTable()" [disabled]="form.disabled">
+      Transferir
+    </button>
+  }
+  <div style="flex-grow: 1;"></div>
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">
+    Cerrar
+  </button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Guardar
+  </button>
 </div>

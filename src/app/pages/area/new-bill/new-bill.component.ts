@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY, firstValueFrom, Subject } from 'rxjs';
 import { catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -25,6 +26,7 @@ type NewBillModalReturn = boolean;
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
     RangePipe
   ],

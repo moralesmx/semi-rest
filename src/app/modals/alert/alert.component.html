@@ -1,22 +1,12 @@
-<div class="modal-content">
-  @if (data.title) {
-    <div class="modal-header">
-      <h5 class="modal-title">{{ data.title }}</h5>
-    </div>
+@if (data.title) {
+<h2 mat-dialog-title>{{ data.title }}</h2>
+}
+@if (data.message) {
+<div mat-dialog-content>{{ data.message }}</div>
+}
+<div mat-dialog-actions align="end">
+  @if (data.cancel) {
+  <button mat-button (click)="cancel()">{{ data.cancel }}</button>
   }
-  @if (data.message) {
-    <div class="modal-body">
-      <p>{{ data.message }}</p>
-    </div>
-  }
-  <div class="modal-footer">
-    @if (data.cancel) {
-      <button type="button" class="btn btn-secondary" (click)="cancel()">
-        {{ data.cancel }}
-      </button>
-    }
-    <button type="button" class="btn btn-primary" (click)="ok()">
-      {{ data.ok || 'Aceptar' }}
-    </button>
-  </div>
+  <button mat-flat-button color="primary" (click)="ok()">{{ data.ok || 'Aceptar' }}</button>
 </div>

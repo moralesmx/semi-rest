@@ -1,98 +1,72 @@
-<div class="modal-content" [inert]="loading">
+<h2 mat-dialog-title>Cobrar Cuenta - {{ data.table.clave }}</h2>
 
-  <div class="modal-header">
-    <h5 class="modal-title">Cobrar Cuenta - {{ data.table.clave }}</h5>
-  </div>
-  <div class="modal-body">
+<div mat-dialog-content [inert]="loading">
+  <form (ngSubmit)="submit()" [formGroup]="form">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <mat-form-field>
+          <mat-label>Importe</mat-label>
+          <input matInput [value]="data.bill.total | currency" readonly style="text-align: right;">
+        </mat-form-field>
 
-    <form (ngSubmit)="submit()" [formGroup]="form">
-      <div class="row">
-        <div class="col-6">
-          <div class="form-group row">
-            <label class="col-form-label col-auto">Importe</label>
-            <div class="col">
-              <input class="form-control text-right" [value]="data.bill.total | currency" readonly>
-            </div>
-          </div>
+        <mat-form-field>
+          <mat-label>Descuento</mat-label>
+          <input matInput [value]="(data.bill.descuentos || 0) | currency" readonly style="text-align: right;">
+        </mat-form-field>
 
-          <div class="form-group row">
-            <label class="col-form-label col-auto">Descuento</label>
-            <div class="col">
-              <input class="form-control text-right" [value]="(data.bill.descuentos || 0) | currency" readonly>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-form-label col-auto">Propina</label>
-            <div class="col">
-              <input class="form-control text-right" [formControl]="form.controls.tips" currencyMask appCursorEnd
-                [class.is-invalid]="form.controls.tips.touched && form.controls.tips.invalid">
-              <div class="invalid-feedback">
-                Debe ser igual o mayor a 0
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-form-label col-auto">Total</label>
-            <div class="col">
-              <input class="form-control text-right" [value]="form.controls.total.value | currency" readonly>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-form-label col-auto">Pago</label>
-            <div class="col">
-              <input class="form-control text-right" [value]="form.controls.payment.value | currency" readonly>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <label class="col-form-label col-auto">Cambio</label>
-            <div class="col">
-              <input class="form-control text-right" [value]="form.controls.change.value | currency" readonly>
-            </div>
-          </div>
-
-          {{ form.errors | json }}
-        </div>
-
-        <div class="col-6">
-          @for (option of paymentOptions; track option.idpvFormaPago) {
-          @let control = form.controls.payments.controls['' + option.idpvFormaPago];
-          <div class="form-group row">
-            <label class="col-form-label col-auto">{{ option.nombre }}</label>
-            <div class="col">
-              <div class="input-group">
-                <input class="form-control text-right" [formControl]="control" currencyMask appCursorEnd
-                  [class.is-invalid]="control.touched && control.invalid">
-                <div class="input-group-append">
-                  <button type="button" class="btn btn-secondary mdi mdi-minus" [disabled]="control.disabled"
-                    (click)="complete(control)">
-                  </button>
-                </div>
-              </div>
-              <div class="invalid-feedback">
-                La cantidad debe ser igual o mayor a 0
-              </div>
-            </div>
-          </div>
+        <mat-form-field>
+          <mat-label>Propina</mat-label>
+          <input matInput [formControl]="form.controls.tips" currencyMask appCursorEnd style="text-align: right;">
+          @if (form.controls.tips.touched && form.controls.tips.invalid) {
+            <mat-error>Debe ser igual o mayor a 0</mat-error>
           }
+        </mat-form-field>
 
-        </div>
+        <mat-form-field>
+          <mat-label>Total</mat-label>
+          <input matInput [value]="form.controls.total.value | currency" readonly style="text-align: right;">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Pago</mat-label>
+          <input matInput [value]="form.controls.payment.value | currency" readonly style="text-align: right;">
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Cambio</mat-label>
+          <input matInput [value]="form.controls.change.value | currency" readonly style="text-align: right;">
+        </mat-form-field>
+
+        {{ form.errors | json }}
       </div>
-    </form>
 
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">
-      Cancelar
-    </button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-      <span class="spinner-border spinner-border-sm"></span>
-      }
-      Cobrar
-    </button>
-  </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        @for (option of paymentOptions; track option.idpvFormaPago) {
+          @let control = form.controls.payments.controls['' + option.idpvFormaPago];
+          <mat-form-field>
+            <mat-label>{{ option.nombre }}</mat-label>
+            <input matInput [formControl]="control" currencyMask appCursorEnd style="text-align: right;">
+            <button mat-icon-button matSuffix type="button" [disabled]="control.disabled" (click)="complete(control)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            @if (control.touched && control.invalid) {
+              <mat-error>La cantidad debe ser igual o mayor a 0</mat-error>
+            }
+          </mat-form-field>
+        }
+      </div>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">
+    Cancelar
+  </button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Cobrar
+  </button>
 </div>

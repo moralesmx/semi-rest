@@ -1,10 +1,15 @@
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularDraggableModule } from 'angular2-draggable';
 import { Subject, timer } from 'rxjs';
@@ -24,13 +29,17 @@ import { NewBillModalComponent } from './new-bill/new-bill.component';
 @Component({
   standalone: true,
   imports: [
-    NgClass,
     CurrencyPipe,
     FormsModule,
     MatDialogModule,
     MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
+    MatListModule,
+    MatTabsModule,
     AngularDraggableModule,
     SearchPipe,
     HasPipe
@@ -70,6 +79,10 @@ export class AreaComponent implements OnDestroy {
   public ngOnDestroy(): void {
     this.destroyed.next();
     this.destroyed.complete();
+  }
+
+  public onTabChange(index: number): void {
+    this.activeSection = this.area.secciones[index];
   }
 
   public update(): void {

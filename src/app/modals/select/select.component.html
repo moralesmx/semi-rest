@@ -1,26 +1,22 @@
-<div class="modal-content">
-  @if (data.title) {
-    <div class="modal-header">
-      <h5 class="modal-title">{{ data.title }}</h5>
-    </div>
-  }
+@if (data.title) {
+  <h2 mat-dialog-title>{{ data.title }}</h2>
+}
+<div mat-dialog-content>
   @if (data.message) {
-    <div class="modal-body">
-      <p>{{ data.message }}</p>
-    </div>
+    <p>{{ data.message }}</p>
   }
-  <div class="modal-body">
+  <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
     @for (option of data.options | keyvalue; track option.key) {
-      <button type="button" class="btn btn-primary btn-block" (click)="submit(option.key)">
+      <button mat-flat-button color="primary" (click)="submit(option.key)" style="width: 100%;">
         {{ option.value }}
       </button>
     }
   </div>
-  @if (data.cancel) {
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary btn-block" (click)="cancel()">
-        {{ data.cancel }}
-      </button>
-    </div>
-  }
 </div>
+@if (data.cancel) {
+  <div mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">
+      {{ data.cancel }}
+    </button>
+  </div>
+}

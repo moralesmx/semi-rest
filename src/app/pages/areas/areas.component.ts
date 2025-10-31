@@ -1,6 +1,6 @@
-import { NgClass } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -15,9 +15,9 @@ import { OpenAreaModalComponent } from './open-area/open-area.component';
 @Component({
   standalone: true,
   imports: [
-    NgClass,
     MatDialogModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule
   ],
   templateUrl: './areas.component.html',
 })

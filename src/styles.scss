@@ -1,62 +1,24 @@
-@use '@angular/material' as mat;
-@use 'bootstrap/scss/bootstrap' with (
-  $enable-shadows: true,
-  $enable-validation-icons: false
+@use '@mdi/font/scss/materialdesignicons' with (
+  $mdi-font-path: "@mdi/font/fonts"
 );
-@use './styles/mdi';
 
-@include mat.core();
+@use '@angular/material' as mat;
 
-$my-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
-$my-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
-$my-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $my-primary,
-    accent: $my-accent,
-  )
-));
-
-@include mat.all-component-themes($my-theme);
-
-.mat-dialog-container {
-  height: unset !important;
-}
-
-.modal-content {
-  border: none;
-  height: 100%;
-}
-
-.modal-body {
-  overflow: auto;
-}
-
-.form-group {
-  position: relative;
-}
-
-.form-text,
-.invalid-feedback,
-.valid-feedback {
-  position: absolute;
-}
-
-.form-text {
-  @extend .small;
-  @extend .text-muted;
-}
-
-.form-control {
-
-  &.is-invalid,
-  &.is-valid {
-    &~.form-text {
-      display: none;
-    }
-  }
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: mat.$violet-palette,
+    typography: Roboto,
+    density: 0
+  ));
 }
 
 html,
 body {
   height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }

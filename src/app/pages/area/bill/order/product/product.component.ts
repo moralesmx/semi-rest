@@ -1,13 +1,16 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { combineLatest, firstValueFrom, forkJoin, Subject } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
@@ -24,13 +27,15 @@ type ProductModalReturn = Order | undefined;
 @Component({
   standalone: true,
   imports: [
-    NgClass,
     CurrencyPipe,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
     MatCheckboxModule,
     MatListModule,

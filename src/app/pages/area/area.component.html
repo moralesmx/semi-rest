@@ -1,112 +1,107 @@
-<div class="container-fluid py-3 h-100" [inert]="loading">
+<div style="padding: 16px; height: 100%;" [inert]="loading">
 
   @if (area) {
-    <div class="row h-100">
-      <div class="col-3">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title d-flex flex-row justify-content-between align-items-start">
-              <h5>
+    <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 16px; height: 100%;">
+      <div>
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+              <h5 style="margin: 0;">
                 {{ showClosed ? 'Cuentas cerradas': 'Cuentas activas'}}
               </h5>
-              <button type="button" class="btn btn-outline-info btn-sm mdi mdi-card-bulleted"
-                (click)="showClosed = !showClosed"></button>
-            </div>
-            <div class="input-group">
-              <input class="form-control" placeholder="Buscar" [(ngModel)]="search">
-              <div class="input-group-append">
-                <span class="input-group-text mdi mdi-magnify"></span>
-              </div>
-            </div>
-          </div>
-          <ul class="list-group list-group-flush">
-            @if (!showClosed) {
-              @for (table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]; track table.idpvAreasMesas) {
-                <li class="list-group-item list-group-item-action d-flex flex-row" (click)="order(table)">
-                  <span style="flex-grow: 1">
-                    <strong>{{ table.clave }}</strong> {{ table.mesero }}
-                  </span>
-                  @if (table.habitacion) {
-                    <span>
-                      <span class="badge badge-success badge-pill">{{ table.habitacion }}</span>
+              <button mat-icon-button (click)="showClosed = !showClosed">
+                <mat-icon>credit_card</mat-icon>
+              </button>
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field style="width: 100%;">
+              <mat-label>Buscar</mat-label>
+              <input matInput [(ngModel)]="search">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-nav-list>
+              @if (!showClosed) {
+                @for (table of activeSection?.mesas | has : 'idpvVentas' | search : [['clave', search]] : [['mesero', search]]; track table.idpvAreasMesas) {
+                  <mat-list-item (click)="order(table)" style="cursor: pointer;">
+                    <span style="flex-grow: 1;">
+                      <strong>{{ table.clave }}</strong> {{ table.mesero }}
                     </span>
-                  }
-                  <span>
-                    <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
-                  </span>
-                </li>
+                    @if (table.habitacion) {
+                      <mat-chip style="margin: 0 4px;">{{ table.habitacion }}</mat-chip>
+                    }
+                    <mat-chip highlighted style="margin: 0 4px;">{{ table.total | currency }}</mat-chip>
+                  </mat-list-item>
+                }
               }
-            }
-            @if (showClosed) {
-              @for (table of closed | search : [['mesero', search]]; track table.idpvAreasMesas) {
-                <li class="list-group-item list-group-item-action d-flex flex-row" (click)="closedOptions(table)">
-                  <span style="flex-grow: 1">
-                    <strong>{{ table.clave }}</strong> {{ table.mesero }}
-                  </span>
-                  <span>
-                    <span class="badge badge-success badge-pill">{{ table.area }}</span>
-                  </span>
-                  <span>
-                    <span class="badge badge-primary badge-pill">{{ table.total | currency }}</span>
-                  </span>
-                </li>
+              @if (showClosed) {
+                @for (table of closed | search : [['mesero', search]]; track table.idpvAreasMesas) {
+                  <mat-list-item (click)="closedOptions(table)" style="cursor: pointer;">
+                    <span style="flex-grow: 1;">
+                      <strong>{{ table.clave }}</strong> {{ table.mesero }}
+                    </span>
+                    <mat-chip style="margin: 0 4px;">{{ table.area }}</mat-chip>
+                    <mat-chip highlighted style="margin: 0 4px;">{{ table.total | currency }}</mat-chip>
+                  </mat-list-item>
+                }
               }
-            }
-          </ul>
-        </div>
+            </mat-nav-list>
+          </mat-card-content>
+        </mat-card>
       </div>
 
-    <div class="col-9">
+    <div>
 
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
             Mesas
-          </h5>
-          <ul class="nav nav-tabs nav-fill card-header-tabs">
-            @for (section of area.secciones; track section.idpvSecciones) {
-              <li class="nav-item" (click)="activeSection = section">
-                <span class="nav-link" [class.active]="activeSection == section">
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content style="padding: 0;">
+          <mat-tab-group (selectedIndexChange)="onTabChange($event)">
+            @for (section of area.secciones; track section.idpvSecciones; let i = $index) {
+              <mat-tab>
+                <ng-template mat-tab-label>
                   {{ section.nombre }}
-                  <span class="badge badge-primary badge-pill">{{ (section.mesas | has : 'idpvVentas').length }}</span>
-                </span>
-              </li>
+                  <mat-chip highlighted style="margin-left: 8px;">{{ (section.mesas | has : 'idpvVentas').length }}</mat-chip>
+                </ng-template>
+                <div style="position: relative; width: 100%; padding-top: 56.25%;">
+                  @if (activeSection) {
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" #box>
+                      @for (table of activeSection.mesas; track table.idpvAreasMesas) {
+                        <div style="position: absolute; padding: 4px;" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box"
+                          [inBounds]="true" [preventDefaultEvent]="true"
+                          [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
+                          [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
+                          [style.height.px]="box.clientWidth / activeSection.proporcion"
+                          [style.width.px]="box.clientWidth / activeSection.proporcion"
+                          (endOffset)="table.coordX = $event.x * 100 / box.clientWidth; table.coordY = $event.y * 100 / box.clientWidth">
+                          <button [matButton]="table.idpvVentas ? 'filled' : 'tonal'"
+                            style="width: 100%; height: 100%;" (click)="selectTable(table)">
+                            {{ table.clave }}
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </mat-tab>
             }
-          </ul>
-        </div>
-        <div class="card-body p-1">
-          <div class=" embed-responsive embed-responsive-16by9">
-            @if (activeSection) {
-              <div class="embed-responsive-item" #box>
-                @for (table of activeSection.mesas; track table.idpvAreasMesas) {
-                  <div class="position-absolute p-1" [ngDraggable]="auth?.user?.permisos?.edit" [bounds]="box"
-                    [inBounds]="true" [preventDefaultEvent]="true"
-                    [gridSize]="box.clientWidth / (activeSection.proporcion * 2)"
-                    [position]="{ x: table.coordX / 100 * box.clientWidth, y: table.coordY / 100 * box.clientWidth }"
-                    [style.height.px]="box.clientWidth / activeSection.proporcion"
-                    [style.width.px]="box.clientWidth / activeSection.proporcion"
-                    (endOffset)="table.coordX = $event.x * 100 / box.clientWidth; table.coordY = $event.y * 100 / box.clientWidth">
-                    <button type="button" class="btn w-100 h-100"
-                      [ngClass]="table.idpvVentas ? 'btn-primary' : 'btn-secondary'" (click)="selectTable(table)">
-                      {{ table.clave }}
-                    </button>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
+          </mat-tab-group>
+        </mat-card-content>
         @if (auth?.user?.permisos?.edit) {
-          <div class="card-footer">
-            <button class="btn btn-primary" (click)="updateArea()">Guardar</button>
-            <button class="btn btn-primary" (click)="addTable()">Agregar mesa</button>
-            <button class="btn btn-primary" (click)="addSection()">Agregar seccion</button>
+          <mat-card-actions>
+            <button mat-flat-button color="primary" (click)="updateArea()">Guardar</button>
+            <button mat-flat-button color="primary" (click)="addTable()">Agregar mesa</button>
+            <button mat-flat-button color="primary" (click)="addSection()">Agregar seccion</button>
             @if (activeSection) {
               <input type="range" min="10" max="30" step="1" [(ngModel)]="activeSection.proporcion">
             }
-          </div>
+          </mat-card-actions>
         }
-      </div>
+      </mat-card>
     </div>
     </div>
   }

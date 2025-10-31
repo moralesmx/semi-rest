@@ -1,15 +1,10 @@
 
 
-<div class="h-100 d-flex flex-column">
-  <nav class="navbar navbar-dark bg-primary shadow-sm">
-    <a class="navbar-brand" [routerLink]="'/areas'" routerLinkActive="router-link-active" >POS</a>
-
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active" >
-        <a class="nav-link" [routerLink]="'/areas'">Area</a>
-      </li>
-    </ul>
-  </nav>
+<div style="height: 100%; display: flex; flex-direction: column;">
+  <mat-toolbar color="primary">
+    <a [routerLink]="'/areas'" routerLinkActive="router-link-active" style="color: inherit; text-decoration: none; font-weight: 500; margin-right: 24px;">POS</a>
+    <a [routerLink]="'/areas'" routerLinkActive="active" style="color: inherit; text-decoration: none;">Area</a>
+  </mat-toolbar>
   <main style="flex-grow: 1">
     <router-outlet></router-outlet>
   </main>

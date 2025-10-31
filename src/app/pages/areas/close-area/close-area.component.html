@@ -1,49 +1,42 @@
-<div class="modal-content" [inert]="loading">
-  <div class="modal-header">
-    <h5 class="modal-title">Cerrar Caja - {{ data.area.nombre }}</h5>
-  </div>
-  <div class="modal-body">
+<h2 mat-dialog-title>Cerrar Caja - {{ data.area.nombre }}</h2>
 
-    @for (option of paymentOptions; track option.idpvFormaPago) {
-    @let control = form.controls[option.idpvFormaPago];
-    <div class="form-group row">
-      <label class="col-form-label col-auto">{{ option.nombre }}</label>
-      <div class="col">
-        <div class="input-group">
-          <input class="form-control text-right" [formControl]="control" currencyMask appCursorEnd
-            [class.is-invalid]="control.touched && control.invalid">
-          <div class="input-group-append">
-          </div>
-        </div>
-        <div class="invalid-feedback">
-          {{
-          control.errors && (
-          (control.errors['required'] && 'Campo obligatorio.') ||
-          (control.errors['min'] && 'Debe ser mayor o igual a 0.')
-          )
-          }}
-        </div>
-      </div>
-    </div>
-    }
-
-    @if (error) {
-    <div class="alert alert-danger alert-dismissible">
-      {{ error }}
-      <button type="button" class="close" (click)="error = undefined">
-        <span>&times;</span>
-      </button>
-    </div>
-    }
-
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
-    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="form.disabled">
-      @if (form.disabled) {
-      <span class="spinner-border spinner-border-sm"></span>
+<div mat-dialog-content [inert]="loading">
+  <form [formGroup]="form">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      @for (option of paymentOptions; track option.idpvFormaPago) {
+        @let control = form.controls[option.idpvFormaPago];
+        <mat-form-field style="width: 100%;">
+          <mat-label>{{ option.nombre }}</mat-label>
+          <input matInput [formControl]="control" currencyMask appCursorEnd style="text-align: right;">
+          @if (control.touched && control.errors) {
+            <mat-error>
+              {{
+                (control.errors['required'] && 'Campo obligatorio.') ||
+                (control.errors['min'] && 'Debe ser mayor o igual a 0.')
+              }}
+            </mat-error>
+          }
+        </mat-form-field>
       }
-      Cerrar caja
-    </button>
-  </div>
+
+      @if (error) {
+        <div style="padding: 12px; background-color: #f44336; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+          <span>{{ error }}</span>
+          <button mat-icon-button (click)="error = undefined" style="color: white;">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end" [inert]="loading">
+  <button mat-button (click)="cancel()" [disabled]="form.disabled">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.disabled">
+    @if (form.disabled) {
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    }
+    Cerrar caja
+  </button>
 </div>
